@@ -1,0 +1,12 @@
+playwright
+playwright-stealth
+firecrawl-py
+openai
+gspread
+google-auth
+python-slugify
+python-dotenv
+google-search-results
+requests
+pytest
+pytest-asyncio
