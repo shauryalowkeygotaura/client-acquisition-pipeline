@@ -1,7 +1,6 @@
 import asyncio
 import random
 import re
-import time
 from urllib.parse import quote_plus, urlparse
 
 from playwright.async_api import async_playwright
@@ -109,7 +108,7 @@ async def scrape_city(city: str) -> list[dict]:
                     jobs.append(job)
 
                     delay = random.uniform(INDEED_DELAY_MIN, INDEED_DELAY_MAX)
-                    time.sleep(delay)
+                    await asyncio.sleep(delay)
 
                 except Exception:
                     continue
