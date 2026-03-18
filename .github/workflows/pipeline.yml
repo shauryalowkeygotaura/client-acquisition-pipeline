@@ -1,5 +1,6 @@
 name: Daily Client Acquisition Pipeline
 
+
 on:
   schedule:
     - cron: '0 14 * * *'
