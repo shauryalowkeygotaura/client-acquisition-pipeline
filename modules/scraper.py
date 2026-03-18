@@ -47,6 +47,9 @@ def search_city(city: str) -> list[dict]:
     search = GoogleSearch(params)
     results = search.get_dict()
     raw_jobs = results.get("jobs_results", [])
+    print(f"    [DEBUG] SerpAPI returned {len(raw_jobs)} raw jobs for {city}")
+    for j in raw_jobs[:3]:
+        print(f"    [DEBUG] sample: {j.get('company_name')} | extensions: {j.get('extensions', [])}")
 
     jobs = []
     for j in raw_jobs:
