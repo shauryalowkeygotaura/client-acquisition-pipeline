@@ -36,9 +36,11 @@ def search_city(city: str) -> list[dict]:
     """Query SerpAPI Indeed engine for urgent receptionist jobs in one city."""
     params = {
         "engine": "indeed",
-        "q": "receptionist",
+        "q": "receptionist urgently hiring",
         "l": city,
-        "chips": "date_posted:today",
+        "sort": "date",
+        "from_age": "3",
+        "limit": "20",
         "api_key": os.environ["SERPAPI_KEY"],
     }
 
