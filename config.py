@@ -7,7 +7,7 @@ CITIES = [
     "Chicago, IL",
 ]
 
-OPENROUTER_MODEL = os.getenv("OPENROUTER_MODEL", "google/gemini-2.0-flash-exp:free")
+OPENROUTER_MODEL = os.getenv("OPENROUTER_MODEL", "google/gemini-2.5-flash-preview:free")
 OPENROUTER_BASE_URL = "https://openrouter.ai/api/v1"
 
 LINKEDIN_DAILY_LIMIT = 15
