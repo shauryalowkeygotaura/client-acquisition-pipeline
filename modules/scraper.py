@@ -35,34 +35,28 @@ def extract_website_from_text(text: str) -> str | None:
 def search_city(city: str) -> list[dict]:
     """Query SerpAPI Indeed engine for urgent receptionist jobs in one city."""
     params = {
-        "engine": "indeed",
-        "q": "receptionist urgently hiring",
-        "l": city,
-        "sort": "date",
-        "from_age": "3",
-        "limit": "20",
+        "engine": "google_jobs",
+        "q": f"receptionist urgently hiring {city}",
+        "chips": "date_posted:today",
         "api_key": os.environ["SERPAPI_KEY"],
     }
 
     search = GoogleSearch(params)
     results = search.get_dict()
     raw_jobs = results.get("jobs_results", [])
-    print(f"    [DEBUG] SerpAPI keys: {list(results.keys())}")
-    print(f"    [DEBUG] error: {results.get('error')}")
-    print(f"    [DEBUG] raw jobs: {len(raw_jobs)} for {city}")
-    for j in raw_jobs[:3]:
-        print(f"    [DEBUG] sample: {j.get('company_name')} | extensions: {j.get('extensions', [])}")
+    print(f"    [DEBUG] Google Jobs returned {len(raw_jobs)} raw jobs for {city}")
 
     jobs = []
     for j in raw_jobs:
-        extensions = j.get("extensions", [])
-        # Only keep urgently hiring
-        if not any("urgent" in e.lower() for e in extensions):
+        extensions = j.get("detected_extensions", {})
+        # only keep jobs posted within last 3 days
+        posted = extensions.get("posted_at", "")
+        if not any(x in posted.lower() for x in ["hour", "day", "today", "1 day", "2 day", "3 day"]):
             continue
 
         description = j.get("description", "")
         website = extract_website_from_text(description)
-        company_name = j.get("company_name", "").strip()
+        company_name = (j.get("company_name") or "").strip()
 
         if not company_name:
             continue
