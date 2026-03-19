@@ -33,33 +33,44 @@ def extract_website_from_text(text: str) -> str | None:
 
 
 def search_city(city: str) -> list[dict]:
-    """Query SerpAPI Indeed engine (with co=IN) for receptionist jobs. Fallback to google_jobs if 0."""
+    """Query SerpAPI Indeed engine (with co=in) for receptionist jobs. Robust key fallback."""
     # 1. Try Indeed
     params = {
         "engine": "indeed",
-        "q": "receptionist OR \"front office\" OR \"front desk\"",
+        "q": "receptionist",
         "l": city,
-        "co": "IN", # Target India
-        "from_age": "14", # Increase to last 14 days for volume
+        "co": "in", # Target Indeed India specifically
+        "from_age": "14", # Increase to last 14 days
         "limit": "30",
         "api_key": os.environ["SERPAPI_KEY"],
     }
 
+    raw_jobs = []
     try:
         search = GoogleSearch(params)
         results = search.get_dict()
-        raw_jobs = results.get("jobs_results", [])
+        
+        # Robust key detection
+        if "jobs_results" in results:
+            raw_jobs = results["jobs_results"]
+        elif "organic_results" in results:
+            raw_jobs = results["organic_results"]
+        elif "results" in results:
+            raw_jobs = results["results"]
+            
+        print(f"    [DEBUG] Indeed response keys: {list(results.keys())}")
         print(f"    [DEBUG] Indeed returned {len(raw_jobs)} raw jobs for {city}")
     except Exception as e:
         print(f"    [ERROR] Indeed search failed: {e}")
-        raw_jobs = []
 
-    # 2. Fallback to Google Jobs if Indeed fails to find any
+    # 2. Fallback to Google Jobs if Indeed is empty
     if not raw_jobs:
-        print(f"    [DEBUG] Indeed yielded 0. Falling back to Google Jobs for {city}")
+        print(f"    [DEBUG] Indeed yielded 0. Trying Google Jobs for {city}...")
         g_params = {
             "engine": "google_jobs",
             "q": f"receptionist jobs in {city}",
+            "gl": "in",
+            "hl": "en",
             "api_key": os.environ["SERPAPI_KEY"],
         }
         try:
@@ -72,28 +83,26 @@ def search_city(city: str) -> list[dict]:
 
     jobs = []
     for j in raw_jobs:
-        company_name = (j.get("company_name") or "").strip()
+        company_name = (j.get("company_name") or j.get("company") or "").strip()
         if not company_name:
             continue
 
-        # Relaxed filter: If it's a receptionist job, we take it.
-        # The AI will filter for "urgently hiring" context in the description later if needed.
-        # But for now, we want VOLUME.
-        description = j.get("description", "") # Ensure description is defined
+        description = j.get("description") or j.get("snippet") or ""
         website = extract_website_from_text(description)
 
         jobs.append({
             "company_name": company_name,
-            "job_title": j.get("title", "Receptionist").strip(),
-            "location": j.get("location", city).strip(),
+            "job_title": (j.get("title") or j.get("job_title") or "Receptionist").strip(),
+            "location": (j.get("location") or city).strip(),
             "company_website": website,
             "poster_name": None,
             "date_posted": "recent",
             "job_description_text": description[:2000],
-            "slug": parse_slug(company_name) or slugify(company_name),
+            "slug": parse_slug(company_name),
             "domain": parse_domain(website),
         })
 
+    return jobs
     return jobs
 
 
