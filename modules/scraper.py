@@ -33,20 +33,42 @@ def extract_website_from_text(text: str) -> str | None:
 
 
 def search_city(city: str) -> list[dict]:
-    """Query SerpAPI Indeed engine for urgent receptionist jobs in one city."""
+    """Query SerpAPI Indeed engine (with co=IN) for receptionist jobs. Fallback to google_jobs if 0."""
+    # 1. Try Indeed
     params = {
         "engine": "indeed",
-        "q": "receptionist",
+        "q": "receptionist OR \"front office\" OR \"front desk\"",
         "l": city,
-        "from_age": "7",  # Broadened to last 7 days
+        "co": "IN", # Target India
+        "from_age": "14", # Increase to last 14 days for volume
         "limit": "30",
         "api_key": os.environ["SERPAPI_KEY"],
     }
 
-    search = GoogleSearch(params)
-    results = search.get_dict()
-    raw_jobs = results.get("jobs_results", [])
-    print(f"    [DEBUG] Indeed returned {len(raw_jobs)} raw jobs for {city}")
+    try:
+        search = GoogleSearch(params)
+        results = search.get_dict()
+        raw_jobs = results.get("jobs_results", [])
+        print(f"    [DEBUG] Indeed returned {len(raw_jobs)} raw jobs for {city}")
+    except Exception as e:
+        print(f"    [ERROR] Indeed search failed: {e}")
+        raw_jobs = []
+
+    # 2. Fallback to Google Jobs if Indeed fails to find any
+    if not raw_jobs:
+        print(f"    [DEBUG] Indeed yielded 0. Falling back to Google Jobs for {city}")
+        g_params = {
+            "engine": "google_jobs",
+            "q": f"receptionist jobs in {city}",
+            "api_key": os.environ["SERPAPI_KEY"],
+        }
+        try:
+            g_search = GoogleSearch(g_params)
+            g_results = g_search.get_dict()
+            raw_jobs = g_results.get("jobs_results", [])
+            print(f"    [DEBUG] Google Jobs fallback returned {len(raw_jobs)} raw jobs for {city}")
+        except Exception as e:
+            print(f"    [ERROR] Google Jobs fallback failed: {e}")
 
     jobs = []
     for j in raw_jobs:

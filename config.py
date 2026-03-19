@@ -2,12 +2,12 @@
 import os
 
 CITIES = [
-    "Jaipur",
-    "Delhi",
-    "Bangalore",
-    "Mumbai",
-    "Hyderabad",
-    "Pune",
+    "Jaipur, Rajasthan",
+    "Delhi, Delhi",
+    "Bangalore, Karnataka",
+    "Mumbai, Maharashtra",
+    "Hyderabad, Telangana",
+    "Pune, Maharashtra",
 ]
 
 LLM_MODEL = os.getenv("LLM_MODEL", "llama-3.1-8b-instant")
