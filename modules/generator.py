@@ -4,9 +4,9 @@ import re
 
 from openai import OpenAI
 
-from config import OPENROUTER_MODEL, OPENROUTER_BASE_URL
+from config import LLM_MODEL, LLM_BASE_URL
 
-OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
+LLM_API_KEY = os.getenv("GROQ_API_KEY")
 
 REQUIRED_FIELDS = {"vapi_prompt", "email_subject", "email_body", "linkedin_msg"}
 
@@ -73,14 +73,14 @@ def parse_output(raw: str) -> dict:
 
 def generate(data: dict) -> dict:
     client = OpenAI(
-        api_key=OPENROUTER_API_KEY,
-        base_url=OPENROUTER_BASE_URL,
+        api_key=LLM_API_KEY,
+        base_url=LLM_BASE_URL,
     )
 
     prompt = build_prompt(data)
 
     response = client.chat.completions.create(
-        model=OPENROUTER_MODEL,
+        model=LLM_MODEL,
         messages=[{"role": "user", "content": prompt}],
         temperature=0.7,
     )
