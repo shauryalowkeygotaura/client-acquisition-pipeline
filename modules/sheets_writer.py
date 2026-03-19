@@ -84,6 +84,8 @@ def save(data: dict, existing: list[dict] | None = None) -> bool:
 
     sheet = get_sheet("leads")
     row = build_row(data)
+    # Ensure all elements are strings to prevent 400 APIError with structured values
+    row = [str(val) if val is not None else "" for val in row]
     sheet.append_row(row)
     return True
 

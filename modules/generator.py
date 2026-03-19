@@ -35,7 +35,7 @@ Generate a JSON object with exactly these four fields:
 1. "vapi_prompt" — A high-conversion system prompt for a Vapi.ai voice receptionist. 
    - Persona: Professional, efficient, and helpful.
    - Task: Greet callers, answer specific FAQs about {company} services/hours, book appointments via Cal.com/Calendly link (placeholder), and capture lead info.
-   - Format: Use a structured "Knowledge Base" section and "Interaction Rules" within the prompt.
+   - Format: Return a SINGLE PLAIN TEXT STRING. Use clear headings and bullet points within the string. Do NOT return a nested JSON object or list.
 
 2. "email_subject" — Compelling subject line focusing on missed revenue. 
    Example: "Fixing {company}'s missed calls (Revenue Growth)"

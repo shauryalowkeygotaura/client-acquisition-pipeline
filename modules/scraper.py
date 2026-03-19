@@ -54,14 +54,10 @@ def search_city(city: str) -> list[dict]:
         if not company_name:
             continue
 
-        # Look for 'urgently hiring' or similar in extensions/description
-        extensions = j.get("extensions", [])
-        is_urgent = any("urgent" in e.lower() for e in extensions)
-        
-        description = j.get("description", "")
-        if not is_urgent and "urgent" not in description.lower():
-            continue
-
+        # Relaxed filter: If it's a receptionist job, we take it.
+        # The AI will filter for "urgently hiring" context in the description later if needed.
+        # But for now, we want VOLUME.
+        description = j.get("description", "") # Ensure description is defined
         website = extract_website_from_text(description)
 
         jobs.append({
