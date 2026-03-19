@@ -25,7 +25,25 @@ def get_sheet(tab: str = "leads"):
 
 def get_all_leads() -> list[dict]:
     sheet = get_sheet("leads")
-    return sheet.get_all_records()
+    values = sheet.get_all_values()
+    if not values:
+        return []
+    
+    # Use our known HEADERS for mapping
+    # Note: Sheet might have more/fewer columns, we map what we can
+    sheet_headers = values[0]
+    data_rows = values[1:]
+    
+    leads = []
+    for row in data_rows:
+        lead = {}
+        for idx, header in enumerate(HEADERS):
+            if idx < len(row):
+                lead[header] = row[idx]
+            else:
+                lead[header] = ""
+        leads.append(lead)
+    return leads
 
 
 def domain_exists(domain: str, existing: list[dict]) -> bool:
@@ -72,11 +90,16 @@ def save(data: dict, existing: list[dict] | None = None) -> bool:
 
 def update_field(slug: str, field: str, value: str):
     sheet = get_sheet("leads")
-    records = sheet.get_all_records()
-    for i, row in enumerate(records, start=2):
-        if row.get("slug") == slug:
+    values = sheet.get_all_values()
+    if not values:
+        raise ValueError("Sheet is empty")
+        
+    # Find slug in the first column (slug)
+    for i, row in enumerate(values):
+        if i == 0: continue # Skip header
+        if row and row[0] == slug:
             col = HEADERS.index(field) + 1
-            sheet.update_cell(i, col, value)
+            sheet.update_cell(i + 1, col, value)
             return
     raise ValueError(f"Slug not found: {slug}")
 
