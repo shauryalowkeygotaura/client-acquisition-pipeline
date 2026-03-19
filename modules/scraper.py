@@ -35,31 +35,34 @@ def extract_website_from_text(text: str) -> str | None:
 def search_city(city: str) -> list[dict]:
     """Query SerpAPI Indeed engine for urgent receptionist jobs in one city."""
     params = {
-        "engine": "google_jobs",
-        "q": f"receptionist urgently hiring {city}",
-        "chips": "date_posted:today",
+        "engine": "indeed",
+        "q": "receptionist",
+        "l": city,
+        "from_age": "7",  # Broadened to last 7 days
+        "limit": "30",
         "api_key": os.environ["SERPAPI_KEY"],
     }
 
     search = GoogleSearch(params)
     results = search.get_dict()
     raw_jobs = results.get("jobs_results", [])
-    print(f"    [DEBUG] Google Jobs returned {len(raw_jobs)} raw jobs for {city}")
+    print(f"    [DEBUG] Indeed returned {len(raw_jobs)} raw jobs for {city}")
 
     jobs = []
     for j in raw_jobs:
-        extensions = j.get("detected_extensions", {})
-        # only keep jobs posted within last 3 days
-        posted = extensions.get("posted_at", "")
-        if not any(x in posted.lower() for x in ["hour", "day", "today", "1 day", "2 day", "3 day"]):
-            continue
-
-        description = j.get("description", "")
-        website = extract_website_from_text(description)
         company_name = (j.get("company_name") or "").strip()
-
         if not company_name:
             continue
+
+        # Look for 'urgently hiring' or similar in extensions/description
+        extensions = j.get("extensions", [])
+        is_urgent = any("urgent" in e.lower() for e in extensions)
+        
+        description = j.get("description", "")
+        if not is_urgent and "urgent" not in description.lower():
+            continue
+
+        website = extract_website_from_text(description)
 
         jobs.append({
             "company_name": company_name,
@@ -67,9 +70,9 @@ def search_city(city: str) -> list[dict]:
             "location": j.get("location", city).strip(),
             "company_website": website,
             "poster_name": None,
-            "date_posted": "today",
+            "date_posted": "recent",
             "job_description_text": description[:2000],
-            "slug": parse_slug(company_name),
+            "slug": parse_slug(company_name) or slugify(company_name),
             "domain": parse_domain(website),
         })
 

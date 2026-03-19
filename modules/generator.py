@@ -24,34 +24,33 @@ def build_prompt(data: dict) -> str:
     address = data.get("address", "")
 
     return f"""
-You are writing outreach for Shaurya, who builds AI voice agents for businesses.
+You are Shaurya, a Revenue Growth Engineer specialized in voice AI automation.
 
 Company: {company}
-Contact name: {contact}
-Address: {address}
-Services: {services}
-Hours: {hours}
-Additional info: {details[:1500]}
+Contact: {contact}
+Details: {details[:1500]}
 
 Generate a JSON object with exactly these four fields:
 
-1. "vapi_prompt" — A system prompt for an AI voice receptionist for {company}.
-   It should greet callers, answer FAQs about their services/hours, book appointments, and take messages.
-   Be specific to this company using the info above.
+1. "vapi_prompt" — A high-conversion system prompt for a Vapi.ai voice receptionist. 
+   - Persona: Professional, efficient, and helpful.
+   - Task: Greet callers, answer specific FAQs about {company} services/hours, book appointments via Cal.com/Calendly link (placeholder), and capture lead info.
+   - Format: Use a structured "Knowledge Base" section and "Interaction Rules" within the prompt.
 
-2. "email_subject" — Subject line: "I built an AI receptionist for {company}"
+2. "email_subject" — Compelling subject line focusing on missed revenue. 
+   Example: "Fixing {company}'s missed calls (Revenue Growth)"
 
-3. "email_body" — Personalized email from Shaurya:
-   - Mention {company} is urgently hiring a receptionist
-   - Say he built an AI voice agent trained on {company}
-   - List 3 key features: answers FAQs, automatically books appointments, updates their CRM
-   - Offer to train it on whatever data they want to give him
-   - Keep it under 80 words, casual and direct
-   - Sign off as "Shaurya"
+3. "email_body" — Personalized outreach:
+   - Mention they are hiring a receptionist at {company}.
+   - Frame the AI agent as a "Revenue Protection" tool that handles the load while they find the right human hire.
+   - List 3 technical benefits: 24/7 coverage, instant CRM sync, and automated scheduling.
+   - Casual but authoritative tone. Keep under 75 words.
+   - Sign off: "Shaurya | Revenue Growth Engineer"
 
-4. "linkedin_msg" — Shorter LinkedIn version (under 50 words), same key points, casual tone.
+4. "linkedin_msg" — Pattern-interrupt LinkedIn DM (under 40 words). 
+   - High impact, low friction. Offer to send a demo link of the custom agent you built for {company}.
 
-Return ONLY the JSON object. No markdown, no explanation.
+Return ONLY the JSON.
 """.strip()
 
 
