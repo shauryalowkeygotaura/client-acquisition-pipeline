@@ -1,9 +1,17 @@
+import logging
 import os
 import re
+import sys
 from urllib.parse import urlparse
 
 from serpapi import GoogleSearch
 from slugify import slugify
+
+log = logging.getLogger(__name__)
+
+SERPAPI_KEY = os.environ.get("SERPAPI_KEY")
+if not SERPAPI_KEY:
+    sys.exit("[FATAL] SERPAPI_KEY env var is not set. Aborting.")
 
 
 def parse_slug(company_name: str) -> str:
@@ -42,7 +50,7 @@ def search_city(city: str) -> list[dict]:
         "co": "in", # Target Indeed India specifically
         "from_age": "14", # Increase to last 14 days
         "limit": "30",
-        "api_key": os.environ["SERPAPI_KEY"],
+        "api_key": SERPAPI_KEY,
     }
 
     raw_jobs = []
@@ -58,28 +66,28 @@ def search_city(city: str) -> list[dict]:
         elif "results" in results:
             raw_jobs = results["results"]
             
-        print(f"    [DEBUG] Indeed response keys: {list(results.keys())}")
-        print(f"    [DEBUG] Indeed returned {len(raw_jobs)} raw jobs for {city}")
+        log.debug("Indeed response keys: %s", list(results.keys()))
+        log.info("Indeed returned %d raw jobs for %s", len(raw_jobs), city)
     except Exception as e:
-        print(f"    [ERROR] Indeed search failed: {e}")
+        log.error("Indeed search failed for %s: %s", city, e)
 
     # 2. Fallback to Google Jobs if Indeed is empty
     if not raw_jobs:
-        print(f"    [DEBUG] Indeed yielded 0. Trying Google Jobs for {city}...")
+        log.info("Indeed yielded 0 results. Trying Google Jobs for %s...", city)
         g_params = {
             "engine": "google_jobs",
             "q": f"receptionist jobs in {city}",
             "gl": "in",
             "hl": "en",
-            "api_key": os.environ["SERPAPI_KEY"],
+            "api_key": SERPAPI_KEY,
         }
         try:
             g_search = GoogleSearch(g_params)
             g_results = g_search.get_dict()
             raw_jobs = g_results.get("jobs_results", [])
-            print(f"    [DEBUG] Google Jobs fallback returned {len(raw_jobs)} raw jobs for {city}")
+            log.info("Google Jobs fallback returned %d raw jobs for %s", len(raw_jobs), city)
         except Exception as e:
-            print(f"    [ERROR] Google Jobs fallback failed: {e}")
+            log.error("Google Jobs fallback failed for %s: %s", city, e)
 
     jobs = []
     for j in raw_jobs:
@@ -102,7 +110,6 @@ def search_city(city: str) -> list[dict]:
             "domain": parse_domain(website),
         })
 
-    return jobs
     return jobs
 
 

@@ -87,6 +87,7 @@ def run():
                 # ── Send: high priority → email + LinkedIn + WhatsApp ────
                 if score >= SCORE_HIGH:
                     if data.get("email"):
+                        print(f"      [EMAIL HIGH] → {data['email']}")
                         emailed = email_sender.send(data)
                         if emailed:
                             sheets_writer.update_field(data["slug"], "email_sent", "TRUE")
@@ -96,6 +97,10 @@ def run():
                             )
                             sheets_writer.update_channel(data["slug"], "email")
                             total_emailed += 1
+                        else:
+                            print(f"      [EMAIL FAILED] check Gmail credentials")
+                    else:
+                        print(f"      [NO EMAIL] {company} — no address found (LinkedIn only)")
 
                     li_sent = linkedin.send(data)
                     if li_sent:
@@ -115,6 +120,7 @@ def run():
                 # ── Send: medium priority → email only ───────────────────
                 elif score >= SCORE_LOW:
                     if data.get("email"):
+                        print(f"      [EMAIL MED] → {data['email']}")
                         emailed = email_sender.send(data)
                         if emailed:
                             sheets_writer.update_field(data["slug"], "email_sent", "TRUE")
@@ -124,6 +130,10 @@ def run():
                             )
                             sheets_writer.update_channel(data["slug"], "email")
                             total_emailed += 1
+                        else:
+                            print(f"      [EMAIL FAILED] check Gmail credentials")
+                    else:
+                        print(f"      [NO EMAIL] {company} — no address found, skipping")
 
             except Exception as e:
                 print(f"    [ERROR] {company}: {e}")

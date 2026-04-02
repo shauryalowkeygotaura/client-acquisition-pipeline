@@ -219,7 +219,7 @@ def generate(data: dict) -> dict:
             model=LLM_MODEL,
             messages=[{"role": "user", "content": prompt}],
             temperature=0.7,
-            max_tokens=2800,
+            max_tokens=5000,
             response_format={"type": "json_object"},
         )
     except Exception as e:
