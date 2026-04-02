@@ -1,0 +1,22 @@
+# Secrets — never commit these
+.env
+.env.local
+
+# LinkedIn session (contains auth cookies)
+.linkedin_profile/
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.pytest_cache/
+*.egg-info/
+dist/
+build/
+.venv/
+venv/
+.python-version
+
+# OS
+.DS_Store
+Thumbs.db
