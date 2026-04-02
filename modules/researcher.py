@@ -21,6 +21,18 @@ def parse_domain(website: str) -> str | None:
     domain = parsed.netloc or parsed.path
     domain = domain.lower().removeprefix("www.")
     return domain if domain else None
+
+
+# Domains where guessing info@/contact@ makes no sense
+_NO_GUESS_DOMAINS = {
+    "gmail.com", "yahoo.com", "yahoo.co.in", "hotmail.com", "outlook.com",
+    "rediffmail.com", "icloud.com", "protonmail.com",
+    "linkedin.com", "facebook.com", "instagram.com", "twitter.com",
+    "indeed.com", "naukri.com", "glassdoor.com", "justdial.com",
+    "sulekha.com", "indiamart.com", "tradeindia.com",
+}
+
+
 SERPAPI_KEY = os.getenv("SERPAPI_KEY")
 
 # Known fake/artifact TLDs that appear in scraped HTML (MHTML artifacts, etc.)
@@ -240,9 +252,10 @@ def scrape_company(job: dict) -> dict:
 
     # ── Email fallback: guess common patterns if nothing found ───────────────
     # Most Indian SMB websites don't publish emails but ~35% respond to info@/contact@
+    # Skip if domain is a free provider or social/job platform — would send to wrong inbox
     if not research.get("email"):
         domain = parse_domain(website) if website else None
-        if domain:
+        if domain and domain not in _NO_GUESS_DOMAINS:
             for prefix in ("info", "contact", "hello", "reception", "admin"):
                 guessed = f"{prefix}@{domain}"
                 if _is_valid_email_domain(guessed):

@@ -104,6 +104,7 @@ Generate a JSON object with exactly these seven fields:
 3. "email_body_pain"
    Angle: COST OF INACTION. Every day without coverage = bookings they'll never recover.
    Follow H-A-O-P-CTA. Do NOT label sections. Write as flowing prose.
+   FORMATTING: Separate each section with a blank line (\n\n). Sign-off on its own line. No single giant paragraph.
 
    HOOK (1 sentence): A specific observable fact — the job posting, the gap duration, the city. Make it about them, not you.
    Forbidden openers: "I hope", "My name is", "I came across", "I wanted to reach out", "I noticed your posting".
@@ -124,6 +125,7 @@ Generate a JSON object with exactly these seven fields:
 4. "email_body_curiosity"
    Angle: CURIOSITY GAP. Ask a question they can't answer without engaging.
    Same H-A-O-P-CTA structure, same hard rules, same word count.
+   FORMATTING: Separate each section with a blank line (\n\n). Sign-off on its own line.
 
    HOOK (1 sentence): A question or observation that reveals a gap they haven't thought about. Specific to their niche and city. Should feel like something only someone who looked at their business would say.
    Examples: "Do you know how many calls go unanswered at {company} on a Tuesday afternoon?" / "Most {industry} owners in {location} don't know their missed-call rate until I show them."
@@ -142,6 +144,7 @@ Generate a JSON object with exactly these seven fields:
 5. "email_body_roi"
    Angle: ROI / COMPETITOR COMPARISON. Show them the number, compare to what competitors do.
    Same H-A-O-P-CTA structure, same hard rules, same word count.
+   FORMATTING: Separate each section with a blank line (\n\n). Sign-off on its own line.
 
    HOOK (1 sentence): A concrete revenue number tied to their niche. Make it feel like something they should already know.
    Examples: "A {industry} business in {location} typically gets 40–80 inbound calls a week." / "The {industry} practice two blocks from {company} just stopped missing calls."
@@ -199,6 +202,21 @@ def parse_output(raw: str) -> dict:
     missing = REQUIRED_FIELDS - set(data.keys())
     if missing:
         raise GeneratorError(f"Model output missing fields: {missing}")
+
+    # Normalise email bodies: collapse \\n literals, ensure paragraph breaks exist.
+    # Models sometimes emit literal \n instead of real newlines inside JSON strings.
+    for field in ("email_body_pain", "email_body_curiosity", "email_body_roi"):
+        if field in data:
+            body = data[field]
+            # Unescape literal \n sequences the model may have emitted
+            body = body.replace("\\n\\n", "\n\n").replace("\\n", "\n")
+            # Ensure sign-off is on its own line
+            body = body.replace(" — Shaurya", "\n\n— Shaurya")
+            body = body.replace("\n— Shaurya", "\n\n— Shaurya")
+            # Collapse triple+ newlines to double
+            import re as _re
+            body = _re.sub(r'\n{3,}', '\n\n', body).strip()
+            data[field] = body
 
     return data
 
