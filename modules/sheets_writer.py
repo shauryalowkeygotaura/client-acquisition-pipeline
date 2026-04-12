@@ -24,6 +24,10 @@ HEADERS = [
     "reply_status", "conversation_stage", "objection_type", "follow_up_count",
     # ── Phase 5 outcome tracking ──
     "booked_call", "closed_client",
+    # ── Email rotation + threading + unsubscribe ──
+    "message_id", "opt_out_token", "sender_account", "opted_out",
+    # ── Phase 6 person-level personalization ──
+    "person_hook", "company_hook",
 ]
 
 NICHE_ANALYTICS_HEADERS = [
@@ -111,6 +115,14 @@ def build_row(data: dict) -> list:
         # Outcomes
         "no",      # booked_call
         "no",      # closed_client
+        # Rotation + threading + unsubscribe
+        "",        # message_id — set after send
+        data.get("opt_out_token", ""),  # opt_out_token — generated before save
+        "",        # sender_account — set after send
+        "no",      # opted_out
+        # Person-level personalization hooks
+        data.get("person_hook", ""),
+        data.get("company_hook", ""),
     ]
 
 

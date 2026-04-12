@@ -41,23 +41,25 @@ def test_clean_email_with_newline_embedded():
     assert _clean_email("info@doma\nin.com") is None
 
 
-# send() skips bad addresses without crashing
+# send() returns (ok: bool, msg_id: str, sender: str) — check only the ok flag
 def test_send_returns_false_for_invalid_email(monkeypatch):
     monkeypatch.setenv("GMAIL_ADDRESS", "test@gmail.com")
     monkeypatch.setenv("GMAIL_APP_PASSWORD", "apppass")
-    result = send({
+    ok, _msg_id, _sender = send({
         "email": "not-an-email",
         "email_subject": "Subj",
         "email_body": "Body",
     })
-    assert result is False
+    assert ok is False
 
 def test_send_returns_false_for_missing_email(monkeypatch):
     monkeypatch.setenv("GMAIL_ADDRESS", "test@gmail.com")
     monkeypatch.setenv("GMAIL_APP_PASSWORD", "apppass")
-    assert send({"email_subject": "Subj", "email_body": "Body"}) is False
+    ok, _msg_id, _sender = send({"email_subject": "Subj", "email_body": "Body"})
+    assert ok is False
 
 def test_send_returns_false_for_whitespace_only_email(monkeypatch):
     monkeypatch.setenv("GMAIL_ADDRESS", "test@gmail.com")
     monkeypatch.setenv("GMAIL_APP_PASSWORD", "apppass")
-    assert send({"email": "   ", "email_subject": "Subj", "email_body": "Body"}) is False
+    ok, _msg_id, _sender = send({"email": "   ", "email_subject": "Subj", "email_body": "Body"})
+    assert ok is False

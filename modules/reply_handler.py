@@ -248,18 +248,56 @@ def _fetch_inbox_replies(since_date: str) -> list[dict]:
     return replies
 
 
-def _send_reply(to_addr: str, subject: str, body: str) -> bool:
-    """Send a reply via Gmail SMTP."""
-    if not GMAIL_ADDRESS or not GMAIL_APP_PASSWORD:
+def _send_reply(
+    to_addr: str,
+    subject: str,
+    body: str,
+    in_reply_to: str | None = None,
+    references: str | None = None,
+    sender_account: str | None = None,
+) -> bool:
+    """
+    Send a reply via Gmail SMTP.
+    - in_reply_to / references: thread the email inside the original conversation.
+    - sender_account: send from the same address that sent email 1 (rotation safety).
+    """
+    from email.utils import formatdate, make_msgid
+
+    # Resolve credentials: prefer the stored sender_account, fall back to env default
+    from_addr = sender_account or GMAIL_ADDRESS
+    password = None
+    if sender_account:
+        # Look up password from GMAIL_ACCOUNTS JSON
+        import json as _json
+        raw = os.getenv("GMAIL_ACCOUNTS")
+        if raw:
+            try:
+                accounts = _json.loads(raw)
+                match = next((a for a in accounts if a.get("address") == sender_account), None)
+                if match:
+                    password = match.get("password")
+            except Exception:
+                pass
+    if not password:
+        password = GMAIL_APP_PASSWORD
+
+    if not from_addr or not password:
+        log.error("No Gmail credentials available for reply send.")
         return False
+
     try:
         msg = MIMEText(body, "plain")
-        msg["From"] = GMAIL_ADDRESS
+        msg["From"] = from_addr
         msg["To"] = to_addr
         msg["Subject"] = subject if subject.lower().startswith("re:") else f"Re: {subject}"
+        msg["Date"] = formatdate(localtime=False)
+        msg["Message-ID"] = make_msgid()
+        if in_reply_to:
+            msg["In-Reply-To"] = in_reply_to
+            msg["References"] = references or in_reply_to
         with smtplib.SMTP(SMTP_HOST, SMTP_PORT) as server:
             server.starttls()
-            server.login(GMAIL_ADDRESS, GMAIL_APP_PASSWORD)
+            server.login(from_addr, password)
             server.send_message(msg)
         return True
     except Exception as e:
@@ -315,12 +353,21 @@ def run(since_days: int = 7):
         if not slug:
             continue
 
-        # Skip already-dead or already-booked conversations
+        # Skip already-dead, booked, or opted-out conversations
         stage = lead.get("conversation_stage", "initial")
         if stage in ("dead", "booked", "closed"):
             continue
+        if lead.get("opted_out", "no") == "yes":
+            continue
 
         log.info("Processing reply from %s (%s)", sender, lead.get("company_name"))
+
+        # Detect unsubscribe requests (reply body contains STOP)
+        if re.search(r'\bSTOP\b', msg["body"], re.IGNORECASE):
+            log.info("Opt-out received from %s — marking opted_out=yes", sender)
+            sheets_writer.update_field(slug, "opted_out", "yes")
+            sheets_writer.update_reply(slug, "not_relevant", "dead")
+            continue
 
         classification = _classify_reply(msg["body"])
         category = classification.get("category", "neutral")
@@ -367,10 +414,11 @@ def send_follow_ups(max_per_run: int = 10):
         reply_status = lead.get("reply_status", "")
         stage = lead.get("conversation_stage", "initial")
 
-        # Skip: no email, already replied, already booked/dead, max follow-ups reached
-        if not email or not sent_at_str or reply_status or follow_up_count >= 2:
+        opted_out = lead.get("opted_out", "no")
+        # Skip: no email, replied, dead/booked, opted out, or max follow-ups reached (3 total)
+        if not email or not sent_at_str or reply_status or follow_up_count >= 3:
             continue
-        if stage in ("dead", "booked", "closed"):
+        if stage in ("dead", "booked", "closed") or opted_out == "yes":
             continue
 
         try:
@@ -380,33 +428,60 @@ def send_follow_ups(max_per_run: int = 10):
 
         days_since = (datetime.now(timezone.utc) - sent_at).days
 
-        # Follow-up 1: day 3–4 | Follow-up 2: day 7–9
+        # Follow-up windows: day 3–4 | day 7–9 | day 12–14
         is_followup_1_window = follow_up_count == 0 and 3 <= days_since <= 4
         is_followup_2_window = follow_up_count == 1 and 7 <= days_since <= 9
+        is_followup_3_window = follow_up_count == 2 and 12 <= days_since <= 14
 
-        if not (is_followup_1_window or is_followup_2_window):
+        if not (is_followup_1_window or is_followup_2_window or is_followup_3_window):
             continue
 
-        # Generate a short follow-up nudge
+        # Generate follow-up copy — each adds new value per Hormozi's 8-touchpoint rule
         company = lead.get("company_name", "your business")
+        niche = lead.get("niche", "service")
+        location = lead.get("location", "your area")
         subject = lead.get("email_subject", "following up")
+
         if follow_up_count == 0:
+            # Follow-up 1: add a concrete value — missed-call estimate for their niche/city
             body = (
-                f"Just wanted to make sure this didn't get buried.\n\n"
-                f"Still happy to send a 2-min demo clip showing exactly how this works for "
-                f"a {lead.get('niche', 'service')} business — no call needed.\n\n"
-                f"Worth it? — Shaurya"
+                f"Wanted to add something useful to this.\n\n"
+                f"Most {niche} businesses in {location} miss 20–35% of inbound calls during a "
+                f"hiring gap — mostly afternoons when existing staff are with patients or clients.\n\n"
+                f"Happy to pull a rough missed-call estimate for {company} specifically if that "
+                f"would be useful. No call needed.\n\n"
+                f"— Shaurya"
+            )
+        elif follow_up_count == 1:
+            # Follow-up 2: social proof angle — a real outcome from a similar business
+            body = (
+                f"One more, then I'll leave you alone.\n\n"
+                f"A {niche} practice in a similar situation used a voice agent during their hiring gap. "
+                f"They ended up keeping it after they hired someone — it was catching after-hours calls "
+                f"they'd never recovered before.\n\n"
+                f"If the timing's off, completely fine. If calls are still slipping, worth a 2-min look.\n\n"
+                f"— Shaurya"
             )
         else:
+            # Follow-up 3: Hormozi breakup email — close the loop, lowest friction ask
             body = (
-                f"Last nudge, I promise.\n\n"
-                f"If covering calls while the hiring gap is open is still a problem, "
-                f"I'm happy to show you how it works. If you've sorted it, no worries at all.\n\n"
+                f"Last one.\n\n"
+                f"If covering the front desk isn't the problem right now, ignore this completely.\n\n"
+                f"If it still is — happy to send a 2-min clip, no strings.\n\n"
                 f"— Shaurya"
             )
 
-        sent = _send_reply(email, subject, body)
+        # Thread follow-ups inside email 1's conversation
+        msg_id = lead.get("message_id") or None
+        sender_acct = lead.get("sender_account") or None
+
+        sent = _send_reply(
+            email, subject, body,
+            in_reply_to=msg_id,
+            references=msg_id,
+            sender_account=sender_acct,
+        )
         if sent:
             sheets_writer.increment_follow_up(slug)
             sent_count += 1
-            log.info("Follow-up %d sent to %s", follow_up_count + 1, company)
+            log.info("Follow-up %d sent to %s (threaded=%s)", follow_up_count + 1, company, bool(msg_id))

@@ -1,0 +1,3 @@
+setup:
+  project: client-acquisition-pipeline
+  config: dev

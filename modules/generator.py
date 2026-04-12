@@ -11,6 +11,7 @@ LLM_API_KEY = os.getenv("GROQ_API_KEY")
 REQUIRED_FIELDS = {
     "vapi_prompt", "email_subject",
     "email_body_pain", "email_body_curiosity", "email_body_roi",
+    "email_body_question",
     "linkedin_msg", "linkedin_post",
 }
 
@@ -43,6 +44,21 @@ def build_prompt(data: dict) -> str:
     services = data.get("services", "")
     location = data.get("location", "")
     industry = data.get("industry", "service business")
+    person_hook = data.get("person_hook", "")
+    company_hook = data.get("company_hook", "")
+
+    hooks_section = ""
+    if person_hook or company_hook:
+        hooks_section = "\nPERSONALIZATION HOOKS (verified facts — use ONE of these as the email/DM opener if available):\n"
+        if person_hook:
+            hooks_section += f"Person hook: {person_hook}\n"
+        if company_hook:
+            hooks_section += f"Company hook: {company_hook}\n"
+        hooks_section += (
+            "Rule: If a hook is present, lead the HOOK sentence of email_body_pain / email_body_curiosity / "
+            "email_body_roi AND the linkedin_msg opener with this specific fact instead of a generic observation. "
+            "Reference it naturally — don't announce that you researched them.\n"
+        )
 
     return f"""
 SENDER: Shaurya — a 22-year-old developer who builds AI voice receptionists for small businesses.
@@ -59,6 +75,7 @@ Contact (use "there" if unknown): {contact}
 Location: {location}
 Industry/type: {industry}
 Services/details: {services or details[:1500]}
+{hooks_section}
 
 ---
 
@@ -161,16 +178,25 @@ Generate a JSON object with exactly these seven fields:
    Hard rules: no bullets, no bold, no emojis. 160–220 words. "I" = Shaurya.
 
 6. "linkedin_msg"
-   70–100 words. A genuine LinkedIn DM or connection note — not a pitch, not a template.
+   60–90 words. A human-first LinkedIn DM — NOT a pitch in disguise.
 
-   Pick ONE of these angle types and write from it (choose whichever fits the lead best):
-   - TIMING ANGLE: The job posting is live = they are in the problem RIGHT NOW. Open with the timing.
-   - LOSS-FRAMING ANGLE: Every day without coverage = calls they'll never get back. Open with what's already lost.
-   - CURIOSITY GAP ANGLE: Ask a question they can't answer without engaging (specific to their niche/location).
-   - SOCIAL PROOF ANGLE: Open with what a similar business in their area or niche has already done.
+   HORMOZI RULE: The first DM is not about the content. It is about being human.
 
-   Structure: one sharp opening observation (their situation, not your product) → one sentence explaining what you built and exactly what it does → one soft ask (send a 2-min clip, not a call).
-   No "I hope you're doing well", no "exciting opportunity", no buzzwords. Write like you typed it in a hurry because you meant it.
+   Step 1 — OPEN HUMAN (1 sentence): If a person_hook is available, open with a specific observation
+   about them that only someone who actually looked at their profile would make — a recent role change,
+   a credential, a post they wrote, a piece of their background. Do NOT announce that you researched them.
+   Just say the thing naturally. If no person_hook, open with a genuine observation about their business
+   that shows you looked ("Saw you posted the receptionist role at {company} — hope the search is going well.")
+   This line is ONLY about them. No product, no ask, no you.
+
+   Step 2 — BRIDGE (1 sentence): What you built and exactly what it does. Short, specific, no jargon.
+   Example: "I build voice agents for {industry} businesses — they answer calls, handle FAQs, and book via cal.com."
+
+   Step 3 — SOFT ASK (1 sentence): "Would it be okay if I sent a 2-min clip?" — nothing more.
+   No "hop on a call", no "schedule a demo", no "let's connect", no "I'd love to".
+
+   Tone: sounds typed at a desk, slightly casual. Under 90 words total.
+   No "I hope", no "exciting opportunity", no buzzwords.
 
 7. "linkedin_post"
    A LinkedIn post Shaurya can publish from his own profile. 150–200 words. First-person. No list format.
@@ -184,6 +210,26 @@ Generate a JSON object with exactly these seven fields:
 
    Tone: thoughtful, direct, slightly contrarian. Sounds like a builder observing the world — not a marketer selling something.
    No emojis, no hashtags, no bullet lists.
+
+8. "email_body_question"
+   Angle: HORMOZI QUESTION OPENER — the most Hormozi-aligned format. Brevity as respect.
+   This is a 3-line cold email designed to get a reply, not to pitch.
+
+   LINE 1 (QUESTION ONLY): "Are you still looking to [4-word outcome]?"
+   The 4-word outcome must come from their world, not yours. Make it sound like something they would type.
+   Examples: "Are you still looking to cover front-desk calls?" / "Are you still looking to fill the receptionist gap?" /
+   "Are you still looking to stop missing calls?"
+   Use their niche and location if it sounds natural. One sentence, ends with a question mark. Nothing else on this line.
+
+   LINE 2 (BRIDGE, 1 sentence): What you built, what it does. Specific, no jargon, no AI buzzwords.
+   Example: "I build voice agents for {industry} businesses — they pick up, answer FAQs, and book via cal.com."
+
+   LINE 3 (ULTRA-SOFT CTA): "Happy to send a 2-min clip if useful."
+
+   Sign off: — Shaurya
+
+   Hard rules: 3 lines + sign-off. Under 50 words. No paragraphs. No H-A-O-P structure.
+   No bold, no bullets, no emojis. "I" = Shaurya. This respects the reader's time more than any other format.
 
 Return ONLY valid JSON. No markdown fences, no explanation, no extra keys.
 """.strip()
@@ -205,7 +251,7 @@ def parse_output(raw: str) -> dict:
 
     # Normalise email bodies: collapse \\n literals, ensure paragraph breaks exist.
     # Models sometimes emit literal \n instead of real newlines inside JSON strings.
-    for field in ("email_body_pain", "email_body_curiosity", "email_body_roi"):
+    for field in ("email_body_pain", "email_body_curiosity", "email_body_roi", "email_body_question"):
         if field in data:
             body = data[field]
             # Unescape literal \n sequences the model may have emitted
@@ -266,11 +312,13 @@ def _select_variant(data: dict) -> tuple[str, str]:
     Rules:
       - High-urgency + pain niche → pain (they know what's at stake, hit the nerve)
       - trades/salon/hotel → ROI (revenue numbers resonate more than pain)
+      - No personalization hooks + general/unknown niche → question (Hormozi opener; gets replies cold)
       - Everything else → curiosity (lowest friction, works across niches)
     """
     niche = data.get("niche", "general")
     urgency = data.get("hiring_urgency", "medium")
     priority = data.get("lead_priority", "medium")
+    has_hooks = bool(data.get("person_hook") or data.get("company_hook"))
 
     if urgency == "high" and niche in _PAIN_NICHES:
         return data["email_body_pain"], "pain"
@@ -278,6 +326,9 @@ def _select_variant(data: dict) -> tuple[str, str]:
         return data["email_body_roi"], "roi"
     if priority == "high" and niche in _PAIN_NICHES:
         return data["email_body_pain"], "pain"
+    # No hooks + generic niche → Hormozi question opener (brevity cuts through cold noise)
+    if not has_hooks and niche not in _PAIN_NICHES and niche not in _ROI_NICHES:
+        return data["email_body_question"], "question"
     return data["email_body_curiosity"], "curiosity"
 
 

@@ -1,17 +1,37 @@
-name: Daily Client Acquisition Pipeline
-
+name: Client Acquisition Pipeline
 
 on:
-  push:
-    branches:
-      - master
   schedule:
-    - cron: '0 14 * * *'
+    - cron: '30 3 * * 1-5'   # 9:00am IST Mon–Fri  (scrape + send)
+    - cron: '30 9 * * 1-5'   # 3:00pm IST Mon–Fri  (reply check + follow-ups)
   workflow_dispatch:
+    inputs:
+      mode:
+        description: 'pipeline | replies | analytics'
+        required: false
+        default: 'pipeline'
+
+env:
+  GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+  VAPI_API_KEY: ${{ secrets.VAPI_API_KEY }}
+  GOOGLE_SHEETS_ID: ${{ secrets.GOOGLE_SHEETS_ID }}
+  GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
+  GMAIL_ADDRESS: ${{ secrets.GMAIL_ADDRESS }}
+  GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
+  GMAIL_ACCOUNTS: ${{ secrets.GMAIL_ACCOUNTS }}
+  LINKEDIN_COOKIES_JSON: ${{ secrets.LINKEDIN_COOKIES_JSON }}
+  FIRECRAWL_API_KEY: ${{ secrets.FIRECRAWL_API_KEY }}
+  SERPAPI_KEY: ${{ secrets.SERPAPI_KEY }}
+  BOOKING_LINK: ${{ secrets.BOOKING_LINK }}
 
 jobs:
-  run:
+  pipeline:
+    name: Scrape + Generate + Send
     runs-on: ubuntu-latest
+    if: |
+      (github.event_name == 'workflow_dispatch' && (github.event.inputs.mode == 'pipeline' || github.event.inputs.mode == ''))
+      || (github.event_name == 'schedule' && github.event.schedule == '30 3 * * 1-5')
+
     steps:
       - uses: actions/checkout@v4
 
@@ -27,13 +47,41 @@ jobs:
 
       - name: Run pipeline
         run: python pipeline.py
-        env:
-          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
-          VAPI_API_KEY: ${{ secrets.VAPI_API_KEY }}
-          GOOGLE_SHEETS_ID: ${{ secrets.GOOGLE_SHEETS_ID }}
-          GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
-          GMAIL_ADDRESS: ${{ secrets.GMAIL_ADDRESS }}
-          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
-          LINKEDIN_COOKIES_JSON: ${{ secrets.LINKEDIN_COOKIES_JSON }}
-          FIRECRAWL_API_KEY: ${{ secrets.FIRECRAWL_API_KEY }}
-          SERPAPI_KEY: ${{ secrets.SERPAPI_KEY }}
+
+  replies:
+    name: Reply Check + Follow-ups
+    runs-on: ubuntu-latest
+    if: |
+      (github.event_name == 'workflow_dispatch' && github.event.inputs.mode == 'replies')
+      || (github.event_name == 'schedule' && github.event.schedule == '30 9 * * 1-5')
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Check replies + send follow-ups
+        run: python pipeline.py replies
+
+  analytics:
+    name: Refresh Analytics
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch' && github.event.inputs.mode == 'analytics'
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Refresh niche analytics
+        run: python pipeline.py analytics

@@ -1,7 +1,6 @@
 import logging
 import os
 import re
-import sys
 from urllib.parse import urlparse
 
 from serpapi import GoogleSearch
@@ -10,8 +9,6 @@ from slugify import slugify
 log = logging.getLogger(__name__)
 
 SERPAPI_KEY = os.environ.get("SERPAPI_KEY")
-if not SERPAPI_KEY:
-    sys.exit("[FATAL] SERPAPI_KEY env var is not set. Aborting.")
 
 
 def parse_slug(company_name: str) -> str:
@@ -114,4 +111,6 @@ def search_city(city: str) -> list[dict]:
 
 
 def run(city: str) -> list[dict]:
+    if not SERPAPI_KEY:
+        raise RuntimeError("SERPAPI_KEY env var is not set.")
     return search_city(city)

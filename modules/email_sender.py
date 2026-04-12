@@ -1,70 +1,179 @@
+import json
 import logging
 import os
 import re
+import secrets
 import smtplib
+from datetime import datetime, timezone
 from email.mime.text import MIMEText
+from email.utils import formatdate, make_msgid
 
 log = logging.getLogger(__name__)
 
-GMAIL_ADDRESS = os.getenv("GMAIL_ADDRESS")
-GMAIL_APP_PASSWORD = os.getenv("GMAIL_APP_PASSWORD")
 SMTP_HOST = "smtp.gmail.com"
 SMTP_PORT = 587
+MAX_PER_ACCOUNT = 50  # Gmail cold email best practice: ≤50/inbox/day
 
 _EMAIL_RE = re.compile(r'^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$')
 
+# In-memory send counter per account per day.
+# Key: "address|YYYY-MM-DD" → count sent today.
+# Resets naturally on process restart (daily runs).
+_send_counts: dict[str, int] = {}
+
+
+def _load_accounts() -> list[dict]:
+    """
+    Load Gmail sender accounts from env.
+
+    GMAIL_ACCOUNTS = JSON array:
+        [{"address": "you@gmail.com", "password": "app-pw"}, ...]
+
+    Falls back to the original GMAIL_ADDRESS + GMAIL_APP_PASSWORD pair
+    so existing setups keep working without any config change.
+    """
+    raw = os.getenv("GMAIL_ACCOUNTS")
+    if raw:
+        try:
+            accounts = json.loads(raw)
+            valid = [a for a in accounts if a.get("address") and a.get("password")]
+            if valid:
+                return valid
+        except json.JSONDecodeError:
+            log.error("GMAIL_ACCOUNTS is not valid JSON — falling back to GMAIL_ADDRESS")
+
+    addr = os.getenv("GMAIL_ADDRESS")
+    pwd = os.getenv("GMAIL_APP_PASSWORD")
+    if addr and pwd:
+        return [{"address": addr, "password": pwd}]
+    return []
+
+
+def _pick_account(accounts: list[dict]) -> dict | None:
+    """Return the account with the fewest sends today, or None if all are maxed."""
+    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    best = None
+    best_count = MAX_PER_ACCOUNT + 1
+    for acct in accounts:
+        key = f"{acct['address']}|{today}"
+        count = _send_counts.get(key, 0)
+        if count < MAX_PER_ACCOUNT and count < best_count:
+            best = acct
+            best_count = count
+    return best
+
+
+def _increment_count(address: str) -> None:
+    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    key = f"{address}|{today}"
+    _send_counts[key] = _send_counts.get(key, 0) + 1
+
 
 def _clean_email(raw: str) -> str | None:
-    """Strip whitespace/newlines and validate format. Returns None if invalid."""
     cleaned = raw.strip()
     return cleaned if _EMAIL_RE.match(cleaned) else None
 
 
-def build_message(data: dict, from_addr: str) -> MIMEText:
-    msg = MIMEText(data["email_body"], "plain")
+def generate_opt_out_token() -> str:
+    """Generate a short URL-safe token for the unsubscribe footer."""
+    return secrets.token_urlsafe(16)
+
+
+def _unsubscribe_footer(token: str) -> str:
+    return f"\n\n---\nTo stop receiving these emails, reply with STOP (ref: {token[:8]})."
+
+
+def build_message(
+    data: dict,
+    from_addr: str,
+    in_reply_to: str | None = None,
+    references: str | None = None,
+) -> MIMEText:
+    body = data["email_body"]
+    opt_out = data.get("opt_out_token", "")
+    if opt_out:
+        body += _unsubscribe_footer(opt_out)
+
+    msg = MIMEText(body, "plain")
     msg["From"] = from_addr
     msg["To"] = data["email"]
     msg["Subject"] = data["email_subject"]
+    msg["Date"] = formatdate(localtime=False)
+    msg["Message-ID"] = make_msgid()
+
+    # Threading headers — makes follow-ups appear in the same Gmail thread
+    if in_reply_to:
+        msg["In-Reply-To"] = in_reply_to
+        msg["References"] = references or in_reply_to
+
     return msg
 
 
-def send(data: dict) -> bool:
+def send(
+    data: dict,
+    in_reply_to: str | None = None,
+    references: str | None = None,
+    force_account: str | None = None,
+) -> tuple[bool, str, str]:
+    """
+    Send an email. Returns (success, message_id, sender_address).
+
+    Args:
+        data:          Lead dict — must have "email", "email_body", "email_subject".
+        in_reply_to:   Message-ID of email 1, so follow-ups thread in Gmail.
+        references:    Same as in_reply_to for simple chains.
+        force_account: Use this exact address (for follow-ups that must match
+                       the original sender account).
+    """
     raw_email = data.get("email")
     if not raw_email:
-        return False
+        return False, "", ""
 
     email = _clean_email(raw_email)
     if not email:
-        log.warning("Skipping invalid email address: %r", raw_email)
-        return False
+        log.warning("Skipping invalid email: %r", raw_email)
+        return False, "", ""
 
-    # Overwrite with cleaned value so build_message uses it
     data = {**data, "email": email}
 
-    if not GMAIL_ADDRESS or not GMAIL_APP_PASSWORD:
-        log.error("GMAIL_ADDRESS or GMAIL_APP_PASSWORD env vars not set — skipping email.")
-        return False
+    accounts = _load_accounts()
+    if not accounts:
+        log.error("No Gmail accounts configured. Set GMAIL_ACCOUNTS or GMAIL_ADDRESS.")
+        return False, "", ""
 
-    msg = build_message(data, from_addr=GMAIL_ADDRESS)
+    if force_account:
+        acct = next((a for a in accounts if a["address"] == force_account), None)
+        if not acct:
+            log.error("force_account %s not in GMAIL_ACCOUNTS — skipping.", force_account)
+            return False, "", ""
+    else:
+        acct = _pick_account(accounts)
+        if not acct:
+            log.warning("All Gmail accounts at daily limit (%d/day). Skipping send.", MAX_PER_ACCOUNT)
+            return False, "", ""
+
+    msg = build_message(data, from_addr=acct["address"],
+                        in_reply_to=in_reply_to, references=references)
+    sent_message_id = msg["Message-ID"]
 
     try:
         with smtplib.SMTP(SMTP_HOST, SMTP_PORT) as server:
             server.starttls()
-            server.login(GMAIL_ADDRESS, GMAIL_APP_PASSWORD)
+            server.login(acct["address"], acct["password"])
             server.send_message(msg)
+        _increment_count(acct["address"])
+        return True, sent_message_id, acct["address"]
     except smtplib.SMTPAuthenticationError:
-        log.error("Gmail authentication failed. Check GMAIL_APP_PASSWORD.")
-        return False
+        log.error("Gmail auth failed for %s. Check app password.", acct["address"])
+        return False, "", ""
     except smtplib.SMTPRecipientsRefused as e:
         for recipient, (code, msg_bytes) in e.recipients.items():
-            log.error("Recipient refused — %s (code %d): %s", recipient, code,
-                      msg_bytes.decode(errors="replace"))
-        return False
+            log.error("Recipient refused — %s (code %d): %s",
+                      recipient, code, msg_bytes.decode(errors="replace"))
+        return False, "", ""
     except smtplib.SMTPException as e:
         log.error("SMTP error sending to %s: %s", email, e)
-        return False
+        return False, "", ""
     except OSError as e:
-        log.error("Network error sending email to %s: %s", email, e)
-        return False
-
-    return True
+        log.error("Network error sending to %s: %s", email, e)
+        return False, "", ""
