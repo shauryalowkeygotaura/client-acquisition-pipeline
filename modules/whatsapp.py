@@ -1,109 +1,164 @@
 """
-modules/whatsapp.py — WhatsApp outreach via Twilio
+modules/whatsapp.py — WhatsApp outreach via Meta Cloud API (free tier)
 
-Setup (free sandbox for testing):
-  1. Sign up at twilio.com — no credit card needed for sandbox
-  2. In Twilio Console → Messaging → Try it out → Send a WhatsApp message
-  3. Your sandbox number: whatsapp:+14155238886
-  4. To activate sandbox: recipient texts "join <your-sandbox-word>" to +1 (415) 523-8886
-  5. For production: get a Twilio number with WhatsApp Business API enabled
+Setup (one-time):
+  1. business.facebook.com → Create a Business → Add a WhatsApp account
+  2. developers.facebook.com → Create App → Add WhatsApp product
+  3. WhatsApp → Getting Started → note your Phone Number ID + temporary token
+  4. Generate a permanent token:
+       System Users → Create system user → Generate token → check whatsapp_business_messaging
+  5. Add your real number under WhatsApp → Phone Numbers → Add phone number
+  6. Submit cold outreach template (see TEMPLATE section below)
 
-Required .env vars:
-  TWILIO_ACCOUNT_SID=ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-  TWILIO_AUTH_TOKEN=your_auth_token
-  TWILIO_WHATSAPP_FROM=whatsapp:+14155238886   (sandbox) or whatsapp:+your_twilio_number
+Required Doppler secrets:
+  WHATSAPP_PHONE_NUMBER_ID   — from Meta dashboard (numeric ID, not the phone number)
+  WHATSAPP_ACCESS_TOKEN      — permanent system user token
+  WHATSAPP_TEMPLATE_NAME     — name of your approved template (default: receptionist_outreach)
+
+TEMPLATE to submit for approval in Meta Business Manager:
+  Name:     receptionist_outreach
+  Category: MARKETING
+  Language: English (en)
+  Body:     Hi {{1}}, saw {{2}} is hiring a receptionist. I build AI voice agents for
+            {{3}} businesses — they handle calls, FAQs, and book a Google Meet automatically.
+            Want me to send a 2-min demo?
+  Footer:   Reply STOP to opt out.
+  Variables:
+    {{1}} = contact name (or "there")
+    {{2}} = company name
+    {{3}} = industry/niche
+
+  Submit at: business.facebook.com → WhatsApp Manager → Message Templates → Create
 
 Notes:
-  - Only sends to Indian mobile numbers (starts with 6–9, 10 digits)
-  - Phone numbers are scraped from company websites — may be landlines
-  - Whatsapp is most effective for high-score leads where you have a mobile number
-  - Message length limit: 1600 chars (we stay well under)
+  - Only sends to Indian mobile numbers (starts 6–9, 10 digits)
+  - Phone numbers scraped from company websites — may be landlines; module skips those
+  - Template approval takes 1–2 days
+  - Free tier: 1,000 business-initiated conversations/month (~1,000 cold messages)
+  - After prospect replies: 24h free-form window for follow-ups
 """
 import logging
 import os
 import re
 
+import requests
+
 log = logging.getLogger(__name__)
 
-TWILIO_ACCOUNT_SID = os.getenv("TWILIO_ACCOUNT_SID")
-TWILIO_AUTH_TOKEN = os.getenv("TWILIO_AUTH_TOKEN")
-TWILIO_WHATSAPP_FROM = os.getenv("TWILIO_WHATSAPP_FROM", "whatsapp:+14155238886")
+PHONE_NUMBER_ID = os.getenv("WHATSAPP_PHONE_NUMBER_ID")
+ACCESS_TOKEN = os.getenv("WHATSAPP_ACCESS_TOKEN")
+TEMPLATE_NAME = os.getenv("WHATSAPP_TEMPLATE_NAME", "receptionist_outreach")
 
-# Indian mobile number pattern: +91 followed by 10 digits starting with 6–9
-# Also matches 10-digit local format starting with 6–9
+_API_URL = "https://graph.facebook.com/v20.0/{phone_number_id}/messages"
+
+# Indian mobile: +91 prefix optional, 10 digits starting 6–9
 _INDIA_MOBILE_RE = re.compile(r'(?:\+91[\s\-]?)?([6-9]\d{9})')
 
 
 def _extract_mobile(phone: str) -> str | None:
-    """Extract a clean Indian mobile number from a scraped phone string. Returns E.164 or None."""
+    """Return E.164 Indian mobile number or None."""
     if not phone:
         return None
     match = _INDIA_MOBILE_RE.search(re.sub(r'\s', '', phone))
     if not match:
         return None
-    digits = match.group(1)
-    return f"+91{digits}"
+    return f"91{match.group(1)}"   # E.164 without '+' for Meta API
 
 
-def _build_message(data: dict) -> str:
-    """
-    Build a short WhatsApp message from the lead's linkedin_msg field.
-    WhatsApp is more casual than email — use the linkedin_msg copy (already conversational).
-    Append the booking link at the end.
-    """
-    from modules.reply_handler import BOOKING_LINK
+def _build_template_payload(to: str, data: dict) -> dict:
+    """Build Meta API template message payload."""
+    contact = data.get("poster_name") or "there"
+    company = data.get("company_name", "your business")
+    niche = data.get("niche") or data.get("industry") or "service"
 
-    base = data.get("linkedin_msg", "")
-    if not base:
-        company = data.get("company_name", "your business")
-        niche = data.get("niche", "")
-        base = (
-            f"Hi — saw you're hiring a receptionist at {company}. "
-            f"I build AI voice agents for {niche or 'service'} businesses that handle calls "
-            f"during the hiring gap. Worth a quick look?"
-        )
-
-    # Keep it short for WhatsApp — truncate if needed
-    if len(base) > 400:
-        base = base[:397] + "..."
-
-    return f"{base}\n\n— Shaurya\n{BOOKING_LINK}"
+    return {
+        "messaging_product": "whatsapp",
+        "to": to,
+        "type": "template",
+        "template": {
+            "name": TEMPLATE_NAME,
+            "language": {"code": "en"},
+            "components": [
+                {
+                    "type": "body",
+                    "parameters": [
+                        {"type": "text", "text": contact},
+                        {"type": "text", "text": company},
+                        {"type": "text", "text": niche},
+                    ],
+                }
+            ],
+        },
+    }
 
 
 def send(data: dict) -> bool:
     """
-    Send a WhatsApp message to the lead's phone number.
-    Returns True if sent successfully.
-    Silently skips if no mobile number, Twilio not configured, or number isn't mobile.
+    Send a WhatsApp template message via Meta Cloud API.
+    Returns True on success. Silently skips if unconfigured or no mobile number found.
     """
-    if not TWILIO_ACCOUNT_SID or not TWILIO_AUTH_TOKEN:
-        log.debug("Twilio not configured — skipping WhatsApp send")
+    if not PHONE_NUMBER_ID or not ACCESS_TOKEN:
+        log.debug("WhatsApp not configured (WHATSAPP_PHONE_NUMBER_ID / WHATSAPP_ACCESS_TOKEN missing)")
         return False
 
-    phone_raw = data.get("phone", "")
-    mobile = _extract_mobile(phone_raw)
+    mobile = _extract_mobile(data.get("phone", ""))
     if not mobile:
-        log.debug("No valid Indian mobile number for %s — skipping WhatsApp", data.get("company_name"))
+        log.debug("No valid Indian mobile for %s — skipping WhatsApp", data.get("company_name"))
         return False
 
-    try:
-        from twilio.rest import Client  # lazy import — twilio is optional dep
-    except ImportError:
-        log.warning("twilio package not installed. Run: pip install twilio")
-        return False
-
-    message_body = _build_message(data)
-    to_whatsapp = f"whatsapp:{mobile}"
+    payload = _build_template_payload(mobile, data)
+    url = _API_URL.format(phone_number_id=PHONE_NUMBER_ID)
 
     try:
-        client = Client(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
-        msg = client.messages.create(
-            body=message_body,
-            from_=TWILIO_WHATSAPP_FROM,
-            to=to_whatsapp,
+        resp = requests.post(
+            url,
+            json=payload,
+            headers={
+                "Authorization": f"Bearer {ACCESS_TOKEN}",
+                "Content-Type": "application/json",
+            },
+            timeout=10,
         )
-        log.info("WhatsApp sent to %s (SID: %s)", mobile, msg.sid)
-        return True
+        if resp.status_code == 200:
+            msg_id = resp.json().get("messages", [{}])[0].get("id", "")
+            log.info("WhatsApp sent to %s (msg_id: %s)", mobile, msg_id)
+            return True
+        else:
+            log.error("WhatsApp API error %s: %s", resp.status_code, resp.text[:200])
+            return False
     except Exception as e:
         log.error("WhatsApp send failed to %s: %s", mobile, e)
+        return False
+
+
+def send_freeform(to_mobile: str, text: str) -> bool:
+    """
+    Send a freeform text message — only valid within a 24h reply window.
+    Used by reply_handler for warm follow-ups after a prospect has messaged back.
+    """
+    if not PHONE_NUMBER_ID or not ACCESS_TOKEN:
+        return False
+
+    mobile = _extract_mobile(to_mobile) or to_mobile.lstrip("+")
+    payload = {
+        "messaging_product": "whatsapp",
+        "to": mobile,
+        "type": "text",
+        "text": {"body": text},
+    }
+    url = _API_URL.format(phone_number_id=PHONE_NUMBER_ID)
+
+    try:
+        resp = requests.post(
+            url,
+            json=payload,
+            headers={
+                "Authorization": f"Bearer {ACCESS_TOKEN}",
+                "Content-Type": "application/json",
+            },
+            timeout=10,
+        )
+        return resp.status_code == 200
+    except Exception as e:
+        log.error("WhatsApp freeform failed to %s: %s", to_mobile, e)
         return False

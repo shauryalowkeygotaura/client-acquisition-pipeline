@@ -1,22 +1,21 @@
-name: Pipeline — Scrape + Send
+name: Pipeline — Replies + Follow-ups
 
 on:
   schedule:
-    - cron: '30 3 * * 1-5'   # 9:00am IST Mon–Fri
+    - cron: '30 9 * * 1-5'   # 3:00pm IST Mon–Fri
   workflow_dispatch:
 
 env:
   GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
-  VAPI_API_KEY: ${{ secrets.VAPI_API_KEY }}
   GOOGLE_SHEETS_ID: ${{ secrets.GOOGLE_SHEETS_ID }}
   GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
   GMAIL_ADDRESS: ${{ secrets.GMAIL_ADDRESS }}
   GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
   GMAIL_ACCOUNTS: ${{ secrets.GMAIL_ACCOUNTS }}
-  LINKEDIN_COOKIES_JSON: ${{ secrets.LINKEDIN_COOKIES_JSON }}
-  FIRECRAWL_API_KEY: ${{ secrets.FIRECRAWL_API_KEY }}
-  SERPAPI_KEY: ${{ secrets.SERPAPI_KEY }}
   BOOKING_LINK: ${{ secrets.BOOKING_LINK }}
+  WHATSAPP_PHONE_NUMBER_ID: ${{ secrets.WHATSAPP_PHONE_NUMBER_ID }}
+  WHATSAPP_ACCESS_TOKEN: ${{ secrets.WHATSAPP_ACCESS_TOKEN }}
+  WHATSAPP_TEMPLATE_NAME: ${{ secrets.WHATSAPP_TEMPLATE_NAME }}
 
 jobs:
   run:
@@ -31,8 +30,5 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      - name: Install Playwright browser
-        run: playwright install chromium
-
-      - name: Run pipeline
-        run: python pipeline.py
+      - name: Check replies + send follow-ups
+        run: python pipeline.py replies

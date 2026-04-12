@@ -10,7 +10,7 @@ Run this module from the pipeline daily (separate from the main send loop).
 CTA Ladder:
   Stage 1 (initial reply):     "Worth a quick 5-min call?"
   Stage 2 (follow-up/warm):    "I can show how this works for your business this week"
-  Stage 3 (high intent/book):  Direct cal.com booking link
+  Stage 3 (high intent/book):  Direct Google Meet booking link
 """
 import email as email_lib
 import imaplib

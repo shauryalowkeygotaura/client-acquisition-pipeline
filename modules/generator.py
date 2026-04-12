@@ -82,7 +82,7 @@ Services/details: {services or details[:1500]}
 COPY RULES (apply to every word in every field):
 - Viking English: state the actual thing. Not a category, not a feeling, not a description of a benefit. The real fact.
   BAD: "improve your front desk operations" | GOOD: "answer calls while your hiring gap is open"
-  BAD: "scalable AI solution" | GOOD: "a voice agent that picks up, asks what they need, and books via cal.com"
+  BAD: "scalable AI solution" | GOOD: "a voice agent that picks up, asks what they need, and books via Google Meet"
 - If a sentence could describe any business in any industry without changing a word, rewrite it.
 - No jargon: no "leverage", "synergy", "scalable", "pain points", "seamless", "AI-powered solution", "ROI", "value proposition".
 - Short sentences. One idea per sentence. Sound like a real person.
@@ -97,7 +97,7 @@ Generate a JSON object with exactly these seven fields:
    The agent speaks AS the receptionist for {company} — it picks up the phone on their behalf.
 
    Write it as: "You are the receptionist for {company}. When someone calls, [what to do]..."
-   3–4 sentences. Must cover: greet by company name, find out what the caller needs, offer to book via cal.com, take name and callback number if they prefer a callback.
+   3–4 sentences. Must cover: greet by company name, find out what the caller needs, offer to book via Google Meet, take name and callback number if they prefer a callback.
    Use actual details from the services/location data above where possible (e.g. mention their specific service type).
    Return as a single plain string with no line breaks inside.
 
@@ -190,7 +190,7 @@ Generate a JSON object with exactly these seven fields:
    This line is ONLY about them. No product, no ask, no you.
 
    Step 2 — BRIDGE (1 sentence): What you built and exactly what it does. Short, specific, no jargon.
-   Example: "I build voice agents for {industry} businesses — they answer calls, handle FAQs, and book via cal.com."
+   Example: "I build voice agents for {industry} businesses — they answer calls, handle FAQs, and book via Google Meet."
 
    Step 3 — SOFT ASK (1 sentence): "Would it be okay if I sent a 2-min clip?" — nothing more.
    No "hop on a call", no "schedule a demo", no "let's connect", no "I'd love to".
@@ -222,7 +222,7 @@ Generate a JSON object with exactly these seven fields:
    Use their niche and location if it sounds natural. One sentence, ends with a question mark. Nothing else on this line.
 
    LINE 2 (BRIDGE, 1 sentence): What you built, what it does. Specific, no jargon, no AI buzzwords.
-   Example: "I build voice agents for {industry} businesses — they pick up, answer FAQs, and book via cal.com."
+   Example: "I build voice agents for {industry} businesses — they pick up, answer FAQs, and book via Google Meet."
 
    LINE 3 (ULTRA-SOFT CTA): "Happy to send a 2-min clip if useful."
 
