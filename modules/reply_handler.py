@@ -410,7 +410,10 @@ def send_follow_ups(max_per_run: int = 10):
         slug = lead.get("slug")
         email = lead.get("email")
         sent_at_str = lead.get("sent_at", "")
-        follow_up_count = int(lead.get("follow_up_count") or "0")
+        try:
+            follow_up_count = int(lead.get("follow_up_count") or 0)
+        except (ValueError, TypeError):
+            follow_up_count = 0
         reply_status = lead.get("reply_status", "")
         stage = lead.get("conversation_stage", "initial")
 
