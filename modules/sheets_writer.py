@@ -1,9 +1,11 @@
 import json
 import logging
 import os
+import time
 from datetime import datetime, timezone
 
 import gspread
+from gspread.exceptions import APIError
 from google.oauth2.service_account import Credentials
 
 log = logging.getLogger(__name__)
@@ -36,7 +38,7 @@ NICHE_ANALYTICS_HEADERS = [
 ]
 
 
-def get_sheet(tab: str = "leads"):
+def get_sheet(tab: str = "leads", retries: int = 4, backoff: float = 2.0):
     creds_json = os.getenv("GOOGLE_SERVICE_ACCOUNT_JSON")
     sheet_id = os.getenv("GOOGLE_SHEETS_ID")
     if not creds_json:
@@ -45,7 +47,17 @@ def get_sheet(tab: str = "leads"):
         raise RuntimeError("GOOGLE_SHEETS_ID env var is not set.")
     creds = Credentials.from_service_account_info(json.loads(creds_json), scopes=SCOPES)
     client = gspread.authorize(creds)
-    return client.open_by_key(sheet_id).worksheet(tab)
+    for attempt in range(retries):
+        try:
+            return client.open_by_key(sheet_id).worksheet(tab)
+        except APIError as e:
+            status = e.response.status_code if hasattr(e, "response") else 0
+            if status in (429, 500, 502, 503, 504) and attempt < retries - 1:
+                wait = backoff ** attempt
+                log.warning("Sheets API %s on attempt %d — retrying in %.1fs", status, attempt + 1, wait)
+                time.sleep(wait)
+            else:
+                raise
 
 
 def get_all_leads() -> list[dict]:
