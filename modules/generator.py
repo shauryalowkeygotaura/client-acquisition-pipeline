@@ -55,8 +55,9 @@ def build_prompt(data: dict) -> str:
         if company_hook:
             hooks_section += f"Company hook: {company_hook}\n"
         hooks_section += (
-            "Rule: If a hook is present, lead the HOOK sentence of email_body_pain / email_body_curiosity / "
-            "email_body_roi AND the linkedin_msg opener with this specific fact instead of a generic observation. "
+            "MANDATORY RULE: The HOOK sentence (first line) of email_body_pain, email_body_curiosity, "
+            "email_body_roi, AND the linkedin_msg opener MUST begin with this specific fact — verbatim or "
+            "lightly paraphrased. Do NOT open with a generic observation when a hook is available. "
             "Reference it naturally — don't announce that you researched them.\n"
         )
 
@@ -123,7 +124,7 @@ Generate a JSON object with exactly these seven fields:
    Follow H-A-O-P-CTA. Do NOT label sections. Write as flowing prose.
    FORMATTING: Separate each section with a blank line (\n\n). Sign-off on its own line. No single giant paragraph.
 
-   HOOK (1 sentence): A specific observable fact — the job posting, the gap duration, the city. Make it about them, not you.
+   HOOK (1 sentence): If PERSONALIZATION HOOKS are provided above, this sentence MUST open with that specific fact. Otherwise: a specific observable fact — the job posting, the gap duration, the city. Make it about them, not you.
    Forbidden openers: "I hope", "My name is", "I came across", "I wanted to reach out", "I noticed your posting".
    Strong examples: "You've had that receptionist role open at [company] for [X days]." / "Running a {industry} in {location} without front-desk cover is [specific consequence]."
 
@@ -144,7 +145,7 @@ Generate a JSON object with exactly these seven fields:
    Same H-A-O-P-CTA structure, same hard rules, same word count.
    FORMATTING: Separate each section with a blank line (\n\n). Sign-off on its own line.
 
-   HOOK (1 sentence): A question or observation that reveals a gap they haven't thought about. Specific to their niche and city. Should feel like something only someone who looked at their business would say.
+   HOOK (1 sentence): If PERSONALIZATION HOOKS are provided above, this sentence MUST open with that specific fact. Otherwise: a question or observation that reveals a gap they haven't thought about. Specific to their niche and city. Should feel like something only someone who looked at their business would say.
    Examples: "Do you know how many calls go unanswered at {company} on a Tuesday afternoon?" / "Most {industry} owners in {location} don't know their missed-call rate until I show them."
 
    AGITATE (2 sentences): Expand on the unknown — what they can't see is costing them. Make the invisible visible with a plausible number.
@@ -163,7 +164,7 @@ Generate a JSON object with exactly these seven fields:
    Same H-A-O-P-CTA structure, same hard rules, same word count.
    FORMATTING: Separate each section with a blank line (\n\n). Sign-off on its own line.
 
-   HOOK (1 sentence): A concrete revenue number tied to their niche. Make it feel like something they should already know.
+   HOOK (1 sentence): If PERSONALIZATION HOOKS are provided above, this sentence MUST open with that specific fact. Otherwise: a concrete revenue number tied to their niche. Make it feel like something they should already know.
    Examples: "A {industry} business in {location} typically gets 40–80 inbound calls a week." / "The {industry} practice two blocks from {company} just stopped missing calls."
 
    AGITATE (2 sentences): If they're losing X calls a day at Y value per booking, that's Z per month. Competitor angle — similar businesses have already solved this.
