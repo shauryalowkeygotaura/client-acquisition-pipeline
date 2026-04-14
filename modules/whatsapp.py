@@ -20,8 +20,8 @@ TEMPLATE to submit for approval in Meta Business Manager:
   Category: MARKETING
   Language: English (en)
   Body:     Hi {{1}}, saw {{2}} is hiring a receptionist. I build AI voice agents for
-            {{3}} businesses — they handle calls, FAQs, and book a Google Meet automatically.
-            Want me to send a 2-min demo?
+            {{3}} businesses — they answer calls, handle FAQs, and schedule appointments.
+            Want me to send a 2-min clip?
   Footer:   Reply STOP to opt out.
   Variables:
     {{1}} = contact name (or "there")
