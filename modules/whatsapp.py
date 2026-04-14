@@ -194,7 +194,8 @@ def send_freeform(to_mobile: str, text: str) -> bool:
 def handle_reply(webhook_payload: dict) -> bool:
     """
     Process an inbound WhatsApp message from Meta's webhook.
-    If the sender is a known lead, fires the pitch (touch 2) automatically.
+    Does NOT send pitch immediately — stores reply timestamp so the scheduled
+    job can send it with a natural delay (feels human, not bot).
 
     Webhook payload shape (Meta Cloud API):
       {
@@ -210,6 +211,7 @@ def handle_reply(webhook_payload: dict) -> bool:
 
     Wire this to a POST /webhook endpoint (e.g. FastAPI on Railway).
     """
+    from datetime import datetime, timezone
     from modules import sheets_writer
 
     try:
@@ -230,18 +232,17 @@ def handle_reply(webhook_payload: dict) -> bool:
         if not from_number:
             return False
 
+        leads = sheets_writer.get_all_leads()
+
         # Opt-out check
         if re.search(r'\bSTOP\b', body, re.IGNORECASE):
             log.info("WhatsApp opt-out from %s", from_number)
-            # Look up lead by phone and mark opted_out
-            leads = sheets_writer.get_all_leads()
             for lead in leads:
                 if _extract_mobile(lead.get("phone", "")) == from_number:
                     sheets_writer.update_field(lead["slug"], "opted_out", "yes")
             return True
 
         # Look up lead by phone number
-        leads = sheets_writer.get_all_leads()
         lead = next(
             (l for l in leads if _extract_mobile(l.get("phone", "")) == from_number),
             None,
@@ -252,16 +253,16 @@ def handle_reply(webhook_payload: dict) -> bool:
             return False
 
         slug = lead.get("slug", "")
-        stage = lead.get("whatsapp_stage", "question_sent")
+        stage = lead.get("whatsapp_stage", "")
 
         if stage == "question_sent":
-            # Touch 2: send the pitch
-            niche = lead.get("niche", "service")
-            ok = send_pitch(from_number, niche)
-            if ok:
-                sheets_writer.update_field(slug, "whatsapp_stage", "pitch_sent")
-                log.info("WhatsApp pitch sent to %s (%s)", lead.get("company_name"), from_number)
-            return ok
+            # Store reply timestamp — pitch will be sent by process_whatsapp_replies()
+            # on the next scheduled run (natural delay, doesn't feel like a bot)
+            now = datetime.now(timezone.utc).isoformat()
+            sheets_writer.update_field(slug, "whatsapp_stage", "reply_received")
+            sheets_writer.update_field(slug, "whatsapp_reply_at", now)
+            log.info("WhatsApp reply stored for %s — pitch queued for next run", lead.get("company_name"))
+            return True
 
         log.info("WhatsApp reply from %s — stage=%s, no auto-action", lead.get("company_name"), stage)
         return True
@@ -269,3 +270,67 @@ def handle_reply(webhook_payload: dict) -> bool:
     except Exception as e:
         log.error("handle_reply failed: %s", e)
         return False
+
+
+# Minimum hours to wait before sending pitch after they reply.
+# Feels like Shaurya checked his phone a few hours later, not a bot.
+_PITCH_DELAY_HOURS = 2
+_PITCH_MAX_HOURS = 22   # WhatsApp 24h window — don't send if too late
+
+
+def process_whatsapp_replies(max_per_run: int = 20):
+    """
+    Called by the daily scheduler (3pm IST run).
+    Finds leads who replied to the question template, waits at least
+    _PITCH_DELAY_HOURS, then sends the pitch (touch 2).
+    """
+    from datetime import datetime, timedelta, timezone
+    from modules import sheets_writer
+
+    leads = sheets_writer.get_all_leads()
+    sent = 0
+
+    for lead in leads:
+        if sent >= max_per_run:
+            break
+
+        if lead.get("whatsapp_stage") != "reply_received":
+            continue
+        if lead.get("opted_out", "no") == "yes":
+            continue
+
+        reply_at_str = lead.get("whatsapp_reply_at", "")
+        if not reply_at_str:
+            continue
+
+        try:
+            reply_at = datetime.fromisoformat(reply_at_str.replace("Z", "+00:00"))
+        except ValueError:
+            continue
+
+        now = datetime.now(timezone.utc)
+        hours_since = (now - reply_at).total_seconds() / 3600
+
+        # Too soon (feels like bot) or too late (24h window closed)
+        if hours_since < _PITCH_DELAY_HOURS or hours_since > _PITCH_MAX_HOURS:
+            continue
+
+        phone = lead.get("phone", "")
+        mobile = _extract_mobile(phone)
+        if not mobile:
+            continue
+
+        niche = lead.get("niche", "service")
+        ok = send_pitch(mobile, niche)
+        if ok:
+            sheets_writer.update_field(lead["slug"], "whatsapp_stage", "pitch_sent")
+            log.info(
+                "WhatsApp pitch sent to %s (%.1fh after reply)",
+                lead.get("company_name"), hours_since,
+            )
+            sent += 1
+        else:
+            log.error("WhatsApp pitch failed for %s", lead.get("company_name"))
+
+    if sent:
+        log.info("process_whatsapp_replies: sent %d pitches", sent)

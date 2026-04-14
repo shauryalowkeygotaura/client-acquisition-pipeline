@@ -30,6 +30,8 @@ HEADERS = [
     "message_id", "opt_out_token", "sender_account", "opted_out",
     # ── Phase 6 person-level personalization ──
     "person_hook", "company_hook",
+    # ── WhatsApp sequence tracking ──
+    "phone", "whatsapp_stage", "whatsapp_reply_at",
 ]
 
 NICHE_ANALYTICS_HEADERS = [
@@ -135,6 +137,10 @@ def build_row(data: dict) -> list:
         # Person-level personalization hooks
         data.get("person_hook", ""),
         data.get("company_hook", ""),
+        # WhatsApp sequence tracking
+        data.get("phone", ""),
+        "",   # whatsapp_stage
+        "",   # whatsapp_reply_at
     ]
 
 

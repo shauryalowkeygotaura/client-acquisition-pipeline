@@ -193,6 +193,7 @@ def run_reply_handler():
     print(f"[{datetime.now(timezone.utc).isoformat()}] Checking replies...")
     reply_handler.run(since_days=7)
     reply_handler.send_follow_ups(max_per_run=20)
+    whatsapp.process_whatsapp_replies(max_per_run=20)
     print("Reply handling complete.")
 
 
