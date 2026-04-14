@@ -7,10 +7,11 @@ Classifies each reply → generates a response → sends it → updates sheets.
 Requires: GMAIL_ADDRESS, GMAIL_APP_PASSWORD env vars (same as email_sender).
 Run this module from the pipeline daily (separate from the main send loop).
 
-CTA Ladder:
-  Stage 1 (initial reply):     "Worth a quick 5-min call?"
-  Stage 2 (follow-up/warm):    "I can show how this works for your business this week"
-  Stage 3 (high intent/book):  Direct Google Meet booking link
+CTA Ladder (Hormozi sequence — never skip a step):
+  Stage 1 (initial reply):     Offer the 2-min clip. No call ask.
+  Stage 2 (follow_up_1):       Follow up on the clip. Ask one question about their situation.
+  Stage 3 (warm):              "Worth a quick 5-min call?" — first time a call is mentioned.
+  Stage 4 (follow_up_2):       Direct Google Meet booking link.
 """
 import email as email_lib
 import imaplib
@@ -127,14 +128,16 @@ Context:
 - Objection type (if any): {objection_type}
 - Conversation stage: {stage}
 
-CTA ladder — choose the right level:
-  initial → "Worth a quick 5-min Google Meet call?"
-  follow_up_1 → "I can walk you through it on a quick Meet call this week — would that work?"
-  warm / follow_up_2 → Direct booking link: {booking_link}
+CTA ladder — Hormozi sequence. NEVER skip a step. NEVER ask for a call before stage warm.
+  initial     → offer the 2-min clip only. No call mention. No booking link.
+  follow_up_1 → ask one specific question about their situation OR follow up on the clip.
+                Still no call ask.
+  warm        → "Worth a quick 5-min call?" — first and only time a call is suggested.
+  follow_up_2 → drop the direct booking link: {booking_link}
 
 Rules per category:
-  interested → move toward the meeting. One clear ask.
-  neutral → one sharp specific question about their situation, OR offer a 2-min demo clip.
+  interested → match the current stage CTA above. Never jump ahead.
+  neutral → one sharp specific question about their situation. No clip, no ask.
   objection:
     cost: less than one hour of a receptionist's wage per day. No sick leave, no notice period.
     timing: takes less than a day to set up; most useful during the hiring gap.
@@ -160,7 +163,7 @@ def _generate_response(lead: dict, classification: dict, reply_text: str = "") -
     if not GROQ_API_KEY:
         if category == "objection":
             return _OBJECTION_REBUTTALS.get(objection_type, _OBJECTION_REBUTTALS["other"])
-        return "Thanks for getting back to me. Worth a quick Google Meet call? — Shaurya"
+        return "Thanks for getting back to me. Happy to send a 2-min clip if that would help — just say the word. — Shaurya"
 
     client = OpenAI(api_key=GROQ_API_KEY, base_url=LLM_BASE_URL)
     try:
@@ -187,7 +190,7 @@ def _generate_response(lead: dict, classification: dict, reply_text: str = "") -
         log.error("generate_response LLM failed: %s — using fallback", e)
         if category == "objection":
             return _OBJECTION_REBUTTALS.get(objection_type, _OBJECTION_REBUTTALS["other"])
-        return "Thanks for getting back to me. Worth a quick Google Meet call? — Shaurya"
+        return "Thanks for getting back to me. Happy to send a 2-min clip if that would help — just say the word. — Shaurya"
 
 
 # ── Gmail IMAP + SMTP ────────────────────────────────────────────────────────

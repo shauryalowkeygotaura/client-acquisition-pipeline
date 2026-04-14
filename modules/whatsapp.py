@@ -153,7 +153,7 @@ def send_pitch(to_mobile: str, niche: str) -> bool:
     text = (
         f"I build voice agents for {niche_str} businesses — "
         f"they answer calls and handle bookings automatically. "
-        f"Want me to send a 2-min clip?\n\n— Shaurya"
+        f"Want me to send a 2-min clip?"
     )
     return send_freeform(to_mobile, text)
 
