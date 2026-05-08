@@ -23,6 +23,11 @@ class GeneratorError(Exception):
 # Psychographic profile of the ICP (small service business owner hiring a receptionist).
 # Derived from icp-psychographic-mapper framework — baked in once so every lead gets
 # copy that speaks to the actual human, not a job title.
+#
+# IMPORTANT: _ICP_PSYCHOGRAPHIC and _COPY_RULES_STATIC are kept as separate constants
+# placed at the START of build_prompt's f-string so Groq's automatic prompt caching can
+# match the static prefix across leads. Moving any interpolated `{var}` ahead of these
+# blocks defeats the cache and doubles input cost — keep dynamic content below.
 _ICP_PSYCHOGRAPHIC = """
 WHO YOU ARE WRITING TO (psychographic profile — use this to write in their language, not yours):
 - 38–58 year old owner or office manager of a local service business (dental, physio, legal, medical, trades).
@@ -34,6 +39,21 @@ WHO YOU ARE WRITING TO (psychographic profile — use this to write in their lan
 - They distrust vendors who overpromise. The phrase "AI-powered solution" makes them roll their eyes.
 - What gets through to them: specificity (numbers, their niche, their city), brevity, and the sense that you actually looked at their business.
 - Their internal monologue right now: "I just need this to work until I find someone. Or longer, if it actually works."
+"""
+
+_COPY_RULES_STATIC = """
+COPY RULES (apply to every word in every field):
+- Viking English: state the actual thing. Not a category, not a feeling, not a description of a benefit. The real fact.
+  BAD: "improve your front desk operations" | GOOD: "answer calls while your hiring gap is open"
+  BAD: "scalable AI solution" | GOOD: "a voice agent that picks up, asks what they need, and books via Google Meet"
+- If a sentence could describe any business in any industry without changing a word, rewrite it.
+- No jargon: no "leverage", "synergy", "scalable", "pain points", "seamless", "AI-powered solution", "ROI", "value proposition".
+- Short sentences. One idea per sentence. Sound like a real person.
+"""
+
+_SENDER_FRAMING_STATIC = """
+SENDER: Shaurya — a 22-year-old developer who builds AI voice receptionists for small businesses.
+PURPOSE: Shaurya is writing a cold outreach email TO a business owner, FROM himself. He is not the one hiring. He is not affiliated with the target company. He is pitching his AI receptionist product to them.
 """
 
 
@@ -61,14 +81,19 @@ def build_prompt(data: dict) -> str:
             "Reference it naturally — don't announce that you researched them.\n"
         )
 
+    # Static blocks first (cacheable prefix). Dynamic interpolations come AFTER.
     return f"""
-SENDER: Shaurya — a 22-year-old developer who builds AI voice receptionists for small businesses.
+{_ICP_PSYCHOGRAPHIC}
+
+{_COPY_RULES_STATIC}
+
+{_SENDER_FRAMING_STATIC}
+
+---
+
 RECIPIENT: The owner or office manager at {company}, who posted a job listing for a human receptionist.
-PURPOSE: Shaurya is writing a cold outreach email TO the business owner, FROM himself. He is not the one hiring. He is not affiliated with {company}. He is pitching his AI receptionist product to them.
 
 CRITICAL: Every word of the email_body and linkedin_msg must be written FROM Shaurya TO the recipient. The "I" in the email is Shaurya. The "you" is the business owner at {company}. Never flip this. The job listing context below is background research — do NOT echo it back as if Shaurya is the one hiring.
-
-{_ICP_PSYCHOGRAPHIC}
 
 LEAD DATA (research context — do not parrot this back verbatim):
 Company: {company}
@@ -77,16 +102,6 @@ Location: {location}
 Industry/type: {industry}
 Services/details: {services or details[:1500]}
 {hooks_section}
-
----
-
-COPY RULES (apply to every word in every field):
-- Viking English: state the actual thing. Not a category, not a feeling, not a description of a benefit. The real fact.
-  BAD: "improve your front desk operations" | GOOD: "answer calls while your hiring gap is open"
-  BAD: "scalable AI solution" | GOOD: "a voice agent that picks up, asks what they need, and books via Google Meet"
-- If a sentence could describe any business in any industry without changing a word, rewrite it.
-- No jargon: no "leverage", "synergy", "scalable", "pain points", "seamless", "AI-powered solution", "ROI", "value proposition".
-- Short sentences. One idea per sentence. Sound like a real person.
 
 ---
 
