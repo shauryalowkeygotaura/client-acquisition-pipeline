@@ -76,24 +76,48 @@ def _is_valid_email_domain(email: str) -> bool:
             return False
 
 
+# Generic mailbox prefixes — sending here means hitting a shared inbox or
+# a department, not a decision-maker. Cold outreach to these is filtered
+# (and on careers@/hr@ it's actively hostile because HR isn't the buyer).
+_GENERIC_PREFIXES = {
+    "noreply", "no-reply", "donotreply", "do-not-reply", "automated",
+    "info", "contact", "hello", "hi", "office",
+    "support", "help", "get-help", "gethelp", "helpdesk", "service",
+    "careers", "career", "jobs", "job", "hiring", "recruit", "recruiting",
+    "recruitment", "hr", "humanresources", "talent",
+    "admin", "administrator", "webmaster", "postmaster", "mail", "email",
+    "abuse", "billing", "accounts", "accounting", "finance",
+    "sales", "marketing", "press", "media", "pr",
+    "team", "all", "everyone", "general", "enquiries", "enquiry",
+    "inquiries", "inquiry", "feedback", "newsletter",
+}
+
+
+def is_generic_mailbox(email: str) -> bool:
+    """True if the local-part is a shared/role mailbox (info@, hr@, ...)."""
+    try:
+        local = email.split("@", 1)[0].lower()
+    except (IndexError, AttributeError):
+        return True
+    return local in _GENERIC_PREFIXES
+
+
 def extract_email_from_text(text: str) -> list[str]:
-    """Extract valid contact emails from plain text."""
+    """Extract personal contact emails from plain text — drops role mailboxes."""
     pattern = r'[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}'
     found = re.findall(pattern, text)
-    blocked = {"noreply", "no-reply", "donotreply", "support", "automated"}
-    candidates = [e for e in found if e.split("@")[0].lower() not in blocked]
+    candidates = [e for e in found if not is_generic_mailbox(e)]
     return [e for e in candidates if _is_valid_email_domain(e)]
 
 
 def extract_emails_from_html(html: str) -> list[str]:
-    """Extract emails from HTML via mailto: links only.
+    """Extract emails from HTML via mailto: links only — drops role mailboxes.
 
     Running the plain-text regex on raw HTML pulls in CSS/JS artifacts.
     mailto: links are what site owners deliberately placed there.
     """
     mailto = re.findall(r'mailto:([a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,})', html)
-    blocked = {"noreply", "no-reply", "donotreply", "support", "automated"}
-    candidates = [e for e in mailto if e.split("@")[0].lower() not in blocked]
+    candidates = [e for e in mailto if not is_generic_mailbox(e)]
     return [e for e in candidates if _is_valid_email_domain(e)]
 
 
@@ -250,18 +274,27 @@ def scrape_company(job: dict) -> dict:
 
     research["linkedin_url"] = find_linkedin_url(poster_name, company_name)
 
-    # ── Email fallback: guess common patterns if nothing found ───────────────
-    # Most Indian SMB websites don't publish emails but ~35% respond to info@/contact@
-    # Skip if domain is a free provider or social/job platform — would send to wrong inbox
+    # ── Email fallback chain ─────────────────────────────────────────────────
+    # Previous version blindly guessed info@/careers@/hr@ which produced 0%
+    # reply rate (HR teams hate sales spam). New chain only returns a
+    # personal/decision-maker email or None.
+    #   1. Hunter.io free domain search (25 lookups/month)
+    #   2. Snov.io free domain search (50 leads/month)
+    # Both are skipped silently if API keys aren't set.
     if not research.get("email"):
         domain = parse_domain(website) if website else None
         if domain and domain not in _NO_GUESS_DOMAINS:
-            for prefix in ("info", "contact", "hello", "reception", "admin"):
-                guessed = f"{prefix}@{domain}"
-                if _is_valid_email_domain(guessed):
-                    research["email"] = guessed
-                    log.info("Guessed email for %s: %s", company_name, guessed)
-                    break
+            try:
+                from . import email_finder
+                found = email_finder.find_personal_email(
+                    domain=domain,
+                    full_name=poster_name,
+                )
+                if found:
+                    research["email"] = found
+                    log.info("email_finder hit for %s: %s", company_name, found)
+            except Exception as e:
+                log.warning("email_finder failed for %s: %s", company_name, e)
 
     return {**job, **research}
 

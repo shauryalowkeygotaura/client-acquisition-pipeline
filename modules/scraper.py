@@ -51,26 +51,27 @@ def search_city(city: str) -> list[dict]:
     }
 
     raw_jobs = []
+    indeed_keys: list[str] = []
     try:
         search = GoogleSearch(params)
         results = search.get_dict()
-        
-        # Robust key detection
+        indeed_keys = list(results.keys())
+
+        if "error" in results:
+            print(f"    [SCRAPER ERROR] SerpAPI Indeed returned error: {results['error']}")
+
         if "jobs_results" in results:
             raw_jobs = results["jobs_results"]
         elif "organic_results" in results:
             raw_jobs = results["organic_results"]
         elif "results" in results:
             raw_jobs = results["results"]
-            
-        log.debug("Indeed response keys: %s", list(results.keys()))
-        log.info("Indeed returned %d raw jobs for %s", len(raw_jobs), city)
     except Exception as e:
-        log.error("Indeed search failed for %s: %s", city, e)
+        print(f"    [SCRAPER ERROR] Indeed call raised: {e}")
 
-    # 2. Fallback to Google Jobs if Indeed is empty
+    # Fallback chain: Google Jobs → Google web search
     if not raw_jobs:
-        log.info("Indeed yielded 0 results. Trying Google Jobs for %s...", city)
+        print(f"    [SCRAPER] Indeed empty for {city}. Response keys: {indeed_keys}. Trying Google Jobs.")
         g_params = {
             "engine": "google_jobs",
             "q": f"receptionist jobs in {city}",
@@ -79,12 +80,41 @@ def search_city(city: str) -> list[dict]:
             "api_key": SERPAPI_KEY,
         }
         try:
-            g_search = GoogleSearch(g_params)
-            g_results = g_search.get_dict()
+            g_results = GoogleSearch(g_params).get_dict()
+            g_keys = list(g_results.keys())
+            if "error" in g_results:
+                print(f"    [SCRAPER ERROR] google_jobs returned error: {g_results['error']}")
             raw_jobs = g_results.get("jobs_results", [])
-            log.info("Google Jobs fallback returned %d raw jobs for %s", len(raw_jobs), city)
+            if not raw_jobs:
+                print(f"    [SCRAPER] google_jobs empty for {city}. Response keys: {g_keys}.")
         except Exception as e:
-            log.error("Google Jobs fallback failed for %s: %s", city, e)
+            print(f"    [SCRAPER ERROR] google_jobs call raised: {e}")
+
+    # Final fallback: plain Google search → mine organic results for hiring pages
+    if not raw_jobs:
+        print(f"    [SCRAPER] Trying plain Google search fallback for {city}.")
+        try:
+            web_results = GoogleSearch({
+                "engine": "google",
+                "q": f'"receptionist" ("hiring" OR "we are hiring" OR "join our team") {city}',
+                "gl": "in",
+                "hl": "en",
+                "num": 20,
+                "api_key": SERPAPI_KEY,
+            }).get_dict()
+            if "error" in web_results:
+                print(f"    [SCRAPER ERROR] google web returned error: {web_results['error']}")
+            organic = web_results.get("organic_results", [])
+            print(f"    [SCRAPER] google web returned {len(organic)} organic results for {city}.")
+            for r in organic:
+                raw_jobs.append({
+                    "company_name": (r.get("source") or r.get("displayed_link") or "").split(" › ")[0].strip(),
+                    "title": r.get("title", "Receptionist"),
+                    "snippet": r.get("snippet", ""),
+                    "link": r.get("link", ""),
+                })
+        except Exception as e:
+            print(f"    [SCRAPER ERROR] google web fallback raised: {e}")
 
     jobs = []
     for j in raw_jobs:

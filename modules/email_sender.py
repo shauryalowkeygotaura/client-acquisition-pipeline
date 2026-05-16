@@ -5,6 +5,7 @@ import re
 import secrets
 import smtplib
 from datetime import datetime, timezone
+from email.charset import QP, Charset
 from email.mime.text import MIMEText
 from email.utils import formatdate, make_msgid
 
@@ -13,6 +14,12 @@ log = logging.getLogger(__name__)
 SMTP_HOST = "smtp.gmail.com"
 SMTP_PORT = 587
 MAX_PER_ACCOUNT = 50  # Gmail cold email best practice: ≤50/inbox/day
+
+# Default MIMEText("plain", "utf-8") would base64-encode the body, which
+# (a) breaks downstream payload inspection and (b) gets harsher spam scoring
+# than quoted-printable on Gmail's promo filter.
+_BODY_CHARSET = Charset("utf-8")
+_BODY_CHARSET.body_encoding = QP
 
 _EMAIL_RE = re.compile(r'^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$')
 
@@ -94,7 +101,9 @@ def build_message(
     if opt_out:
         body += _unsubscribe_footer(opt_out)
 
-    msg = MIMEText(body, "plain")
+    # Plain text only: HTML triggers Gmail promo-tab routing and stricter
+    # Outlook spam scoring. Body uses real \n paragraph breaks (SMTP preserves).
+    msg = MIMEText(body, "plain", _BODY_CHARSET)
     msg["From"] = from_addr
     msg["To"] = data["email"]
     msg["Subject"] = data["email_subject"]
@@ -131,24 +140,50 @@ def send(
 
     email = _clean_email(raw_email)
     if not email:
+        print(f"      [EMAIL ERROR] Invalid email format: {raw_email}")
         log.warning("Skipping invalid email: %r", raw_email)
         return False, "", ""
+
+    # Defense in depth — researcher already filters generics, but if anything
+    # slipped through (Apollo edge case, hand-imported lead) refuse to send.
+    try:
+        from . import researcher
+        if researcher.is_generic_mailbox(email):
+            print(f"      [EMAIL SKIP] {email} is a role mailbox, not a person")
+            log.info("Skipping role mailbox: %s", email)
+            return False, "", ""
+    except Exception:
+        pass
+
+    # Optional pre-flight SMTP probe — catches typo'd or dead mailboxes.
+    if os.getenv("SMTP_VERIFY_BEFORE_SEND") == "1":
+        try:
+            from . import email_finder
+            if not email_finder.verify(email):
+                print(f"      [EMAIL SKIP] {email} failed SMTP RCPT verification")
+                log.info("SMTP probe rejected %s — skipping send", email)
+                return False, "", ""
+        except Exception as e:
+            log.debug("SMTP verify error (non-fatal): %s", e)
 
     data = {**data, "email": email}
 
     accounts = _load_accounts()
     if not accounts:
+        print("      [EMAIL ERROR] No Gmail accounts configured. Check .env file.")
         log.error("No Gmail accounts configured. Set GMAIL_ACCOUNTS or GMAIL_ADDRESS.")
         return False, "", ""
 
     if force_account:
         acct = next((a for a in accounts if a["address"] == force_account), None)
         if not acct:
+            print(f"      [EMAIL ERROR] Force account {force_account} not found in config.")
             log.error("force_account %s not in GMAIL_ACCOUNTS — skipping.", force_account)
             return False, "", ""
     else:
         acct = _pick_account(accounts)
         if not acct:
+            print("      [EMAIL ERROR] Daily limit reached for all Gmail accounts.")
             log.warning("All Gmail accounts at daily limit (%d/day). Skipping send.", MAX_PER_ACCOUNT)
             return False, "", ""
 
