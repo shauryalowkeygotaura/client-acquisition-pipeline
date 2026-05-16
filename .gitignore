@@ -1,9 +1,15 @@
 # Secrets — never commit these
 .env
 .env.local
+secrets.json
+env_dump.json
 
 # LinkedIn session (contains auth cookies)
 .linkedin_profile/
+
+# Apollo cookies (saved by scripts/save_apollo_cookies.py)
+apollo_cookies.json
+.apollo_session/
 
 # Python
 __pycache__/
