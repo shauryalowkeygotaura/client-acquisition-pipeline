@@ -259,6 +259,8 @@ def upsert_niche_analytics(rows: list[dict]):
 
 
 def log_error(company_name: str, error: str):
+    from .security_utils import redact_text
+    error = redact_text(error)
     try:
         sheet = get_sheet("errors")
         sheet.append_row([
@@ -267,4 +269,5 @@ def log_error(company_name: str, error: str):
             datetime.now(timezone.utc).isoformat(),
         ])
     except Exception as e:
-        log.error("Failed to log error to sheet for %s: %s (original error: %s)", company_name, e, error)
+        log.error("Failed to log error to sheet for %s: %s (original error: %s)",
+                  company_name, redact_text(str(e)), error)
