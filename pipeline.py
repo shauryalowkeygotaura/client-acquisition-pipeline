@@ -35,8 +35,14 @@ from config import CITIES
 from modules import (
     scraper, researcher, enricher, scorer, personalizer,
     generator, sheets_writer, email_sender, linkedin, whatsapp,
-    reply_handler, analytics, optimizer,
+    reply_handler, analytics, optimizer, apollo_scraper,
 )
+from modules.security_utils import get_audit_log
+
+audit = get_audit_log()
+
+# Lead source: "indeed" (SerpAPI, default) or "apollo" (Obscura + cookies)
+LEAD_SOURCE = os.getenv("LEAD_SOURCE", "indeed").lower()
 
 # ── Routing thresholds ───────────────────────────────────────────────────────
 # high priority (score ≥ 7): full outreach (email + LinkedIn)
@@ -59,11 +65,14 @@ def run():
     total_whatsapp = 0
     total_skipped_low = 0
 
+    source_module = apollo_scraper if LEAD_SOURCE == "apollo" else scraper
+    source_label = "Apollo" if LEAD_SOURCE == "apollo" else "Indeed"
+
     for city in CITIES:
-        print(f"  Scraping Indeed: {city}")
+        print(f"  Scraping {source_label}: {city}")
         try:
-            jobs = scraper.run(city)
-            print(f"    Found {len(jobs)} jobs")
+            jobs = source_module.run(city)
+            print(f"    Found {len(jobs)} leads")
         except Exception as e:
             print(f"    Scraper failed for {city}: {e}")
             continue
@@ -73,6 +82,8 @@ def run():
             try:
                 if sheets_writer.domain_exists(job.get("domain"), existing):
                     print(f"    [SKIP] {company} (already in Sheets)")
+                    audit.append("pipeline", "skip", company, ok=True,
+                                 detail={"reason": "duplicate_domain", "domain": job.get("domain", "")})
                     continue
 
                 print(f"    Processing: {company}")
@@ -91,6 +102,8 @@ def run():
                 if score < SCORE_LOW:
                     total_skipped_low += 1
                     print(f"      [SKIP] Low score ({score}) — not worth outreach")
+                    audit.append("pipeline", "skip", company, ok=True,
+                                 detail={"reason": "low_score", "score": score, "niche": niche})
                     continue
 
                 # ── Person-level personalization (only for qualified leads) ──
@@ -123,6 +136,8 @@ def run():
                 if not _in_send_window(location):
                     print(f"      [TZ SKIP] {company} — outside office hours in {location or 'IST'}. "
                           f"Run pipeline between 9am–6pm local time.")
+                    audit.append("pipeline", "skip", company, ok=True,
+                                 detail={"reason": "tz_window", "location": location or "unknown"})
                     continue
 
                 slug = data["slug"]
@@ -139,8 +154,14 @@ def run():
                             sheets_writer.update_field(slug, "sender_account", sender)
                             sheets_writer.update_channel(slug, "email")
                             total_emailed += 1
+                            audit.append("email_sender", "send", slug, ok=True,
+                                         detail={"channel": "email", "score": score,
+                                                 "to": data["email"], "message_id": msg_id,
+                                                 "sender": sender, "tier": "high"})
                         else:
                             print(f"      [EMAIL FAILED] check Gmail credentials / daily limit")
+                            audit.append("email_sender", "send", slug, ok=False,
+                                         detail={"channel": "email", "tier": "high"})
                     else:
                         print(f"      [NO EMAIL] {company} — no address found (LinkedIn only)")
 
@@ -151,10 +172,14 @@ def run():
                             sheets_writer.update_field(slug, "sent_at", datetime.now(timezone.utc).isoformat())
                             sheets_writer.update_channel(slug, "linkedin")
                         total_linkedin += 1
+                    audit.append("linkedin", "send", slug, ok=bool(li_sent),
+                                 detail={"channel": "linkedin", "score": score})
 
                     wa_sent = whatsapp.send(data)
                     if wa_sent:
                         total_whatsapp += 1
+                    audit.append("whatsapp", "send", slug, ok=bool(wa_sent),
+                                 detail={"channel": "whatsapp", "score": score})
 
                 # ── Send: medium priority → email only ───────────────────
                 elif score >= SCORE_LOW:
@@ -168,8 +193,14 @@ def run():
                             sheets_writer.update_field(slug, "sender_account", sender)
                             sheets_writer.update_channel(slug, "email")
                             total_emailed += 1
+                            audit.append("email_sender", "send", slug, ok=True,
+                                         detail={"channel": "email", "score": score,
+                                                 "to": data["email"], "message_id": msg_id,
+                                                 "sender": sender, "tier": "medium"})
                         else:
                             print(f"      [EMAIL FAILED] check Gmail credentials / daily limit")
+                            audit.append("email_sender", "send", slug, ok=False,
+                                         detail={"channel": "email", "tier": "medium"})
                     else:
                         print(f"      [NO EMAIL] {company} — no address found, skipping")
 
@@ -205,6 +236,18 @@ def run_analytics():
         print(f"  {r['niche']}: {r['booked_call_rate']:.1%} booked ({r['total_sent']} sent)")
 
 
+def run_audit_verify(tail_n: int = 20):
+    """Verify the audit chain and print the most recent records."""
+    result = audit.verify_chain()
+    print(f"Audit log: {audit.path}")
+    print(f"Chain check: {result}")
+    recent = audit.tail(tail_n)
+    print(f"\nLast {len(recent)} record(s):")
+    for r in recent:
+        print(f"  {r['ts']:.0f}  {r['actor']:<14}  {r['action']:<6}  "
+              f"{'OK ' if r['ok'] else 'ERR'}  {r['target']}  {r.get('detail', {})}")
+
+
 if __name__ == "__main__":
     import sys
     mode = sys.argv[1] if len(sys.argv) > 1 else "pipeline"
@@ -213,5 +256,7 @@ if __name__ == "__main__":
         run_reply_handler()
     elif mode == "analytics":
         run_analytics()
+    elif mode == "audit":
+        run_audit_verify()
     else:
         run()
