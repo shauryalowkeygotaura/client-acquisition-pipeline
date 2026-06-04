@@ -35,8 +35,7 @@ from config import CITIES
 from modules import (
     scraper, researcher, enricher, scorer, personalizer,
     generator, sheets_writer, email_sender, linkedin, whatsapp,
-    instagram, reply_handler, analytics, optimizer, apollo_scraper,
-    maps_scraper, icebreaker, run_metrics,
+    reply_handler, analytics, optimizer, apollo_scraper, run_metrics,
 )
 from modules.security_utils import get_audit_log
 
@@ -46,12 +45,12 @@ audit = get_audit_log()
 LEAD_SOURCE = os.getenv("LEAD_SOURCE", "indeed").lower()
 
 # ── Free-tier SerpAPI budget guard ───────────────────────────────────────────
-# SerpAPI free = 100 searches/month. Scraping all 6 cities (x N maps queries)
-# every weekday burns that in ~2 runs, after which every run silently finds 0
-# leads ("account has run out of searches"). To stay free AND keep producing
-# leads, set MAX_CITIES_PER_RUN to a small number: we then scrape a ROTATING
-# window of that many cities, advancing by day-of-year so every city is covered
-# over a few days. Default 0 = no limit (original all-cities behavior, opt-in).
+# SerpAPI free = 100 searches/month. Scraping all cities every weekday burns
+# that in ~2 runs, after which every run silently finds 0 leads ("account has
+# run out of searches"). To stay free AND keep producing leads, set
+# MAX_CITIES_PER_RUN to a small number: we then scrape a ROTATING window of that
+# many cities, advancing by day-of-year so every city is covered over a few
+# days. Default 0 = no limit (original all-cities behavior, opt-in).
 MAX_CITIES_PER_RUN = int(os.getenv("MAX_CITIES_PER_RUN", "0"))
 SERPAPI_FREE_LIMIT = 100  # searches/month on the free plan (shown on dashboard)
 
@@ -65,6 +64,7 @@ def _select_cities():
     rotated = CITIES[start:] + CITIES[:start]
     return rotated[:MAX_CITIES_PER_RUN]
 
+
 # ── Routing thresholds ───────────────────────────────────────────────────────
 # high priority (score ≥ 7): full outreach (email + LinkedIn)
 # medium priority (4–6):     email only
@@ -76,25 +76,6 @@ SCORE_LOW = 4
 # Run analytics + optimizer every N leads saved
 OPTIMIZER_INTERVAL = 50
 
-# v3 region-aware channel ordering. First in the list = first to attempt.
-# India SMB healthcare: WhatsApp + Instagram are where attention lives.
-# Rest of world: original email-first hierarchy.
-_INDIA_KEYS = (
-    "india", "delhi", "mumbai", "bangalore", "bengaluru", "hyderabad",
-    "pune", "jaipur", "chennai", "kolkata", "ahmedabad", "kochi",
-)
-CHANNEL_ORDER_INDIA = ("whatsapp", "instagram", "email", "linkedin")
-CHANNEL_ORDER_DEFAULT = ("email", "linkedin", "whatsapp")
-
-
-def _is_india_lead(data: dict) -> bool:
-    loc = (data.get("location") or "").lower()
-    return any(k in loc for k in _INDIA_KEYS)
-
-
-def _channel_order(data: dict) -> tuple[str, ...]:
-    return CHANNEL_ORDER_INDIA if _is_india_lead(data) else CHANNEL_ORDER_DEFAULT
-
 
 def run():
     print(f"[{datetime.now(timezone.utc).isoformat()}] Pipeline starting...")
@@ -105,10 +86,8 @@ def run():
     total_whatsapp = 0
     total_skipped_low = 0
 
-    _SOURCES = {"apollo": (apollo_scraper, "Apollo"),
-                "maps": (maps_scraper, "Google Maps"),
-                "indeed": (scraper, "Indeed")}
-    source_module, source_label = _SOURCES.get(LEAD_SOURCE, _SOURCES["indeed"])
+    source_module = apollo_scraper if LEAD_SOURCE == "apollo" else scraper
+    source_label = "Apollo" if LEAD_SOURCE == "apollo" else "Indeed"
 
     cities = _select_cities()
     total_found = 0
@@ -161,9 +140,6 @@ def run():
                 if data.get("person_hook") or data.get("company_hook"):
                     print(f"      [PERSONALIZED] hooks found for {company}")
 
-                # ── Lead-specific icebreaker (Maps leads especially) ──────
-                data = icebreaker.run(data)
-
                 # ── Message generation ────────────────────────────────────
                 data = generator.run(data)
 
@@ -195,110 +171,44 @@ def run():
 
                 slug = data["slug"]
 
-                # ── Send: high priority ───────────────────────────────────
-                # v3 routing: India SMB healthcare uses whatsapp → instagram → email → linkedin.
-                # Non-India keeps the original email-first hierarchy. Both branches preserve
-                # all existing sheet updates, audit hooks, and counters.
+                # ── Send: high priority → email + LinkedIn + WhatsApp ────
                 if score >= SCORE_HIGH:
-                    if _is_india_lead(data):
-                        # ── v3 INDIA channel order ──
-                        first_sent = None  # first channel that successfully delivered
-                        for ch in _channel_order(data):
-                            if ch == "whatsapp":
-                                wa_sent = whatsapp.send(data)
-                                if wa_sent:
-                                    total_whatsapp += 1
-                                    if first_sent is None:
-                                        first_sent = "whatsapp"
-                                        sheets_writer.update_field(slug, "sent_at", datetime.now(timezone.utc).isoformat())
-                                        sheets_writer.update_channel(slug, "whatsapp")
-                                audit.append("whatsapp", "send", slug, ok=bool(wa_sent),
-                                             detail={"channel": "whatsapp", "score": score,
-                                                     "tier": "high", "region": "india"})
-                            elif ch == "instagram":
-                                ig_sent = instagram.send(data)
-                                if ig_sent:
-                                    sheets_writer.update_field(slug, "instagram_sent", "TRUE")
-                                    if first_sent is None:
-                                        first_sent = "instagram"
-                                        sheets_writer.update_field(slug, "sent_at", datetime.now(timezone.utc).isoformat())
-                                        sheets_writer.update_channel(slug, "instagram")
-                                audit.append("instagram", "send", slug, ok=bool(ig_sent),
-                                             detail={"channel": "instagram", "score": score,
-                                                     "tier": "high", "region": "india"})
-                            elif ch == "email":
-                                if data.get("email"):
-                                    print(f"      [EMAIL HIGH IN] → {data['email']}")
-                                    ok, msg_id, sender = email_sender.send(data)
-                                    if ok:
-                                        sheets_writer.update_field(slug, "email_sent", "TRUE")
-                                        sheets_writer.update_field(slug, "message_id", msg_id)
-                                        sheets_writer.update_field(slug, "sender_account", sender)
-                                        total_emailed += 1
-                                        if first_sent is None:
-                                            first_sent = "email"
-                                            sheets_writer.update_field(slug, "sent_at", datetime.now(timezone.utc).isoformat())
-                                            sheets_writer.update_channel(slug, "email")
-                                        audit.append("email_sender", "send", slug, ok=True,
-                                                     detail={"channel": "email", "score": score,
-                                                             "to": data["email"], "message_id": msg_id,
-                                                             "sender": sender, "tier": "high",
-                                                             "region": "india"})
-                                    else:
-                                        print(f"      [EMAIL FAILED] check Gmail credentials / daily limit")
-                                        audit.append("email_sender", "send", slug, ok=False,
-                                                     detail={"channel": "email", "tier": "high",
-                                                             "region": "india"})
-                            elif ch == "linkedin":
-                                li_sent = linkedin.send(data)
-                                if li_sent:
-                                    sheets_writer.update_field(slug, "linkedin_sent", "TRUE")
-                                    total_linkedin += 1
-                                    if first_sent is None:
-                                        first_sent = "linkedin"
-                                        sheets_writer.update_field(slug, "sent_at", datetime.now(timezone.utc).isoformat())
-                                        sheets_writer.update_channel(slug, "linkedin")
-                                audit.append("linkedin", "send", slug, ok=bool(li_sent),
-                                             detail={"channel": "linkedin", "score": score,
-                                                     "tier": "high", "region": "india"})
-                    else:
-                        # ── ORIGINAL non-India flow (unchanged) ──
-                        if data.get("email"):
-                            print(f"      [EMAIL HIGH] → {data['email']}")
-                            ok, msg_id, sender = email_sender.send(data)
-                            if ok:
-                                sheets_writer.update_field(slug, "email_sent", "TRUE")
-                                sheets_writer.update_field(slug, "sent_at", datetime.now(timezone.utc).isoformat())
-                                sheets_writer.update_field(slug, "message_id", msg_id)
-                                sheets_writer.update_field(slug, "sender_account", sender)
-                                sheets_writer.update_channel(slug, "email")
-                                total_emailed += 1
-                                audit.append("email_sender", "send", slug, ok=True,
-                                             detail={"channel": "email", "score": score,
-                                                     "to": data["email"], "message_id": msg_id,
-                                                     "sender": sender, "tier": "high"})
-                            else:
-                                print(f"      [EMAIL FAILED] check Gmail credentials / daily limit")
-                                audit.append("email_sender", "send", slug, ok=False,
-                                             detail={"channel": "email", "tier": "high"})
+                    if data.get("email"):
+                        print(f"      [EMAIL HIGH] → {data['email']}")
+                        ok, msg_id, sender = email_sender.send(data)
+                        if ok:
+                            sheets_writer.update_field(slug, "email_sent", "TRUE")
+                            sheets_writer.update_field(slug, "sent_at", datetime.now(timezone.utc).isoformat())
+                            sheets_writer.update_field(slug, "message_id", msg_id)
+                            sheets_writer.update_field(slug, "sender_account", sender)
+                            sheets_writer.update_channel(slug, "email")
+                            total_emailed += 1
+                            audit.append("email_sender", "send", slug, ok=True,
+                                         detail={"channel": "email", "score": score,
+                                                 "to": data["email"], "message_id": msg_id,
+                                                 "sender": sender, "tier": "high"})
                         else:
-                            print(f"      [NO EMAIL] {company} — no address found (LinkedIn only)")
+                            print(f"      [EMAIL FAILED] check Gmail credentials / daily limit")
+                            audit.append("email_sender", "send", slug, ok=False,
+                                         detail={"channel": "email", "tier": "high"})
+                    else:
+                        print(f"      [NO EMAIL] {company} — no address found (LinkedIn only)")
 
-                        li_sent = linkedin.send(data)
-                        if li_sent:
-                            sheets_writer.update_field(slug, "linkedin_sent", "TRUE")
-                            if not data.get("email"):
-                                sheets_writer.update_field(slug, "sent_at", datetime.now(timezone.utc).isoformat())
-                                sheets_writer.update_channel(slug, "linkedin")
-                            total_linkedin += 1
-                        audit.append("linkedin", "send", slug, ok=bool(li_sent),
-                                     detail={"channel": "linkedin", "score": score})
+                    li_sent = linkedin.send(data)
+                    if li_sent:
+                        sheets_writer.update_field(slug, "linkedin_sent", "TRUE")
+                        if not data.get("email"):
+                            sheets_writer.update_field(slug, "sent_at", datetime.now(timezone.utc).isoformat())
+                            sheets_writer.update_channel(slug, "linkedin")
+                        total_linkedin += 1
+                    audit.append("linkedin", "send", slug, ok=bool(li_sent),
+                                 detail={"channel": "linkedin", "score": score})
 
-                        wa_sent = whatsapp.send(data)
-                        if wa_sent:
-                            total_whatsapp += 1
-                        audit.append("whatsapp", "send", slug, ok=bool(wa_sent),
-                                     detail={"channel": "whatsapp", "score": score})
+                    wa_sent = whatsapp.send(data)
+                    if wa_sent:
+                        total_whatsapp += 1
+                    audit.append("whatsapp", "send", slug, ok=bool(wa_sent),
+                                 detail={"channel": "whatsapp", "score": score})
 
                 # ── Send: medium priority → email only ───────────────────
                 elif score >= SCORE_LOW:
@@ -359,7 +269,7 @@ def run():
         budgets={
             "serpapi": {
                 "limit": SERPAPI_FREE_LIMIT,
-                "note": ("exhausted" if quota_wall and LEAD_SOURCE in ("indeed", "maps")
+                "note": ("exhausted" if quota_wall and LEAD_SOURCE != "apollo"
                          else "monthly free plan"),
             },
         },
