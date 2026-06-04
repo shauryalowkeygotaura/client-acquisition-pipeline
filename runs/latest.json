@@ -1,9 +1,9 @@
 {
   "pipeline": "client-acquisition",
-  "ts": "2026-06-04T14:26:41Z",
+  "ts": "2026-06-04T15:01:59Z",
   "mode": "scrape",
   "status": "degraded",
-  "summary": "0 leads from 6 cities - SerpAPI free monthly quota exhausted (resets on account anniversary); MAX_CITIES_PER_RUN=2 guard now active to prevent re-exhaustion",
+  "summary": "0 leads from 2 cities \u2014 scraper returned nothing (likely SerpAPI free quota exhausted or no new listings)",
   "metrics": {
     "found": 0,
     "saved": 0,
@@ -11,7 +11,8 @@
     "linkedin": 0,
     "whatsapp": 0,
     "skipped_low": 0,
-    "cities_scraped": 6,
+    "scraper_errors": 0,
+    "cities_scraped": 2,
     "lead_source": "indeed"
   },
   "budgets": {
