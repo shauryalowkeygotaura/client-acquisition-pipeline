@@ -1,6 +1,6 @@
 {
   "pipeline": "client-acquisition",
-  "ts": "2026-06-04T15:01:59Z",
+  "ts": "2026-06-05T07:50:24Z",
   "mode": "scrape",
   "status": "degraded",
   "summary": "0 leads from 2 cities \u2014 scraper returned nothing (likely SerpAPI free quota exhausted or no new listings)",
@@ -13,12 +13,12 @@
     "skipped_low": 0,
     "scraper_errors": 0,
     "cities_scraped": 2,
-    "lead_source": "indeed"
+    "lead_source": "apollo"
   },
   "budgets": {
     "serpapi": {
       "limit": 100,
-      "note": "exhausted"
+      "note": "monthly free plan"
     }
   }
 }
