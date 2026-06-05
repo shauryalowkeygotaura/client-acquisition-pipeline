@@ -17,8 +17,17 @@ env:
   FIRECRAWL_API_KEY: ${{ secrets.FIRECRAWL_API_KEY }}
   SERPAPI_KEY: ${{ secrets.SERPAPI_KEY }}
   BOOKING_LINK: ${{ secrets.BOOKING_LINK }}
-  # Free-tier guard: SerpAPI free = 100 searches/month. Scrape only a rotating
-  # 2-city window per run so daily runs never exhaust the monthly quota.
+  # Lead source switched SerpAPI -> Apollo (2026-06-05): the SerpAPI free quota
+  # (100 searches/mo) is exhausted for the month, so we scrape Apollo.io for free
+  # on top of Obscura (stealth headless Chrome) using a saved session cookie.
+  # REQUIRED: set the APOLLO_COOKIES_JSON repo secret first — generate it once by
+  # running `python scripts/save_apollo_cookies.py` locally and pasting the JSON.
+  # Without it apollo_scraper finds 0 leads. Revert by setting LEAD_SOURCE=indeed
+  # after the SerpAPI quota resets next month.
+  LEAD_SOURCE: apollo
+  APOLLO_COOKIES_JSON: ${{ secrets.APOLLO_COOKIES_JSON }}
+  # Free-tier guard: with Apollo the cap is ~5 email-unlocks/day, so a rotating
+  # 2-city window per run keeps every run inside the free allowance.
   MAX_CITIES_PER_RUN: '2'
 
 jobs:
