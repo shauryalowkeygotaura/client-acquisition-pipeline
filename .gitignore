@@ -4,6 +4,18 @@
 secrets.json
 env_dump.json
 
+# Lead sheet backups (raw lead PII dumps) — never commit.
+backups/
+
+# Social agent local state + PII (drafts, captured leads, dedupe state, inbox).
+# runs/latest.json + history.jsonl are committed by CI for the dashboard, but
+# these social_* artifacts contain lead data and unsent drafts — never commit.
+runs/social_state.json
+runs/social_drafts.jsonl
+runs/social_leads.jsonl
+runs/console_inbox.jsonl
+runs/console_outbox.jsonl
+
 # LinkedIn session (contains auth cookies)
 .linkedin_profile/
 

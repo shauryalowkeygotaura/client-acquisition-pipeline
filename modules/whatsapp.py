@@ -62,6 +62,12 @@ PHONE_NUMBER_ID = os.getenv("WHATSAPP_PHONE_NUMBER_ID")
 ACCESS_TOKEN = os.getenv("WHATSAPP_ACCESS_TOKEN")
 TEMPLATE_NAME = os.getenv("WHATSAPP_TEMPLATE_NAME", "receptionist_outreach")
 
+# Channel provider: "meta" (default, official Cloud API) or "openwa" (unofficial,
+# open-wa/wa-automate via a personal number — no approval, free, ban risk).
+# Read lazily so tests/env changes take effect without re-import.
+def _provider() -> str:
+    return os.getenv("WHATSAPP_PROVIDER", "meta").strip().lower()
+
 _API_URL = "https://graph.facebook.com/v20.0/{phone_number_id}/messages"
 
 # Indian mobile: +91 prefix optional, 10 digits starting 6–9
@@ -108,6 +114,10 @@ def send(data: dict) -> bool:
     Send touch 1: WhatsApp template (question only).
     Returns True on success. Silently skips if unconfigured or no mobile number found.
     """
+    if _provider() == "openwa":
+        from modules import openwa
+        return openwa.send(data)
+
     if not PHONE_NUMBER_ID or not ACCESS_TOKEN:
         log.debug("WhatsApp not configured (WHATSAPP_PHONE_NUMBER_ID / WHATSAPP_ACCESS_TOKEN missing)")
         return False
@@ -163,6 +173,10 @@ def send_freeform(to_mobile: str, text: str) -> bool:
     Send a freeform text message — only valid within a 24h reply window.
     Used by send_pitch() and reply_handler for warm follow-ups.
     """
+    if _provider() == "openwa":
+        from modules import openwa
+        return openwa.send_freeform(to_mobile, text)
+
     if not PHONE_NUMBER_ID or not ACCESS_TOKEN:
         return False
 

@@ -32,6 +32,24 @@ HEADERS = [
     "person_hook", "company_hook",
     # ── WhatsApp sequence tracking ──
     "phone", "whatsapp_stage", "whatsapp_reply_at",
+    # ── v3 digital maturity signals (regex/heuristic, populated by enricher) ──
+    "pms_signal", "whatsapp_presence", "instagram_presence", "online_booking",
+    "multi_location", "language_signal", "review_velocity", "budget_proxy",
+    # ── v3 dual scoring (pain + adoption → combined lead_score) ──
+    "digital_maturity_score", "adoption_score", "pain_score",
+    # ── v3 Instagram DM channel (primary for India SMB) ──
+    "instagram_handle", "instagram_msg", "instagram_sent",
+    # ── v3 per-channel follow-up counters (replaces single follow_up_count) ──
+    "email_follow_up_count", "whatsapp_follow_up_count", "instagram_follow_up_count",
+    # ── v3 close attribution + LTV ──
+    "monthly_value", "cancelled_at", "churn_reason", "ltv", "deployment_clinic_id",
+    # ── 2026-05-23 inbound integration (personal-brand → sales pipeline) ──
+    "inbound_source", "attribution_post_id",
+    # ── 2026-05-29 local-business harvest (Maps source) ──
+    # Lead-specific opening line + the Google Maps listing the lead came from.
+    "icebreaker", "rating", "review_count", "maps_url",
+    # ── 2026-05-30 merged source: where the lead came from + hot hiring flag ──
+    "source_type", "hiring_now",
 ]
 
 NICHE_ANALYTICS_HEADERS = [
@@ -93,11 +111,15 @@ def domain_exists(domain: str, existing: list[dict]) -> bool:
 
 
 def build_row(data: dict) -> list:
+    # Inbound leads (modules/inbound_intake.py) pass explicit values for
+    # status / sent_at / conversation_stage / reply_status / channel_used and
+    # use the key "website" instead of "company_website". data.get(..., <default>)
+    # lets outbound keep its defaults while letting inbound's fields land.
     return [
         # Original columns
         data.get("slug", ""),
         data.get("company_name", ""),
-        data.get("company_website", ""),
+        data.get("company_website") or data.get("website", ""),
         data.get("domain", ""),
         data.get("poster_name") or data.get("contact_name", ""),
         data.get("email", ""),
@@ -109,8 +131,8 @@ def build_row(data: dict) -> list:
         data.get("linkedin_post", ""),
         "FALSE",   # email_sent
         "FALSE",   # linkedin_sent
-        "pending", # status
-        "",        # sent_at
+        data.get("status", "pending"),
+        data.get("sent_at", ""),
         "",        # replied_at
         "",        # vapi_assistant_id
         # Enrichment
@@ -120,10 +142,10 @@ def build_row(data: dict) -> list:
         data.get("pain_signal", ""),
         # Message tracking
         data.get("message_variant_id", ""),
-        "",        # channel_used — set by pipeline after send
-        # Reply handling (empty at creation)
-        "",        # reply_status
-        "initial", # conversation_stage
+        data.get("channel_used", ""),
+        # Reply handling
+        data.get("reply_status", ""),
+        data.get("conversation_stage", "initial"),
         "",        # objection_type
         "0",       # follow_up_count
         # Outcomes
@@ -141,6 +163,44 @@ def build_row(data: dict) -> list:
         data.get("phone", ""),
         "",   # whatsapp_stage
         "",   # whatsapp_reply_at
+        # ── v3 digital maturity signals ───────────────────────────────────
+        data.get("pms_signal", ""),
+        "yes" if data.get("whatsapp_presence") else "no",
+        "yes" if data.get("instagram_presence") else "no",
+        "yes" if data.get("online_booking") else "no",
+        "yes" if data.get("multi_location") else "no",
+        data.get("language_signal", ""),
+        data.get("review_velocity", ""),
+        data.get("budget_proxy", ""),
+        # ── v3 dual scoring ──────────────────────────────────────────────
+        str(data.get("digital_maturity_score", "")),
+        str(data.get("adoption_score", "")),
+        str(data.get("pain_score", "")),
+        # ── v3 Instagram channel ─────────────────────────────────────────
+        data.get("instagram_handle", ""),
+        data.get("instagram_msg", ""),
+        "FALSE",  # instagram_sent
+        # ── v3 per-channel follow-up counters ────────────────────────────
+        "0",  # email_follow_up_count
+        "0",  # whatsapp_follow_up_count
+        "0",  # instagram_follow_up_count
+        # ── v3 close attribution + LTV ───────────────────────────────────
+        "",  # monthly_value
+        "",  # cancelled_at
+        "",  # churn_reason
+        "",  # ltv
+        "",  # deployment_clinic_id
+        # ── 2026-05-23 inbound integration (personal-brand → sales pipeline) ──
+        data.get("inbound_source", ""),
+        data.get("attribution_post_id", ""),
+        # ── 2026-05-29 local-business harvest (Maps source) ──
+        data.get("icebreaker", ""),
+        str(data.get("rating", "")),
+        str(data.get("review_count", "")),
+        data.get("maps_url", ""),
+        # ── 2026-05-30 merged source + hot hiring flag ──
+        data.get("source_type", ""),
+        data.get("hiring_now", ""),
     ]
 
 
@@ -222,6 +282,77 @@ def mark_booked(slug: str):
 def mark_closed(slug: str):
     update_field(slug, "closed_client", "yes")
     update_field(slug, "conversation_stage", "closed")
+
+
+# ── v3 helpers ─────────────────────────────────────────────────────────────
+
+def mark_deployed(slug: str, clinic_id: str, monthly_value_inr: int):
+    """Record a paid deployment. Links lead row to a deployment telemetry row."""
+    update_field(slug, "deployment_clinic_id", clinic_id)
+    update_field(slug, "monthly_value", str(monthly_value_inr))
+    update_field(slug, "status", "deployed")
+    update_field(slug, "closed_client", "yes")
+
+
+def mark_churned(slug: str, reason: str):
+    """Record churn. Computes final LTV from current monthly_value × months active."""
+    sheet = get_sheet("leads")
+    values = sheet.get_all_values()
+    if not values:
+        return
+    deployed_at_idx = HEADERS.index("sent_at") + 1  # use sent_at as deployment proxy
+    monthly_idx = HEADERS.index("monthly_value")
+    cancelled_idx = HEADERS.index("cancelled_at") + 1
+    churn_idx = HEADERS.index("churn_reason") + 1
+    ltv_idx = HEADERS.index("ltv") + 1
+    for i, row in enumerate(values):
+        if i == 0 or not row or row[0] != slug:
+            continue
+        try:
+            monthly = int(row[monthly_idx] or "0")
+        except (ValueError, TypeError):
+            monthly = 0
+        # Crude LTV: months active × monthly. Refine when deployment_telemetry exists.
+        try:
+            from datetime import datetime as _dt
+            deployed_at = _dt.fromisoformat((row[deployed_at_idx - 1] or "").replace("Z", "+00:00"))
+            months = max(1, (datetime.now(timezone.utc) - deployed_at).days // 30)
+        except Exception:
+            months = 1
+        ltv = monthly * months
+        sheet.update_cell(i + 1, cancelled_idx, datetime.now(timezone.utc).isoformat())
+        sheet.update_cell(i + 1, churn_idx, reason)
+        sheet.update_cell(i + 1, ltv_idx, str(ltv))
+        return
+
+
+def increment_channel_followup(slug: str, channel: str):
+    """Increment the per-channel follow-up counter. channel ∈ {email, whatsapp, instagram}."""
+    field = f"{channel}_follow_up_count"
+    if field not in HEADERS:
+        raise ValueError(f"Unknown channel for follow-up: {channel}")
+    sheet = get_sheet("leads")
+    values = sheet.get_all_values()
+    if not values:
+        return
+    col_idx = HEADERS.index(field) + 1
+    for i, row in enumerate(values):
+        if i == 0 or not row or row[0] != slug:
+            continue
+        current = 0
+        try:
+            current = int(row[col_idx - 1] or "0")
+        except (ValueError, TypeError):
+            pass
+        sheet.update_cell(i + 1, col_idx, str(current + 1))
+        # Keep legacy follow_up_count in sync so existing code paths still work
+        legacy_idx = HEADERS.index("follow_up_count") + 1
+        try:
+            legacy = int(row[legacy_idx - 1] or "0")
+        except (ValueError, TypeError):
+            legacy = 0
+        sheet.update_cell(i + 1, legacy_idx, str(legacy + 1))
+        return
 
 
 def upsert_niche_analytics(rows: list[dict]):

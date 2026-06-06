@@ -57,14 +57,27 @@ def _load_accounts() -> list[dict]:
 
 
 def _pick_account(accounts: list[dict]) -> dict | None:
-    """Return the account with the fewest sends today, or None if all are maxed."""
+    """Return the account with the fewest sends today, or None if all are maxed.
+
+    v3: each account's effective cap is min(MAX_PER_ACCOUNT, warmup_cap).
+    Warmup cap ramps 10 → 25 → 50/day across the first 3 weeks of an account's
+    life. Legacy accounts without a warmup row default to MAX_PER_ACCOUNT.
+    """
     today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
     best = None
     best_count = MAX_PER_ACCOUNT + 1
     for acct in accounts:
         key = f"{acct['address']}|{today}"
         count = _send_counts.get(key, 0)
-        if count < MAX_PER_ACCOUNT and count < best_count:
+        # v3 warmup-adjusted cap
+        try:
+            from . import sender_warmup
+            warmup_cap = sender_warmup.daily_cap_for(acct["address"])
+        except Exception as e:
+            log.debug("sender_warmup unavailable (%s) — using MAX_PER_ACCOUNT", e)
+            warmup_cap = MAX_PER_ACCOUNT
+        effective_cap = min(MAX_PER_ACCOUNT, warmup_cap)
+        if count < effective_cap and count < best_count:
             best = acct
             best_count = count
     return best
@@ -197,6 +210,12 @@ def send(
             server.login(acct["address"], acct["password"])
             server.send_message(msg)
         _increment_count(acct["address"])
+        # v3: record this send to the warmup tab. Best-effort — never blocks.
+        try:
+            from . import sender_warmup
+            sender_warmup.record_send(acct["address"])
+        except Exception as e:
+            log.debug("sender_warmup.record_send failed (%s) — non-fatal", e)
         return True, sent_message_id, acct["address"]
     except smtplib.SMTPAuthenticationError:
         log.error("Gmail auth failed for %s. Check app password.", acct["address"])

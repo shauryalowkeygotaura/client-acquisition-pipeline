@@ -175,3 +175,141 @@ python pipeline.py analytics
 ```
 CAL_LINK=https://cal.com/yourlink   # for high-intent CTA in reply handler
 ```
+
+---
+
+## v3 — Architectural upgrade (May 2026)
+
+Addresses the operational gaps surfaced in the post-2-weeks-running review.
+Everything in v3 is additive: legacy code paths and existing Sheet data are
+untouched. New columns are appended at the end of HEADERS so column positions
+don't shift.
+
+### What changed
+
+| Layer | v2 | v3 |
+|---|---|---|
+| Scoring | Single `lead_score` (pain only) | `pain_score` + `adoption_score` → weighted `lead_score` |
+| Enrichment | niche + urgency + pain (3 fields) | + pms_signal + whatsapp_presence + instagram_presence + online_booking + multi_location + language_signal + review_velocity + budget_proxy + digital_maturity_score (11 fields total) |
+| Channels | email → linkedin → whatsapp (single order) | Region-aware: **India** = whatsapp → instagram → email → linkedin. **Default** = unchanged v2 order. |
+| Channel modules | linkedin, whatsapp | + **instagram** (stub, INSTAGRAM_ENABLED gate) |
+| Variants | 5 (pain, curiosity, roi, question, + linkedin_msg, linkedin_post) | + **outcome** variant (operational result framing, default for India dental/medical/physio with adoption_score ≥ 5) |
+| Follow-up caps | Single `follow_up_count`, cap 3 | Per-channel: email=5, whatsapp=3, instagram=2 (env-tunable). Legacy field still incremented. |
+| Sender hygiene | Per-account daily cap 50, rotation | + warmup ramp (10/day week 1, 25/day week 2, 50/day week 3+), persisted in `sender_warmup` tab |
+| Optimizer | Reports raw rates | Gated by **two-proportion z-test** (`modules/significance.py`); recommendations only emitted when p < 0.05 |
+| Outcomes | `booked_call`, `closed_client` (binary) | + `monthly_value`, `cancelled_at`, `churn_reason`, `ltv`, `deployment_clinic_id` |
+| Deployment | Untracked | New `deployments` tab + `modules/deployment_telemetry.py` (records calls, bookings, revenue per clinic; aggregates by niche for future scorer feedback) |
+
+### v3 Sheets schema additions (leads tab)
+
+Columns AN onward (appended — A through AM are unchanged):
+
+| Col group | Fields |
+|---|---|
+| Digital maturity | `pms_signal`, `whatsapp_presence`, `instagram_presence`, `online_booking`, `multi_location`, `language_signal`, `review_velocity`, `budget_proxy` |
+| Dual scoring | `digital_maturity_score`, `adoption_score`, `pain_score` |
+| Instagram channel | `instagram_handle`, `instagram_msg`, `instagram_sent` |
+| Per-channel follow-ups | `email_follow_up_count`, `whatsapp_follow_up_count`, `instagram_follow_up_count` |
+| Close attribution | `monthly_value`, `cancelled_at`, `churn_reason`, `ltv`, `deployment_clinic_id` |
+
+### New Sheet tabs
+
+- **`sender_warmup`**: `address`, `first_send_date`, `total_sends`. Created lazily by `sender_warmup.record_send()` on first send from a new account.
+- **`deployments`**: `clinic_id`, `lead_slug`, `clinic_name`, `city`, `niche`, `deployed_at`, `vapi_assistant_id`, `calls_handled`, `calls_missed_pre_ai`, `bookings_recovered`, `average_ticket_inr`, `revenue_recovered_inr`, `monthly_value_inr`, `active`, `churn_at`, `churn_reason`, `last_sync_at`. Created lazily by `deployment_telemetry._get_or_create_tab()`.
+
+### v3 Lead Flow
+
+```
+Indeed scrape (city × 30 jobs)
+    ↓
+researcher.run()           ← website, email, phone, services, IG handle, review count
+    ↓
+enricher.run()             ← niche/urgency/pain  +  v3 digital maturity (8 new fields)
+    ↓
+scorer.run()               ← pain_score + adoption_score → lead_score (60/40 weighted)
+    ↓
+ score < 4? ─── SKIP
+    ↓
+personalizer.run()         ← person_hook / company_hook
+    ↓
+generator.run()            ← 5 email variants (incl. outcome) + linkedin_msg + instagram_msg
+    ↓                         (variant selector: India + outcome-niche + adoption≥5 → outcome)
+sheets_writer.save()       ← all 60 columns
+    ↓
+ score ≥ 7:
+   India lead  → whatsapp → instagram → email → linkedin (in priority order)
+   non-India   → email → linkedin → whatsapp (unchanged v2 order)
+ score 4–6    → email only (unchanged)
+    ↓
+ [3pm IST daily]
+reply_handler.run()        ← inbox → classify → respond → update sheet
+reply_handler.send_follow_ups()  ← up to 5 email touchpoints (day 3, 7, 12, 19, 29)
+    ↓
+ [every 50 leads]
+optimizer.run()
+    └─ significance.significance_test() gates recommendations on p<0.05
+
+ [POST-SALE — currently stub]
+deployment_telemetry.register_deployment(slug, ...)  ← run manually on first close
+deployment_telemetry.record_call(clinic_id, ...)     ← VAPI webhook (TODO)
+deployment_telemetry.aggregate_by_niche()            ← feeds back to scorer (TODO)
+```
+
+### v3 Variant Selection Logic
+
+| Region | Niche | Adoption | Variant |
+|---|---|---|---|
+| India | dental / medical / physio | ≥5 | **outcome** (operational framing, no "AI") |
+| any | dental / medical / legal / physio + urgency=high | any | pain |
+| any | salon / trades / hotel | any | roi |
+| any | dental / medical / legal / physio + priority=high | any | pain |
+| any | general / school / unknown (no hooks) | any | question (Hormozi 3-line) |
+| any | everything else | any | curiosity |
+
+### Activation status (what's live vs stubbed)
+
+| Component | Status | To activate |
+|---|---|---|
+| Schema columns | LIVE | New columns populate on next scrape |
+| Enricher v3 signals | LIVE | Need researcher to populate `homepage_html`/`website_text`/`instagram_handle` for full coverage |
+| Dual scoring | LIVE | Tunable via `SCORER_PAIN_WEIGHT` / `SCORER_ADOPTION_WEIGHT` env vars |
+| Outcome variant | LIVE | Generator now emits 5 variants; selector picks outcome for India healthcare leads with adoption≥5 |
+| India channel routing | LIVE | India leads go WhatsApp-first on next run |
+| Instagram DM | STUB | Set `INSTAGRAM_ENABLED=1` + `INSTAGRAM_USERNAME`/`PASSWORD`, pre-warm account |
+| Per-channel follow-ups | LIVE (email only) | WhatsApp/Instagram follow-ups need their own send loops |
+| Sender warmup | LIVE | Pre-existing accounts default to full cap; warmup applies when first row appears in `sender_warmup` tab |
+| Significance testing | LIVE | Optimizer needs to import and call `significance_test()` before recommending |
+| Deployment telemetry | STUB | `register_deployment()` works manually. Auto-sync needs VAPI webhook integration |
+| LTV / churn | LIVE | `sheets_writer.mark_deployed()` + `mark_churned()` ready to use |
+
+### Env vars added in v3
+
+```
+# Scoring (optional — defaults shown)
+SCORER_PAIN_WEIGHT=0.6
+SCORER_ADOPTION_WEIGHT=0.4
+
+# Follow-up caps (optional)
+EMAIL_FOLLOWUP_MAX=5
+WHATSAPP_FOLLOWUP_MAX=3
+INSTAGRAM_FOLLOWUP_MAX=2
+
+# Sender warmup (optional)
+WARMUP_WEEK_1_CAP=10
+WARMUP_WEEK_2_CAP=25
+WARMUP_FULL_CAP=50
+
+# Instagram channel (required to enable IG sends)
+INSTAGRAM_USERNAME=...
+INSTAGRAM_PASSWORD=...
+INSTAGRAM_ENABLED=1
+INSTAGRAM_DAILY_DM_LIMIT=20
+INSTAGRAM_MIN_DELAY=45
+```
+
+### v3 design principles
+
+1. **Additive only.** Every column is appended. Every function adds rather than replaces. Existing GitHub Actions runs keep passing.
+2. **Stubs over half-implementations.** Instagram and deployment telemetry are stubs with clean interfaces. They wire into the pipeline routing but no-op until enabled. Better than partial code that pretends to work.
+3. **Outcomes over signals.** The deployment telemetry tab is the long-term feedback loop. Once it has real data, the scorer should consume it directly and the regex enricher becomes a fallback.
+4. **Region-aware, not region-locked.** Channel ordering, variant selection, and language signals all branch on region. Adding the next region (Australia, US) is a config addition, not a code rewrite.

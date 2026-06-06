@@ -167,6 +167,35 @@ def find_linkedin_url(poster_name: str | None, company_name: str) -> str | None:
     return None
 
 
+# India-aware phone extraction. Matches +91 / 0091 prefixes, optional STD 0,
+# 10-digit mobiles (6-9 lead, optional 5+5 split), and STD+landline forms.
+# Falls back to a NANP (US/CA) pattern for non-India leads.
+_PHONE_IN_RE = re.compile(
+    r'(?:(?:\+|00)\s?91[\-\s.]?|0)?'           # optional +91 / 0091 / leading 0
+    r'(?:'
+    r'[6-9]\d{4}[\-\s.]?\d{5}'                 # 10-digit mobile (optional 5+5 split)
+    r'|\d{2,4}[\-\s.]?\d{6,8}'                 # STD code + landline number
+    r')'
+)
+_PHONE_US_RE = re.compile(
+    r'(?:\+?1[\s\-.]?)?\(?\d{3}\)?[\s\-.]?\d{3}[\s\-.]?\d{4}'
+)
+
+
+def extract_phone(text: str) -> str:
+    """Return the first plausible phone number (India-first), else US, else ''."""
+    if not text:
+        return ""
+    for rgx in (_PHONE_IN_RE, _PHONE_US_RE):
+        for m in rgx.finditer(text):
+            raw = m.group(0).strip()
+            digits = re.sub(r'\D', '', raw)
+            # 10 digit mobile, or 10-13 with country/STD code. Reject junk.
+            if 10 <= len(digits) <= 13:
+                return raw
+    return ""
+
+
 def extract_structured_fields(markdown: str) -> dict:
     """
     Extract address, phone, services, hours from scraped markdown.
@@ -174,11 +203,9 @@ def extract_structured_fields(markdown: str) -> dict:
     """
     fields = {"address": "", "phone": "", "services": "", "hours": ""}
 
-    phone_match = re.search(
-        r'(\+?1[\s\-.]?)?\(?\d{3}\)?[\s\-.]?\d{3}[\s\-.]?\d{4}', markdown
-    )
-    if phone_match:
-        fields["phone"] = phone_match.group(0).strip()
+    phone = extract_phone(markdown)
+    if phone:
+        fields["phone"] = phone
 
     hours_match = re.search(
         r'(mon|tue|wed|thu|fri|sat|sun).{0,60}(am|pm)',

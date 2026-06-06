@@ -17,6 +17,9 @@ _FULL_OUTPUT = {
     "email_body_curiosity": "Curiosity body.",
     "email_body_roi": "ROI body.",
     "email_body_question": "Are you still looking to fill that receptionist gap?\n\nI build voice agents for dental businesses — they pick up, answer FAQs, and book via cal.com.\n\nHappy to send a 2-min clip if useful.\n\n— Shaurya",
+    # v3 outcome variant (India SMB healthcare default) — required since
+    # generator.py added email_body_outcome to REQUIRED_FIELDS.
+    "email_body_outcome": "Most new-patient enquiries to Meridian Dental after 8pm go unanswered.\n\nOutcome body.\n\n— Shaurya",
     "linkedin_msg": "Hey Sarah — saw Meridian Dental needs...",
     "linkedin_post": "Post text here.",
 }

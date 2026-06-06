@@ -11,7 +11,7 @@ LLM_API_KEY = os.getenv("GROQ_API_KEY")
 REQUIRED_FIELDS = {
     "vapi_prompt", "email_subject",
     "email_body_pain", "email_body_curiosity", "email_body_roi",
-    "email_body_question",
+    "email_body_question", "email_body_outcome",
     "linkedin_msg", "linkedin_post",
 }
 
@@ -227,7 +227,36 @@ Generate a JSON object with exactly these seven fields:
    Tone: thoughtful, direct, slightly contrarian. Sounds like a builder observing the world — not a marketer selling something.
    No emojis, no hashtags, no bullet lists.
 
-8. "email_body_question"
+8. "email_body_outcome"
+   Angle: OPERATIONAL OUTCOME (v3 default for India dental/medical/physio with high digital maturity).
+   Sells the *result*, not the category. Never the word "AI" or "voice agent" — the OUTCOME.
+   Same H-A-O-P-CTA structure, same hard rules, same word count.
+   FORMATTING: Separate each section with a blank line (\n\n). Sign-off on its own line.
+
+   HOOK (1 sentence): A specific operational fact about their business. If PERSONALIZATION HOOKS provided, use that. Otherwise:
+   Examples: "Most new-patient enquiries to {company} between 8pm and 10am go unanswered."
+             "Sunday and lunch-hour calls are usually the ones that book somewhere else."
+             "Front desk gaps during staff leave are when most {industry} businesses bleed bookings."
+
+   AGITATE (2 sentences): Frame the operational loss in their words. "Patients", "enquiries", "bookings", "WhatsApp messages at 11pm".
+   Do NOT mention technology. Make the missed-call cost concrete in their workflow.
+
+   OUTCOME (2 sentences): A single concrete operational promise. Pick ONE:
+     - "Never miss a new-patient call after 8pm."
+     - "Front desk backup during staff leave, hiring gaps, and lunch hours."
+     - "Bookings captured for Sunday and late-night enquiries."
+     - "WhatsApp continuity for after-hours questions."
+   Then quantify the typical impact in their niche/city using "~" estimates.
+
+   PROOF (1 sentence only): OMIT if no real proof. Do NOT invent.
+
+   CTA (1–2 sentences): Offer a 2-min clip of what handled calls would sound like in their language (English / Hinglish if applicable). One yes/no ask.
+
+   Sign off: — Shaurya
+   Hard rules: no bullets, no bold, no emojis. 160–220 words. Never use "AI", "automation", "agent", "bot", "solution".
+   "I" = Shaurya, "you" = business owner.
+
+9. "email_body_question"
    Angle: HORMOZI QUESTION OPENER — the most Hormozi-aligned format. Brevity as respect.
    This is a 3-line cold email designed to get a reply, not to pitch.
 
@@ -267,7 +296,8 @@ def parse_output(raw: str) -> dict:
 
     # Normalise email bodies: collapse \\n literals, ensure paragraph breaks exist.
     # Models sometimes emit literal \n instead of real newlines inside JSON strings.
-    for field in ("email_body_pain", "email_body_curiosity", "email_body_roi", "email_body_question"):
+    for field in ("email_body_pain", "email_body_curiosity", "email_body_roi",
+                  "email_body_question", "email_body_outcome"):
         if field in data:
             body = data[field]
             # Unescape literal \n sequences the model may have emitted
@@ -318,6 +348,15 @@ def generate(data: dict) -> dict:
 
 _PAIN_NICHES = {"dental", "medical", "legal", "physio", "optometry", "veterinary"}
 _ROI_NICHES = {"salon", "trades", "hotel"}
+_OUTCOME_NICHES = {"dental", "medical", "physio"}  # v3: India SMB healthcare core
+
+
+def _is_india(data: dict) -> bool:
+    loc = (data.get("location") or "").lower()
+    return any(k in loc for k in (
+        "india", "delhi", "mumbai", "bangalore", "bengaluru", "hyderabad",
+        "pune", "jaipur", "chennai", "kolkata", "ahmedabad", "kochi",
+    ))
 
 
 def _select_variant(data: dict) -> tuple[str, str]:
@@ -325,16 +364,25 @@ def _select_variant(data: dict) -> tuple[str, str]:
     Pick the best email body variant for this lead.
     Returns (email_body, message_variant_id).
 
-    Rules:
-      - High-urgency + pain niche → pain (they know what's at stake, hit the nerve)
-      - trades/salon/hotel → ROI (revenue numbers resonate more than pain)
-      - No personalization hooks + general/unknown niche → question (Hormozi opener; gets replies cold)
-      - Everything else → curiosity (lowest friction, works across niches)
+    v3 selection order (first match wins):
+      1. India + outcome-niche + adoption_score ≥ 5 → OUTCOME
+         (high-digital-maturity Indian clinics respond to operational framing,
+          not pain framing — they already know the pain)
+      2. High-urgency + pain niche → PAIN
+      3. trades/salon/hotel → ROI
+      4. High priority + pain niche → PAIN
+      5. No hooks + generic niche → QUESTION (Hormozi brevity opener)
+      6. Default → CURIOSITY
     """
     niche = data.get("niche", "general")
     urgency = data.get("hiring_urgency", "medium")
     priority = data.get("lead_priority", "medium")
+    adoption = data.get("adoption_score", 0)
     has_hooks = bool(data.get("person_hook") or data.get("company_hook"))
+
+    # v3: India + healthcare-outcome niche + above-median adoption → outcome framing
+    if _is_india(data) and niche in _OUTCOME_NICHES and adoption >= 5:
+        return data["email_body_outcome"], "outcome"
 
     if urgency == "high" and niche in _PAIN_NICHES:
         return data["email_body_pain"], "pain"
@@ -342,7 +390,6 @@ def _select_variant(data: dict) -> tuple[str, str]:
         return data["email_body_roi"], "roi"
     if priority == "high" and niche in _PAIN_NICHES:
         return data["email_body_pain"], "pain"
-    # No hooks + generic niche → Hormozi question opener (brevity cuts through cold noise)
     if not has_hooks and niche not in _PAIN_NICHES and niche not in _ROI_NICHES:
         return data["email_body_question"], "question"
     return data["email_body_curiosity"], "curiosity"

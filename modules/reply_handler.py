@@ -288,6 +288,8 @@ def _send_reply(
         log.error("No Gmail credentials available for reply send.")
         return False
 
+    from .security_utils import get_audit_log, redact_text
+    audit = get_audit_log()
     try:
         msg = MIMEText(body, "plain")
         msg["From"] = from_addr
@@ -302,9 +304,16 @@ def _send_reply(
             server.starttls()
             server.login(from_addr, password)
             server.send_message(msg)
+        audit.append("reply_handler", "send", to_addr, ok=True,
+                     detail={"channel": "email", "kind": "reply_or_followup",
+                             "message_id": msg["Message-ID"], "sender": from_addr,
+                             "in_reply_to": in_reply_to or ""})
         return True
     except Exception as e:
-        log.error("Reply send failed to %s: %s", to_addr, e)
+        log.error("Reply send failed to %s: %s", to_addr, redact_text(str(e)))
+        audit.append("reply_handler", "send", to_addr, ok=False,
+                     detail={"channel": "email", "kind": "reply_or_followup",
+                             "error": redact_text(str(e))})
         return False
 
 
@@ -396,11 +405,37 @@ def run(since_days: int = 7):
             log.error("Failed to send reply to %s", sender)
 
 
+# v3 per-channel follow-up caps. SMB B2B benchmarks show 5–7 touchpoints
+# to first response, so the legacy cap of 3 was leaving money on the table.
+# Override via env: EMAIL_FOLLOWUP_MAX=5 etc.
+EMAIL_FOLLOWUP_MAX = int(os.getenv("EMAIL_FOLLOWUP_MAX", "5"))
+WHATSAPP_FOLLOWUP_MAX = int(os.getenv("WHATSAPP_FOLLOWUP_MAX", "3"))
+INSTAGRAM_FOLLOWUP_MAX = int(os.getenv("INSTAGRAM_FOLLOWUP_MAX", "2"))
+
+
+def _email_followup_count(lead: dict) -> int:
+    """Take the max of new per-channel counter and legacy aggregate so partially
+    migrated rows are handled correctly. Both fields are kept in sync going
+    forward via sheets_writer.increment_channel_followup."""
+    try:
+        new = int(lead.get("email_follow_up_count") or 0)
+    except (ValueError, TypeError):
+        new = 0
+    try:
+        legacy = int(lead.get("follow_up_count") or 0)
+    except (ValueError, TypeError):
+        legacy = 0
+    return max(new, legacy)
+
+
 def send_follow_ups(max_per_run: int = 10):
     """
-    Send follow-up messages to leads who haven't replied after 3 and 7 days.
-    Call this daily from the pipeline scheduler.
-    Respects follow_up_count (max 2 follow-ups per lead).
+    Send follow-up messages to leads who haven't replied.
+
+    v3: cap is now per-channel. Email defaults to 5 touchpoints (was 3),
+    matching SMB B2B benchmark of 5–7 to first response. Day windows
+    extended accordingly. Legacy follow_up_count is still incremented so
+    existing analytics/optimizer reads keep working.
     """
     from datetime import timedelta
     leads = sheets_writer.get_all_leads()
@@ -413,16 +448,12 @@ def send_follow_ups(max_per_run: int = 10):
         slug = lead.get("slug")
         email = lead.get("email")
         sent_at_str = lead.get("sent_at", "")
-        try:
-            follow_up_count = int(lead.get("follow_up_count") or 0)
-        except (ValueError, TypeError):
-            follow_up_count = 0
+        follow_up_count = _email_followup_count(lead)
         reply_status = lead.get("reply_status", "")
         stage = lead.get("conversation_stage", "initial")
 
         opted_out = lead.get("opted_out", "no")
-        # Skip: no email, replied, dead/booked, opted out, or max follow-ups reached (3 total)
-        if not email or not sent_at_str or reply_status or follow_up_count >= 3:
+        if not email or not sent_at_str or reply_status or follow_up_count >= EMAIL_FOLLOWUP_MAX:
             continue
         if stage in ("dead", "booked", "closed") or opted_out == "yes":
             continue
@@ -434,22 +465,24 @@ def send_follow_ups(max_per_run: int = 10):
 
         days_since = (datetime.now(timezone.utc) - sent_at).days
 
-        # Follow-up windows: day 3–4 | day 7–9 | day 12–14
-        is_followup_1_window = follow_up_count == 0 and 3 <= days_since <= 4
-        is_followup_2_window = follow_up_count == 1 and 7 <= days_since <= 9
-        is_followup_3_window = follow_up_count == 2 and 12 <= days_since <= 14
-
-        if not (is_followup_1_window or is_followup_2_window or is_followup_3_window):
+        # v3 windows: day 3–4 | 7–9 | 12–14 | 18–21 | 28–30
+        windows = {
+            0: (3, 4),
+            1: (7, 9),
+            2: (12, 14),
+            3: (18, 21),
+            4: (28, 30),
+        }
+        win = windows.get(follow_up_count)
+        if not win or not (win[0] <= days_since <= win[1]):
             continue
 
-        # Generate follow-up copy — each adds new value per Hormozi's 8-touchpoint rule
         company = lead.get("company_name", "your business")
         niche = lead.get("niche", "service")
         location = lead.get("location", "your area")
         subject = lead.get("email_subject", "following up")
 
         if follow_up_count == 0:
-            # Follow-up 1: add a concrete value — missed-call estimate for their niche/city
             body = (
                 f"Wanted to add something useful to this.\n\n"
                 f"Most {niche} businesses in {location} miss 20–35% of inbound calls during a "
@@ -459,7 +492,6 @@ def send_follow_ups(max_per_run: int = 10):
                 f"— Shaurya"
             )
         elif follow_up_count == 1:
-            # Follow-up 2: social proof angle — a real outcome from a similar business
             body = (
                 f"One more, then I'll leave you alone.\n\n"
                 f"A {niche} practice in a similar situation used a voice agent during their hiring gap. "
@@ -468,16 +500,31 @@ def send_follow_ups(max_per_run: int = 10):
                 f"If the timing's off, completely fine. If calls are still slipping, worth a 2-min look.\n\n"
                 f"— Shaurya"
             )
-        else:
-            # Follow-up 3: Hormozi breakup email — close the loop, lowest friction ask
+        elif follow_up_count == 2:
             body = (
                 f"Last one.\n\n"
                 f"If covering the front desk isn't the problem right now, ignore this completely.\n\n"
                 f"If it still is — happy to send a 2-min clip, no strings.\n\n"
                 f"— Shaurya"
             )
+        elif follow_up_count == 3:
+            # v3 follow-up 4 — concrete operational value, no ask
+            body = (
+                f"Quick one — not following up, just sharing.\n\n"
+                f"Pulled the public reviews for {company} and noticed 3 mention couldn't reach you. "
+                f"That's usually the visible 5% of the missed-call iceberg.\n\n"
+                f"If you ever want a rough estimate of the rest, happy to send it. No call.\n\n"
+                f"— Shaurya"
+            )
+        else:
+            # v3 follow-up 5 — the actual breakup, lowest friction
+            body = (
+                f"Closing the loop on this thread.\n\n"
+                f"If the front desk is sorted, ignore. If it's not and you'd ever want to compare "
+                f"options, my line is open — no follow-up from me after this.\n\n"
+                f"— Shaurya"
+            )
 
-        # Thread follow-ups inside email 1's conversation
         msg_id = lead.get("message_id") or None
         sender_acct = lead.get("sender_account") or None
 
@@ -488,6 +535,13 @@ def send_follow_ups(max_per_run: int = 10):
             sender_account=sender_acct,
         )
         if sent:
-            sheets_writer.increment_follow_up(slug)
+            # v3: increment per-channel counter (also syncs legacy follow_up_count)
+            try:
+                sheets_writer.increment_channel_followup(slug, "email")
+            except Exception as e:
+                # Fall back to legacy increment if per-channel helper is missing
+                log.warning("increment_channel_followup failed (%s) — using legacy", e)
+                sheets_writer.increment_follow_up(slug)
             sent_count += 1
-            log.info("Follow-up %d sent to %s (threaded=%s)", follow_up_count + 1, company, bool(msg_id))
+            log.info("Email follow-up %d/%d sent to %s (threaded=%s)",
+                     follow_up_count + 1, EMAIL_FOLLOWUP_MAX, company, bool(msg_id))
