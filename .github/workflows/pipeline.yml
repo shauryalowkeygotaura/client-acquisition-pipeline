@@ -17,6 +17,12 @@ env:
   FIRECRAWL_API_KEY: ${{ secrets.FIRECRAWL_API_KEY }}
   SERPAPI_KEY: ${{ secrets.SERPAPI_KEY }}
   BOOKING_LINK: ${{ secrets.BOOKING_LINK }}
+  # Email-finder cascade (modules/email_finder.py). Hunter first, Snov fallback.
+  # Empty until the free-tier keys are created at hunter.io / snov.io and pasted
+  # into the repo secrets — email_finder degrades gracefully when unset.
+  HUNTER_API_KEY: ${{ secrets.HUNTER_API_KEY }}
+  SNOV_CLIENT_ID: ${{ secrets.SNOV_CLIENT_ID }}
+  SNOV_CLIENT_SECRET: ${{ secrets.SNOV_CLIENT_SECRET }}
   # Lead source switched SerpAPI -> Apollo (2026-06-05): the SerpAPI free quota
   # (100 searches/mo) is exhausted for the month, so we scrape Apollo.io for free
   # on top of Obscura (stealth headless Chrome) using a saved session cookie.
