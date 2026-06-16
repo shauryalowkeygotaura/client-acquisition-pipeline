@@ -35,7 +35,7 @@ from config import CITIES
 from modules import (
     scraper, researcher, enricher, scorer, personalizer,
     generator, sheets_writer, email_sender, linkedin, whatsapp,
-    reply_handler, analytics, optimizer, apollo_scraper, run_metrics,
+    reply_handler, analytics, optimizer, apollo_scraper, osm_scraper, run_metrics,
 )
 from modules.security_utils import get_audit_log
 
@@ -86,8 +86,28 @@ def run():
     total_whatsapp = 0
     total_skipped_low = 0
 
-    source_module = apollo_scraper if LEAD_SOURCE == "apollo" else scraper
-    source_label = "Apollo" if LEAD_SOURCE == "apollo" else "Indeed"
+    if LEAD_SOURCE == "apollo":
+        source_module, source_label = apollo_scraper, "Apollo"
+    elif LEAD_SOURCE == "osm":
+        source_module, source_label = osm_scraper, "OSM"
+    else:
+        source_module, source_label = scraper, "Indeed"
+
+    # ── Preflight: SerpAPI quota ─────────────────────────────────────────────
+    # scraper.py and maps_scraper.py both run on SerpAPI. If the free monthly
+    # quota is spent, every search returns 0 and we'd silently save nothing.
+    # Check remaining searches (free /account call) and auto-fall back to OSM
+    # (Overpass: keyless, no quota, no cookies) so the funnel self-heals without
+    # any manual intervention. OSM is preferred over Apollo here because Apollo
+    # needs live session cookies that expire.
+    serp_left: int | None = None
+    if LEAD_SOURCE not in ("apollo", "osm"):
+        serp_left = scraper.searches_left()
+        if serp_left == 0:
+            print("  [PREFLIGHT] SerpAPI quota exhausted (0 left this month, resets "
+                  "on account anniversary). Falling back to OSM (free, keyless) source.")
+            source_module = osm_scraper
+            source_label = "OSM (auto-fallback)"
 
     cities = _select_cities()
     total_found = 0
@@ -250,8 +270,22 @@ def run():
     quota_wall = total_found == 0 and total_saved == 0
     if quota_wall:
         status = "degraded"
-        summary = (f"0 leads from {len(cities)} cities — scraper returned nothing "
-                   f"(likely SerpAPI free quota exhausted or no new listings)")
+        osm_in_use = source_label.startswith("OSM")
+        apollo_in_use = source_label.startswith("Apollo")
+        if serp_left == 0 and osm_in_use:
+            # SerpAPI ran dry → auto-fell back to OSM, which still found nothing.
+            cause = ("SerpAPI quota exhausted (0 left, resets monthly); auto-fell back to OSM "
+                     "but it returned 0 for these cities/niches")
+        elif osm_in_use:
+            cause = "OSM returned 0 for these cities/niches (no matching OpenStreetMap listings)"
+        elif apollo_in_use:
+            # Started on Apollo directly and got 0 — almost always expired cookies.
+            cause = "Apollo returned 0 — session cookies likely expired (re-run scripts/save_apollo_cookies.py)"
+        else:
+            # serp_left==0 always routes to the OSM fallback above, so here the
+            # SerpAPI source ran with quota remaining and simply found nothing new.
+            cause = "scraper returned nothing (no new listings)"
+        summary = f"0 leads from {len(cities)} cities — {cause}"
     else:
         status = "ok"
         summary = (f"{total_found} found, {total_saved} new, {total_emailed} emailed, "
@@ -269,7 +303,9 @@ def run():
         budgets={
             "serpapi": {
                 "limit": SERPAPI_FREE_LIMIT,
-                "note": ("exhausted" if quota_wall and LEAD_SOURCE != "apollo"
+                "left": serp_left,
+                "note": ("not checked (apollo source)" if serp_left is None
+                         else "exhausted" if serp_left == 0
                          else "monthly free plan"),
             },
         },
@@ -282,12 +318,53 @@ def run_reply_handler():
     Run this separately (e.g. daily cron, different from the main scrape loop).
     """
     print(f"[{datetime.now(timezone.utc).isoformat()}] Checking replies...")
-    reply_handler.run(since_days=7)
-    reply_handler.send_follow_ups(max_per_run=20)
-    whatsapp.process_whatsapp_replies(max_per_run=20)
+
+    # Each external call is isolated so one failure still records the others'
+    # work. An unhandled crash would otherwise lose all metrics for the run.
+    reply_stats: dict = {}
+    followups_sent = 0
+    wa_sent = 0
+    errors: list[str] = []
+
+    try:
+        reply_stats = reply_handler.run(since_days=7) or {}
+    except Exception as e:
+        errors.append(f"replies:{type(e).__name__}")
+        print(f"    [replies] inbox check failed: {e}")
+
+    try:
+        followups_sent = reply_handler.send_follow_ups(max_per_run=20) or 0
+    except Exception as e:
+        errors.append(f"followups:{type(e).__name__}")
+        print(f"    [followups] send failed: {e}")
+
+    try:
+        wa_sent = whatsapp.process_whatsapp_replies(max_per_run=20) or 0
+    except Exception as e:
+        errors.append(f"whatsapp:{type(e).__name__}")
+        print(f"    [whatsapp] reply processing failed: {e}")
+
     print("Reply handling complete.")
-    run_metrics.write(mode="replies", status="ok",
-                      summary="Checked inbox + sent due follow-ups")
+
+    metrics = {
+        "inbox_msgs": reply_stats.get("inbox_msgs", 0),
+        "replies_handled": reply_stats.get("replies_handled", 0),
+        "optouts": reply_stats.get("optouts", 0),
+        "followups_sent": followups_sent,
+        "whatsapp_followups_sent": wa_sent,
+    }
+    did_work = any(metrics.values())
+    if errors:
+        status = "error"
+        summary = "Partial failure: " + ", ".join(errors)
+    elif did_work:
+        status = "ok"
+        summary = (f"{metrics['replies_handled']} replies, {metrics['followups_sent']} "
+                   f"email follow-ups, {metrics['optouts']} opt-outs")
+    else:
+        status = "ok"
+        summary = "Checked inbox + follow-up queue, nothing due"
+    run_metrics.write(mode="replies", status=status, summary=summary, metrics=metrics)
 
 
 def run_analytics():

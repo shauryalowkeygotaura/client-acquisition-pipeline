@@ -140,6 +140,30 @@ def search_city(city: str) -> list[dict]:
     return jobs
 
 
+def searches_left() -> int | None:
+    """SerpAPI searches remaining this month, or None if it can't be determined.
+
+    Hits the /account endpoint, which does NOT consume a search. Lets the
+    pipeline preflight quota and fall back to a non-SerpAPI source instead of
+    burning dead calls against an exhausted free plan.
+    """
+    if not SERPAPI_KEY:
+        return None
+    import json
+    import urllib.request
+    try:
+        with urllib.request.urlopen(
+            f"https://serpapi.com/account?api_key={SERPAPI_KEY}", timeout=15
+        ) as r:
+            return int(json.load(r).get("total_searches_left", 0))
+    except Exception as e:
+        # Redact the key in case urllib put the full URL in the exception text.
+        # SERPAPI_KEY is guaranteed truthy here (early return above), but guard anyway.
+        msg = str(e).replace(SERPAPI_KEY, "***") if SERPAPI_KEY else str(e)
+        log.warning("SerpAPI account check failed: %s", msg)
+        return None
+
+
 def run(city: str) -> list[dict]:
     if not SERPAPI_KEY:
         raise RuntimeError("SERPAPI_KEY env var is not set.")
