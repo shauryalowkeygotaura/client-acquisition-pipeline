@@ -1,9 +1,25 @@
 {
   "pipeline": "client-acquisition",
-  "ts": "2026-06-15T15:26:42Z",
-  "mode": "replies",
-  "status": "ok",
-  "summary": "Checked inbox + sent due follow-ups",
-  "metrics": {},
-  "budgets": {}
+  "ts": "2026-06-16T04:36:45Z",
+  "mode": "scrape",
+  "status": "degraded",
+  "summary": "0 leads from 2 cities \u2014 Apollo returned 0 \u2014 session cookies likely expired (re-run scripts/save_apollo_cookies.py)",
+  "metrics": {
+    "found": 0,
+    "saved": 0,
+    "emailed": 0,
+    "linkedin": 0,
+    "whatsapp": 0,
+    "skipped_low": 0,
+    "scraper_errors": 0,
+    "cities_scraped": 2,
+    "lead_source": "apollo"
+  },
+  "budgets": {
+    "serpapi": {
+      "limit": 100,
+      "left": null,
+      "note": "not checked (apollo source)"
+    }
+  }
 }
