@@ -345,7 +345,7 @@ def run(since_days: int = 7):
     inbox = _fetch_inbox_replies(since_date)
     if not inbox:
         log.info("reply_handler: no new inbox messages since %s", since_date)
-        return
+        return {"inbox_msgs": 0, "replies_handled": 0, "optouts": 0}
 
     # Build email→lead index from sheet
     leads = sheets_writer.get_all_leads()
@@ -354,6 +354,9 @@ def run(since_days: int = 7):
         for lead in leads
         if lead.get("email")
     }
+
+    replies_handled = 0
+    optouts = 0
 
     for msg in inbox:
         sender = msg["from_addr"]
@@ -379,6 +382,7 @@ def run(since_days: int = 7):
             log.info("Opt-out received from %s — marking opted_out=yes", sender)
             sheets_writer.update_field(slug, "opted_out", "yes")
             sheets_writer.update_reply(slug, "not_relevant", "dead")
+            optouts += 1
             continue
 
         classification = _classify_reply(msg["body"])
@@ -400,9 +404,16 @@ def run(since_days: int = 7):
                 conversation_stage=new_stage,
                 objection_type=objection_type,
             )
+            replies_handled += 1
             log.info("Replied to %s — stage: %s → %s", sender, stage, new_stage)
         else:
             log.error("Failed to send reply to %s", sender)
+
+    return {
+        "inbox_msgs": len(inbox),
+        "replies_handled": replies_handled,
+        "optouts": optouts,
+    }
 
 
 # v3 per-channel follow-up caps. SMB B2B benchmarks show 5–7 touchpoints
@@ -411,6 +422,14 @@ def run(since_days: int = 7):
 EMAIL_FOLLOWUP_MAX = int(os.getenv("EMAIL_FOLLOWUP_MAX", "5"))
 WHATSAPP_FOLLOWUP_MAX = int(os.getenv("WHATSAPP_FOLLOWUP_MAX", "3"))
 INSTAGRAM_FOLLOWUP_MAX = int(os.getenv("INSTAGRAM_FOLLOWUP_MAX", "2"))
+
+
+def _safe_int(value) -> int:
+    """Parse a sheet cell into an int, tolerating None/'' /non-numeric → 0."""
+    try:
+        return int(value) if value not in (None, "") else 0
+    except (ValueError, TypeError):
+        return 0
 
 
 def _email_followup_count(lead: dict) -> int:
@@ -493,7 +512,7 @@ def send_follow_ups(max_per_run: int = 10):
             )
         elif follow_up_count == 1:
             body = (
-                f"One more, then I'll leave you alone.\n\n"
+                f"Quick follow-up with something concrete.\n\n"
                 f"A {niche} practice in a similar situation used a voice agent during their hiring gap. "
                 f"They ended up keeping it after they hired someone — it was catching after-hours calls "
                 f"they'd never recovered before.\n\n"
@@ -502,20 +521,35 @@ def send_follow_ups(max_per_run: int = 10):
             )
         elif follow_up_count == 2:
             body = (
-                f"Last one.\n\n"
                 f"If covering the front desk isn't the problem right now, ignore this completely.\n\n"
                 f"If it still is — happy to send a 2-min clip, no strings.\n\n"
                 f"— Shaurya"
             )
         elif follow_up_count == 3:
-            # v3 follow-up 4 — concrete operational value, no ask
-            body = (
-                f"Quick one — not following up, just sharing.\n\n"
-                f"Pulled the public reviews for {company} and noticed 3 mention couldn't reach you. "
-                f"That's usually the visible 5% of the missed-call iceberg.\n\n"
-                f"If you ever want a rough estimate of the rest, happy to send it. No call.\n\n"
-                f"— Shaurya"
-            )
+            # v3 follow-up 4 — concrete operational value, no ask.
+            # Uses a REAL count from the 'unreachable_reviews' sheet field when it
+            # has been populated (see scripts/enrich_reviews.py). Falls back to a
+            # non-falsifiable generic line when the field is absent or zero — we
+            # never invent a number.
+            n_unreachable = _safe_int(lead.get("unreachable_reviews"))
+            if n_unreachable > 0:
+                noun = "review" if n_unreachable == 1 else "reviews"
+                body = (
+                    f"Quick one, not following up, just sharing.\n\n"
+                    f"I went through {company}'s public reviews and {n_unreachable} {noun} mention not "
+                    f"being able to get through by phone. That's usually the visible 5% of the missed-call "
+                    f"iceberg, the rest never leave a trace.\n\n"
+                    f"If you ever want a rough estimate of what that's costing, happy to send it. No call.\n\n"
+                    f"— Shaurya"
+                )
+            else:
+                body = (
+                    f"Quick one, not following up, just sharing.\n\n"
+                    f"Whenever I look at {niche} practices, the reviews mentioning \"couldn't get through\" "
+                    f"are usually the visible 5% of the missed-call iceberg. The rest never leave a trace.\n\n"
+                    f"If you ever want a rough estimate of what {company} is actually missing, happy to send it. No call.\n\n"
+                    f"— Shaurya"
+                )
         else:
             # v3 follow-up 5 — the actual breakup, lowest friction
             body = (
@@ -545,3 +579,5 @@ def send_follow_ups(max_per_run: int = 10):
             sent_count += 1
             log.info("Email follow-up %d/%d sent to %s (threaded=%s)",
                      follow_up_count + 1, EMAIL_FOLLOWUP_MAX, company, bool(msg_id))
+
+    return sent_count
