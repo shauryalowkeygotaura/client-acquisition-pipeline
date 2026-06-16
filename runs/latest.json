@@ -1,19 +1,21 @@
 {
   "pipeline": "client-acquisition",
-  "ts": "2026-06-16T04:36:45Z",
+  "ts": "2026-06-16T05:15:12Z",
   "mode": "scrape",
-  "status": "degraded",
-  "summary": "0 leads from 2 cities \u2014 Apollo returned 0 \u2014 session cookies likely expired (re-run scripts/save_apollo_cookies.py)",
+  "status": "ok",
+  "summary": "[OSM rescue] 410 found, 18 new, 0 emailed, 0 WhatsApp, 0 LinkedIn",
   "metrics": {
-    "found": 0,
-    "saved": 0,
+    "found": 410,
+    "saved": 18,
     "emailed": 0,
     "linkedin": 0,
     "whatsapp": 0,
-    "skipped_low": 0,
+    "skipped_low": 85,
     "scraper_errors": 0,
     "cities_scraped": 2,
-    "lead_source": "apollo"
+    "lead_source": "apollo",
+    "osm_rescued": true,
+    "effective_source": "osm"
   },
   "budgets": {
     "serpapi": {
