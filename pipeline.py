@@ -112,18 +112,35 @@ def run():
     cities = _select_cities()
     total_found = 0
     scraper_errors = 0
+    osm_rescued = False
+    primary_is_osm = source_module is osm_scraper
     print(f"  Scraping {len(cities)}/{len(CITIES)} cities this run "
           f"(MAX_CITIES_PER_RUN={MAX_CITIES_PER_RUN or 'all'}): {', '.join(cities)}")
 
     for city in cities:
         print(f"  Scraping {source_label}: {city}")
+        jobs: list[dict] = []
         try:
             jobs = source_module.run(city)
-            total_found += len(jobs)
             print(f"    Found {len(jobs)} leads")
         except Exception as e:
             scraper_errors += 1
             print(f"    Scraper failed for {city}: {e}")
+
+        # Per-city rescue: if the chosen source produced nothing (dead Apollo
+        # cookies, no listings, or a transient error) and it wasn't already OSM,
+        # fall to the free keyless floor so the funnel never sits silently at 0.
+        if not jobs and not primary_is_osm:
+            try:
+                jobs = osm_scraper.run(city)
+                if jobs:
+                    osm_rescued = True
+                    print(f"    [OSM RESCUE] {source_label} gave 0 — OSM found {len(jobs)} for {city}")
+            except Exception as e:
+                print(f"    [OSM RESCUE] failed for {city}: {e}")
+
+        total_found += len(jobs)
+        if not jobs:
             continue
 
         for job in jobs:
@@ -279,16 +296,19 @@ def run():
         elif osm_in_use:
             cause = "OSM returned 0 for these cities/niches (no matching OpenStreetMap listings)"
         elif apollo_in_use:
-            # Started on Apollo directly and got 0 — almost always expired cookies.
-            cause = "Apollo returned 0 — session cookies likely expired (re-run scripts/save_apollo_cookies.py)"
+            # Apollo gave 0 (almost always expired cookies); the per-city OSM
+            # rescue ran (not primary_is_osm) and also came back empty.
+            cause = ("Apollo returned 0 — session cookies likely expired "
+                     "(re-run scripts/save_apollo_cookies.py); OSM rescue also found 0")
         else:
             # serp_left==0 always routes to the OSM fallback above, so here the
-            # SerpAPI source ran with quota remaining and simply found nothing new.
-            cause = "scraper returned nothing (no new listings)"
+            # SerpAPI source ran with quota remaining; the OSM rescue also found 0.
+            cause = "primary source and OSM rescue both returned 0 (no new listings)"
         summary = f"0 leads from {len(cities)} cities — {cause}"
     else:
         status = "ok"
-        summary = (f"{total_found} found, {total_saved} new, {total_emailed} emailed, "
+        prefix = "[OSM rescue] " if osm_rescued else ""
+        summary = (f"{prefix}{total_found} found, {total_saved} new, {total_emailed} emailed, "
                    f"{total_whatsapp} WhatsApp, {total_linkedin} LinkedIn")
     run_metrics.write(
         mode="scrape",
@@ -299,6 +319,8 @@ def run():
             "linkedin": total_linkedin, "whatsapp": total_whatsapp,
             "skipped_low": total_skipped_low, "scraper_errors": scraper_errors,
             "cities_scraped": len(cities), "lead_source": LEAD_SOURCE,
+            "osm_rescued": osm_rescued,
+            "effective_source": "osm" if (osm_rescued or source_label.startswith("OSM")) else LEAD_SOURCE,
         },
         budgets={
             "serpapi": {
