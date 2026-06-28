@@ -16,7 +16,7 @@
 ## Lead Flow
 
 ```
-Indeed scrape (city × 30 jobs)
+Lead harvest (LEAD_SOURCE: indeed job-posts / apollo / osm fallback)
     ↓
 researcher.run()     ← website, email, phone, services
     ↓
@@ -180,6 +180,18 @@ CAL_LINK=https://cal.com/yourlink   # for high-intent CTA in reply handler
 
 ## v3 — Architectural upgrade (May 2026)
 
+> **2026-06-28 declutter, then v4 build.** First pass removed dead/stub modules;
+> the same day several were rebuilt for real (see **v4** below). Net state:
+> - `modules/deployment_telemetry.py` — **removed** (post-sale telemetry, never used).
+> - `modules/instagram.py` — **re-added + wired** as a live send channel (informal
+>   DM copy, hide-after-send so only repliers resurface). Gated by INSTAGRAM_ENABLED.
+> - `modules/significance.py` — **re-added** (slim two-proportion z-test) to gate the
+>   new self-improving loop.
+> - `modules/maps_scraper.py` — **re-wired** as the Google Maps backfill (last paid
+>   resort before the OSM floor), no longer orphaned.
+> - `modules/icebreaker.py` + `scripts/harvest_local_leads.py` — stayed removed
+>   (duplicated personalizer + the main funnel).
+
 Addresses the operational gaps surfaced in the post-2-weeks-running review.
 Everything in v3 is additive: legacy code paths and existing Sheet data are
 untouched. New columns are appended at the end of HEADERS so column positions
@@ -220,7 +232,7 @@ Columns AN onward (appended — A through AM are unchanged):
 ### v3 Lead Flow
 
 ```
-Indeed scrape (city × 30 jobs)
+Lead harvest (LEAD_SOURCE: indeed job-posts / apollo / osm fallback)
     ↓
 researcher.run()           ← website, email, phone, services, IG handle, review count
     ↓
@@ -313,3 +325,53 @@ INSTAGRAM_MIN_DELAY=45
 2. **Stubs over half-implementations.** Instagram and deployment telemetry are stubs with clean interfaces. They wire into the pipeline routing but no-op until enabled. Better than partial code that pretends to work.
 3. **Outcomes over signals.** The deployment telemetry tab is the long-term feedback loop. Once it has real data, the scorer should consume it directly and the regex enricher becomes a fallback.
 4. **Region-aware, not region-locked.** Channel ordering, variant selection, and language signals all branch on region. Adding the next region (Australia, US) is a config addition, not a code rewrite.
+
+> Note: the v3 tables above are the original design record. Where they describe
+> `deployment_telemetry`, `significance`, or `instagram` as stubs, read the **v4**
+> section below for the current built state.
+
+---
+
+## v4 — multi-source, Instagram, and the self-improving loop (Jun 2026)
+
+### Lead sources (priority chain, per city)
+`LEAD_SOURCE` picks the primary; the rest are automatic fallbacks:
+
+```
+primary = indeed (→ google_jobs fallback inside scraper.py)  |  apollo
+    ↓  (primary < MAPS_BACKFILL_MIN leads AND SerpAPI quota left)
+maps_scraper  — every local clinic/school via SerpAPI google_maps (last PAID resort)
+    ↓  (still 0, or SerpAPI quota exhausted)
+osm_scraper   — keyless OpenStreetMap floor (never sits silently at 0)
+```
+
+Every lead is stamped with `source_type` (indeed / google_jobs / apollo / maps /
+osm), persisted to the Sheet and surfaced per-lead in the Command Center.
+
+### Outreach channels (high-priority tier)
+email + LinkedIn + WhatsApp + **Instagram**, fired in the **learned** order for the
+lead's region. Instagram (`modules/instagram.py`) is send-only via instagrapi:
+informal lowercase DM copy (`instagram_msg` from the generator), gated by
+`INSTAGRAM_ENABLED`, and **hides each thread after sending** so only leads who
+reply resurface in the inbox (`INSTAGRAM_HIDE_AFTER_SEND=1`). No IG auto-replies.
+
+### Self-improving loop (`modules/learning.py`)
+At the end of every run, learn from accumulated reply/booking outcomes and write
+`runs/learned.json` (committed by CI) for the NEXT run to read. Three levers, each
+gated by `modules/significance.py` (two-proportion z-test + min-sample) so it acts
+on real edges, not noise:
+
+| Lever | Learns | Applied by |
+|---|---|---|
+| `variant_by_niche` | best message angle per niche | `generator._select_variant` (epsilon-greedy: exploit winner, 20% explore) |
+| `channel_order_by_region` | best channel order, India vs default | `pipeline.py` high-tier send loop |
+| `scoring_weights` | pain vs adoption predictive power | `scorer._composite_weights` |
+
+First run (no data/file): every reader falls back to its hard-coded default, so
+behavior is unchanged until evidence accumulates. We learn from the PREVIOUS run
+and apply to the NEXT — never mid-run.
+
+### Command Center lead list
+`pipeline.py` publishes `runs/leads.json` (label, source, niche, score, phone,
+whatsapp, per-channel sent flags). The dashboard's **LEADS** tab fetches it via
+`raw.githubusercontent` (same mechanism as `runs/latest.json`) — no new secrets.

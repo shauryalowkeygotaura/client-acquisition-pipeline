@@ -1,10 +1,30 @@
 import json
 import os
+import random
 import re
 
 from openai import OpenAI
 
 from config import LLM_MODEL, LLM_BASE_URL
+
+# Self-improving loop: how often to EXPLORE (ignore the learned winner and let
+# the fixed rules pick) vs EXPLOIT the best-performing variant for this niche.
+# 0.2 = exploit the winner 80% of the time, keep exploring 20% so a variant that
+# stops working can be dethroned. See modules/learning.py.
+EXPLORE_EPSILON = float(os.getenv("GENERATOR_EXPLORE_EPSILON", "0.2"))
+_LEARNED_CACHE: dict | None = None
+
+
+def _learned() -> dict:
+    """Last run's learned levers (cached). Empty dict on first run / any error."""
+    global _LEARNED_CACHE
+    if _LEARNED_CACHE is None:
+        try:
+            from modules import learning
+            _LEARNED_CACHE = learning.load()
+        except Exception:
+            _LEARNED_CACHE = {}
+    return _LEARNED_CACHE
 
 LLM_API_KEY = os.getenv("GROQ_API_KEY")
 
@@ -105,7 +125,7 @@ Services/details: {services or details[:1500]}
 
 ---
 
-Generate a JSON object with exactly these seven fields:
+Generate a JSON object with exactly these fields:
 
 1. "vapi_prompt"
    Instructions written FOR an AI voice agent, telling it how to behave when it answers the phone at {company}.
@@ -276,6 +296,25 @@ Generate a JSON object with exactly these seven fields:
    Hard rules: 3 lines + sign-off. Under 50 words. No paragraphs. No H-A-O-P structure.
    No bold, no bullets, no emojis. "I" = Shaurya. This respects the reader's time more than any other format.
 
+10. "instagram_msg"
+   A VERY informal Instagram DM — this is the opposite of the LinkedIn voice. Think one creator
+   sliding into another small-business owner's DMs, NOT a salesperson.
+
+   Tone: lowercase, casual, texting-not-emailing. Contractions, the odd filler ("ngl", "honestly",
+   "btw") used sparingly and naturally. 1–2 tasteful emojis MAX (optional — skip if it feels forced).
+   It should read like a real human typed it on their phone, not a marketer.
+
+   Structure (keep it tiny — 2 to 4 short lines, under 45 words total):
+   - line 1: a genuine, specific compliment or observation about their page/clinic ("yo your clinic page is clean,
+     the {niche} reels are actually good").
+   - line 2: one casual line on what you do, plainly ("i set up a lil thing that auto-replies to DMs + missed
+     calls so you stop losing patients after hours").
+   - line 3: a super low-pressure ask ("want me to send a 10-sec demo? no pressure").
+
+   Hard rules: NO sign-off, NO "Dear", NO "I hope this finds you", NO corporate words ("solution",
+   "leverage", "reach out", "opportunity"). NO links. If a person_hook/company_hook exists, use it
+   naturally in line 1. Never write more than 4 lines.
+
 Return ONLY valid JSON. No markdown fences, no explanation, no extra keys.
 """.strip()
 
@@ -379,6 +418,17 @@ def _select_variant(data: dict) -> tuple[str, str]:
     priority = data.get("lead_priority", "medium")
     adoption = data.get("adoption_score", 0)
     has_hooks = bool(data.get("person_hook") or data.get("company_hook"))
+
+    # ── Self-improving: EXPLOIT the learned best variant for this niche ───────
+    # learning.py only records a winner once it beats the field with statistical
+    # significance. We exploit it (1 - EXPLORE_EPSILON) of the time; the rest of
+    # the time we fall through to the fixed rules to keep exploring, so a variant
+    # that decays can lose its crown.
+    learned_variant = _learned().get("variant_by_niche", {}).get(niche)
+    if learned_variant and random.random() > EXPLORE_EPSILON:
+        body = data.get(f"email_body_{learned_variant}")
+        if body:
+            return body, learned_variant
 
     # v3: India + healthcare-outcome niche + above-median adoption → outcome framing
     if _is_india(data) and niche in _OUTCOME_NICHES and adoption >= 5:

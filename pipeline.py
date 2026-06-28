@@ -31,11 +31,12 @@ def _in_send_window(location: str) -> bool:
         return True  # unknown timezone — fail open
 
 
-from config import CITIES
+from config import CITIES, MAPS_BACKFILL_MIN
 from modules import (
     scraper, researcher, enricher, scorer, personalizer,
-    generator, sheets_writer, email_sender, linkedin, whatsapp,
-    reply_handler, analytics, optimizer, apollo_scraper, osm_scraper, run_metrics,
+    generator, sheets_writer, email_sender, linkedin, whatsapp, instagram,
+    reply_handler, analytics, optimizer, apollo_scraper, osm_scraper,
+    maps_scraper, run_metrics, learning,
 )
 from modules.security_utils import get_audit_log
 
@@ -53,6 +54,35 @@ LEAD_SOURCE = os.getenv("LEAD_SOURCE", "indeed").lower()
 # days. Default 0 = no limit (original all-cities behavior, opt-in).
 MAX_CITIES_PER_RUN = int(os.getenv("MAX_CITIES_PER_RUN", "0"))
 SERPAPI_FREE_LIMIT = 100  # searches/month on the free plan (shown on dashboard)
+
+
+def _source_key(module) -> str:
+    """Canonical source tag for a lead's origin, written to source_type."""
+    if module is apollo_scraper:
+        return "apollo"
+    if module is osm_scraper:
+        return "osm"
+    if module is maps_scraper:
+        return "maps"
+    return "indeed"  # scraper.py (Indeed, with internal google_jobs fallback)
+
+
+def _stamp_source(jobs: list[dict], key: str) -> None:
+    """Tag each lead with where it came from, unless the scraper already did."""
+    for job in jobs:
+        job.setdefault("source_type", job.get("source") or key)
+
+
+_INDIA_KEYS = (
+    "india", "delhi", "mumbai", "bangalore", "bengaluru", "hyderabad",
+    "pune", "jaipur", "chennai", "kolkata", "ahmedabad", "kochi",
+)
+
+
+def _lead_region(location: str) -> str:
+    """india vs default — drives the learned channel send order."""
+    loc = (location or "").lower()
+    return "india" if any(k in loc for k in _INDIA_KEYS) else "default"
 
 
 def _select_cities():
@@ -80,11 +110,14 @@ OPTIMIZER_INTERVAL = 50
 def run():
     print(f"[{datetime.now(timezone.utc).isoformat()}] Pipeline starting...")
     existing = sheets_writer.get_all_leads()
+    learned = learning.load()  # previous run's learned channel order (self-improving)
     total_saved = 0
     total_emailed = 0
     total_linkedin = 0
     total_whatsapp = 0
+    total_instagram = 0
     total_skipped_low = 0
+    lead_list: list[dict] = []  # published to runs/leads.json for the Command Center
 
     if LEAD_SOURCE == "apollo":
         source_module, source_label = apollo_scraper, "Apollo"
@@ -94,7 +127,7 @@ def run():
         source_module, source_label = scraper, "Indeed"
 
     # ── Preflight: SerpAPI quota ─────────────────────────────────────────────
-    # scraper.py and maps_scraper.py both run on SerpAPI. If the free monthly
+    # scraper.py runs on SerpAPI. If the free monthly
     # quota is spent, every search returns 0 and we'd silently save nothing.
     # Check remaining searches (free /account call) and auto-fall back to OSM
     # (Overpass: keyless, no quota, no cookies) so the funnel self-heals without
@@ -113,6 +146,7 @@ def run():
     total_found = 0
     scraper_errors = 0
     osm_rescued = False
+    maps_backfilled = False
     primary_is_osm = source_module is osm_scraper
     print(f"  Scraping {len(cities)}/{len(CITIES)} cities this run "
           f"(MAX_CITIES_PER_RUN={MAX_CITIES_PER_RUN or 'all'}): {', '.join(cities)}")
@@ -126,13 +160,34 @@ def run():
         except Exception as e:
             scraper_errors += 1
             print(f"    Scraper failed for {city}: {e}")
+        _stamp_source(jobs, _source_key(source_module))
 
-        # Per-city rescue: if the chosen source produced nothing (dead Apollo
-        # cookies, no listings, or a transient error) and it wasn't already OSM,
-        # fall to the free keyless floor so the funnel never sits silently at 0.
+        # ── Maps backfill: last *paid* resort ────────────────────────────────
+        # When the primary source comes up thin and SerpAPI quota remains, top up
+        # from Google Maps (every local clinic/school in the city) before falling
+        # to the keyless OSM floor. Maps is paid (SerpAPI), so it only fires while
+        # quota is left; once quota is 0, OSM below is the real backstop.
+        if (len(jobs) < MAPS_BACKFILL_MIN and not primary_is_osm
+                and serp_left != 0):
+            try:
+                maps_jobs = maps_scraper.run(city)
+                _stamp_source(maps_jobs, "maps")
+                if maps_jobs:
+                    maps_backfilled = True
+                    print(f"    [MAPS BACKFILL] {source_label} thin ({len(jobs)}) — "
+                          f"maps added {len(maps_jobs)} for {city}")
+                    jobs.extend(maps_jobs)
+            except Exception as e:
+                print(f"    [MAPS BACKFILL] failed for {city}: {e}")
+
+        # Per-city rescue: if everything above produced nothing (dead Apollo
+        # cookies, no listings, spent quota, or a transient error) and the
+        # primary wasn't already OSM, fall to the free keyless floor so the
+        # funnel never sits silently at 0.
         if not jobs and not primary_is_osm:
             try:
                 jobs = osm_scraper.run(city)
+                _stamp_source(jobs, "osm")
                 if jobs:
                     osm_rescued = True
                     print(f"    [OSM RESCUE] {source_label} gave 0 — OSM found {len(jobs)} for {city}")
@@ -183,6 +238,9 @@ def run():
                 # ── Generate opt-out token before persisting ──────────────
                 data["opt_out_token"] = email_sender.generate_opt_out_token()
 
+                # Carry the lead's origin source through to the Sheet + dashboard.
+                data["source_type"] = job.get("source_type", _source_key(source_module))
+
                 # ── Persist ───────────────────────────────────────────────
                 saved = sheets_writer.save(data, existing)
                 if saved:
@@ -207,10 +265,20 @@ def run():
                     continue
 
                 slug = data["slug"]
+                sent = {"email": False, "linkedin": False,
+                        "whatsapp": False, "instagram": False}
 
-                # ── Send: high priority → email + LinkedIn + WhatsApp ────
+                # ── Send: high priority → all channels, in the LEARNED order ──
+                # Each channel is a closure with identical behavior to before;
+                # they fire in the order learning.py found works best for this
+                # lead's region (self-improving). Counters use nonlocal so the
+                # closures update run()'s tallies.
                 if score >= SCORE_HIGH:
-                    if data.get("email"):
+                    def _send_email():
+                        nonlocal total_emailed
+                        if not data.get("email"):
+                            print(f"      [NO EMAIL] {company} — no address found")
+                            return
                         print(f"      [EMAIL HIGH] → {data['email']}")
                         ok, msg_id, sender = email_sender.send(data)
                         if ok:
@@ -220,6 +288,7 @@ def run():
                             sheets_writer.update_field(slug, "sender_account", sender)
                             sheets_writer.update_channel(slug, "email")
                             total_emailed += 1
+                            sent["email"] = True
                             audit.append("email_sender", "send", slug, ok=True,
                                          detail={"channel": "email", "score": score,
                                                  "to": data["email"], "message_id": msg_id,
@@ -228,24 +297,53 @@ def run():
                             print(f"      [EMAIL FAILED] check Gmail credentials / daily limit")
                             audit.append("email_sender", "send", slug, ok=False,
                                          detail={"channel": "email", "tier": "high"})
-                    else:
-                        print(f"      [NO EMAIL] {company} — no address found (LinkedIn only)")
 
-                    li_sent = linkedin.send(data)
-                    if li_sent:
-                        sheets_writer.update_field(slug, "linkedin_sent", "TRUE")
-                        if not data.get("email"):
-                            sheets_writer.update_field(slug, "sent_at", datetime.now(timezone.utc).isoformat())
-                            sheets_writer.update_channel(slug, "linkedin")
-                        total_linkedin += 1
-                    audit.append("linkedin", "send", slug, ok=bool(li_sent),
-                                 detail={"channel": "linkedin", "score": score})
+                    def _send_linkedin():
+                        nonlocal total_linkedin
+                        li_sent = linkedin.send(data)
+                        if li_sent:
+                            sheets_writer.update_field(slug, "linkedin_sent", "TRUE")
+                            if not data.get("email"):
+                                sheets_writer.update_field(slug, "sent_at", datetime.now(timezone.utc).isoformat())
+                                sheets_writer.update_channel(slug, "linkedin")
+                            total_linkedin += 1
+                            sent["linkedin"] = True
+                        audit.append("linkedin", "send", slug, ok=bool(li_sent),
+                                     detail={"channel": "linkedin", "score": score})
 
-                    wa_sent = whatsapp.send(data)
-                    if wa_sent:
-                        total_whatsapp += 1
-                    audit.append("whatsapp", "send", slug, ok=bool(wa_sent),
-                                 detail={"channel": "whatsapp", "score": score})
+                    def _send_whatsapp():
+                        nonlocal total_whatsapp
+                        wa_sent = whatsapp.send(data)
+                        if wa_sent:
+                            total_whatsapp += 1
+                            sent["whatsapp"] = True
+                        audit.append("whatsapp", "send", slug, ok=bool(wa_sent),
+                                     detail={"channel": "whatsapp", "score": score})
+
+                    def _send_instagram():
+                        # Send-only; gated behind INSTAGRAM_ENABLED. Thread is
+                        # hidden after send so only repliers resurface — see
+                        # modules/instagram.py.
+                        nonlocal total_instagram
+                        ig_sent = instagram.send(data)
+                        if ig_sent:
+                            sheets_writer.update_field(slug, "instagram_sent", "TRUE")
+                            total_instagram += 1
+                            sent["instagram"] = True
+                        audit.append("instagram", "send", slug, ok=bool(ig_sent),
+                                     detail={"channel": "instagram", "score": score})
+
+                    channel_fns = {
+                        "email": _send_email, "linkedin": _send_linkedin,
+                        "whatsapp": _send_whatsapp, "instagram": _send_instagram,
+                    }
+                    region = _lead_region(location)
+                    order = (learned.get("channel_order_by_region", {}).get(region)
+                             or learning.DEFAULT_CHANNEL_ORDER[region])
+                    for ch in order:
+                        fn = channel_fns.get(ch)
+                        if fn:
+                            fn()
 
                 # ── Send: medium priority → email only ───────────────────
                 elif score >= SCORE_LOW:
@@ -259,6 +357,7 @@ def run():
                             sheets_writer.update_field(slug, "sender_account", sender)
                             sheets_writer.update_channel(slug, "email")
                             total_emailed += 1
+                            sent["email"] = True
                             audit.append("email_sender", "send", slug, ok=True,
                                          detail={"channel": "email", "score": score,
                                                  "to": data["email"], "message_id": msg_id,
@@ -270,6 +369,19 @@ def run():
                     else:
                         print(f"      [NO EMAIL] {company} — no address found, skipping")
 
+                # ── Record for the Command Center lead list (runs/leads.json) ──
+                lead_list.append({
+                    "label": company,
+                    "source": data.get("source_type", ""),
+                    "niche": niche,
+                    "score": score,
+                    "city": city,
+                    "phone": data.get("phone", ""),
+                    "whatsapp": data.get("whatsapp", "") or data.get("phone", ""),
+                    "website": data.get("website", ""),
+                    "channels": sent,  # which channels auto-fired for this lead
+                })
+
             except Exception as e:
                 print(f"    [ERROR] {company}: {e}")
                 sheets_writer.log_error(company, str(e))
@@ -278,8 +390,11 @@ def run():
     print(
         f"\nDone. Found: {total_found} | Saved: {total_saved} | Emailed: {total_emailed} | "
         f"LinkedIn: {total_linkedin} | WhatsApp: {total_whatsapp} | "
-        f"Skipped (low score): {total_skipped_low}"
+        f"Instagram: {total_instagram} | Skipped (low score): {total_skipped_low}"
     )
+
+    # Publish the lead list for the Command Center dashboard (runs/leads.json).
+    run_metrics.write_leads(lead_list)
 
     # ── Emit run metrics for the Command Center dashboard ────────────────────
     # "degraded" = the run was clean but the upstream scraper produced nothing,
@@ -307,9 +422,9 @@ def run():
         summary = f"0 leads from {len(cities)} cities — {cause}"
     else:
         status = "ok"
-        prefix = "[OSM rescue] " if osm_rescued else ""
+        prefix = "[OSM rescue] " if osm_rescued else "[+maps] " if maps_backfilled else ""
         summary = (f"{prefix}{total_found} found, {total_saved} new, {total_emailed} emailed, "
-                   f"{total_whatsapp} WhatsApp, {total_linkedin} LinkedIn")
+                   f"{total_whatsapp} WhatsApp, {total_instagram} IG, {total_linkedin} LinkedIn")
     run_metrics.write(
         mode="scrape",
         status=status,
@@ -317,9 +432,10 @@ def run():
         metrics={
             "found": total_found, "saved": total_saved, "emailed": total_emailed,
             "linkedin": total_linkedin, "whatsapp": total_whatsapp,
+            "instagram": total_instagram,
             "skipped_low": total_skipped_low, "scraper_errors": scraper_errors,
             "cities_scraped": len(cities), "lead_source": LEAD_SOURCE,
-            "osm_rescued": osm_rescued,
+            "osm_rescued": osm_rescued, "maps_backfilled": maps_backfilled,
             "effective_source": "osm" if (osm_rescued or source_label.startswith("OSM")) else LEAD_SOURCE,
         },
         budgets={
@@ -332,6 +448,12 @@ def run():
             },
         },
     )
+
+    # ── Self-improving loop ──────────────────────────────────────────────────
+    # Recompute learned levers (best variant per niche, channel order, scoring
+    # weights) from accumulated reply/booking outcomes and write runs/learned.json
+    # for the NEXT run to read. Best-effort; never raises.
+    learning.run()
 
 
 def run_reply_handler():

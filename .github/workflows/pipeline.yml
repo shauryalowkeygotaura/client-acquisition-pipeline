@@ -62,6 +62,6 @@ jobs:
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add runs/latest.json runs/history.jsonl
+          git add -A runs/   # latest.json, history.jsonl, leads.json (gitignore drops social_*)
           git diff --cached --quiet || git commit -m "chore: run metrics [skip ci]"
           git push
