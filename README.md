@@ -1,6 +1,8 @@
 # Client Acquisition Pipeline
 
-Automated daily pipeline: scrapes Indeed for urgent receptionist jobs → researches each company → generates personalized outreach → sends via Gmail + LinkedIn → creates Vapi demo agents on-demand when prospects reply.
+Automated daily pipeline: harvests leads (Indeed job-posts → Google Jobs, or Apollo; Google Maps backfill; free OpenStreetMap floor — set by `LEAD_SOURCE`) → researches each company → enriches + scores → generates personalized outreach → sends via Gmail / LinkedIn / WhatsApp / Instagram → creates Vapi demo agents on-demand when prospects reply. Each lead is tagged with its source and shown in the Command Center **LEADS** tab. A self-improving loop (`modules/learning.py`) learns which message angle, channel order, and scoring weights actually convert and applies them on the next run.
+
+> **Design doc:** see [`architecture.md`](architecture.md) for the full lead flow, scoring, variant logic, and the canonical Google Sheets schema. This README is setup + daily usage only.
 
 ## Setup (One-Time)
 
@@ -30,7 +32,7 @@ Re-run every 2–4 weeks when cookies expire.
 
 ### 5. GitHub Secrets
 Add all of these to your repo → Settings → Secrets and variables → Actions:
-- `OPENROUTER_API_KEY` — free at openrouter.ai
+- `GROQ_API_KEY` — free at console.groq.com (LLM for research + copy generation)
 - `VAPI_API_KEY` — your existing Vapi key
 - `GOOGLE_SHEETS_ID`
 - `GOOGLE_SERVICE_ACCOUNT_JSON`
@@ -63,7 +65,7 @@ Open Vapi dashboard → find the assistant → Test tab → share screen on call
 
 Edit `config.py` to change:
 - `CITIES` — which cities to target
-- `OPENROUTER_MODEL` — which AI model to use
+- `LLM_MODEL` — which Groq model to use (default: `llama-3.3-70b-versatile`)
 - `LINKEDIN_DAILY_LIMIT` — max LinkedIn messages per day (default: 15)
 
 ## Cost

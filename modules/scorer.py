@@ -63,9 +63,38 @@ def _adoption_score(data: dict) -> int:
     return int(max(0, min(10, round(score))))
 
 
+_LEARNED_WEIGHTS_CACHE: dict | None = None
+
+
+def _composite_weights() -> dict:
+    """Pain/adoption weights — the learning loop's value if present, else env/default.
+    Cached; learning.py writes runs/learned.json at the end of the previous run."""
+    global _LEARNED_WEIGHTS_CACHE
+    if _LEARNED_WEIGHTS_CACHE is None:
+        try:
+            from modules import learning
+            learned = learning.load().get("scoring_weights") or {}
+        except Exception:
+            learned = {}
+        _LEARNED_WEIGHTS_CACHE = (
+            learned if _valid_weights(learned) else WEIGHTS["composite"]
+        )
+    return _LEARNED_WEIGHTS_CACHE
+
+
+def _valid_weights(w: dict) -> bool:
+    """Trust a learned pair only if both keys exist, are non-negative numbers,
+    and sum to ~1 — so a corrupted learned.json can never warp scoring."""
+    try:
+        p, a = float(w["pain"]), float(w["adoption"])
+    except (KeyError, TypeError, ValueError):
+        return False
+    return p >= 0 and a >= 0 and abs((p + a) - 1.0) < 0.01
+
+
 def _combined_score(pain: int, adoption: int) -> int:
     """Weighted average, rounded to integer in [0,10]."""
-    w = WEIGHTS["composite"]
+    w = _composite_weights()
     blended = (pain * w["pain"]) + (adoption * w["adoption"])
     return int(max(0, min(10, round(blended))))
 

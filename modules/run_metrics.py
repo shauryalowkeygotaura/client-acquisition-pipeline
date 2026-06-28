@@ -64,3 +64,22 @@ def write(
     except Exception as e:  # pragma: no cover - best effort
         print(f"    [run_metrics] failed to write metrics: {e}")
         return _RUNS_DIR / "latest.json"
+
+
+def write_leads(leads: list[dict[str, Any]]) -> Path:
+    """Write runs/leads.json — today's qualified leads with their source and the
+    channels that auto-fired, for the Command Center lead list. Fetched publicly
+    via raw.githubusercontent (same path as latest.json). Never raises."""
+    payload = {
+        "pipeline": PIPELINE_NAME,
+        "ts": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "count": len(leads),
+        "leads": leads,
+    }
+    dest = _RUNS_DIR / "leads.json"
+    try:
+        _RUNS_DIR.mkdir(parents=True, exist_ok=True)
+        dest.write_text(json.dumps(payload, indent=2, ensure_ascii=False), encoding="utf-8")
+    except Exception as e:  # pragma: no cover - best effort
+        print(f"    [run_metrics] failed to write leads: {e}")
+    return dest

@@ -9,7 +9,7 @@ icebreaker.
 
 run(city) iterates config.MAPS_QUERIES and returns a flat list of lead dicts
 shaped like scraper.run() output, so the rest of the pipeline (researcher,
-enricher, scorer, icebreaker, sheets_writer) consumes them unchanged.
+enricher, scorer, personalizer, sheets_writer) consumes them unchanged.
 """
 import logging
 import os

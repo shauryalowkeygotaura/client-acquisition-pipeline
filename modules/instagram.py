@@ -33,6 +33,11 @@ INSTAGRAM_ENABLED = os.getenv("INSTAGRAM_ENABLED") == "1"
 DAILY_DM_LIMIT = int(os.getenv("INSTAGRAM_DAILY_DM_LIMIT", "20"))
 MIN_DELAY_SECONDS = int(os.getenv("INSTAGRAM_MIN_DELAY", "45"))
 
+# Hide each thread from Shaurya's inbox right after sending, so only leads who
+# REPLY resurface (IG re-shows a hidden thread on the next inbound message).
+# Default on. Set INSTAGRAM_HIDE_AFTER_SEND=0 to keep sent threads visible.
+HIDE_AFTER_SEND = os.getenv("INSTAGRAM_HIDE_AFTER_SEND", "1") == "1"
+
 _send_counts: dict[str, int] = {}  # date_str → count sent today
 
 
@@ -106,7 +111,22 @@ def send(data: dict) -> bool:
         cl = Client()
         cl.login(INSTAGRAM_USERNAME, INSTAGRAM_PASSWORD)
         user_id = cl.user_id_from_username(handle)
-        cl.direct_send(message[:1000], [user_id])  # 1000-char hard cap
+        dm = cl.direct_send(message[:1000], [user_id])  # 1000-char hard cap
+
+        # Clean-inbox pattern: hide the thread right after sending. Only leads
+        # who reply will resurface it, so the IG inbox becomes "repliers only".
+        if HIDE_AFTER_SEND:
+            # direct_send returns a DirectMessage object (most versions) or a
+            # dict — handle both so a shape change never crashes a real send.
+            thread_id = getattr(dm, "thread_id", None)
+            if thread_id is None and isinstance(dm, dict):
+                thread_id = dm.get("thread_id")
+            if thread_id:
+                try:
+                    cl.direct_thread_hide(thread_id)
+                    log.debug("Hid IG thread %s for @%s after send", thread_id, handle)
+                except Exception as e:
+                    log.warning("Sent to @%s but could not hide thread: %s", handle, e)
 
         time.sleep(MIN_DELAY_SECONDS)  # pacing — keeps activity human-shaped
         _increment_count()
