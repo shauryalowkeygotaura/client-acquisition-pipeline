@@ -123,17 +123,73 @@ def build_config(lead: dict) -> dict:
     return cfg
 
 
+def publish_to_kv(slug: str, cfg: dict) -> bool:
+    """Best-effort publish of the partial override to Upstash Redis REST.
+
+    POST {UPSTASH_REDIS_REST_URL}/set/demo:<slug> with the override JSON string
+    as the raw request body and a Bearer token. This lets the jio-voice-demo
+    turn.py serve a brand-new lead WITHOUT a redeploy (it reads demo:<slug> from
+    KV at request time).
+
+    Publishing must NEVER fail the pipeline: the local configs/<slug>.json write
+    stays the deploy-time fallback, so every error here is logged and swallowed.
+    Returns True only on a confirmed Upstash {"result": "OK"}.
+
+    Slug handling is whitelist-validation (never strip-bad-chars); creds come
+    from env and are never logged.
+    """
+    if not SLUG_RE.match(slug or ""):
+        print(f"[demo_builder] skip KV publish: non-whitelist slug {slug!r}")
+        return False
+    url = (os.getenv("UPSTASH_REDIS_REST_URL") or "").strip()
+    token = (os.getenv("UPSTASH_REDIS_REST_TOKEN") or "").strip()
+    if not url or not token:
+        print("[demo_builder] skip KV publish: UPSTASH_REDIS_REST_URL/TOKEN not set")
+        return False
+    import urllib.request
+
+    body = json.dumps(cfg, ensure_ascii=False).encode("utf-8")
+    req = urllib.request.Request(
+        f"{url.rstrip('/')}/set/demo:{slug}",
+        data=body,
+        headers={
+            "Authorization": f"Bearer {token}",
+            "Content-Type": "application/json",
+        },
+        method="POST",
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=3) as resp:
+            if getattr(resp, "status", 200) != 200:
+                print(f"[demo_builder] KV publish HTTP {getattr(resp, 'status', '?')} for {slug}")
+                return False
+            data = json.loads(resp.read().decode("utf-8"))
+    except Exception as e:
+        print(f"[demo_builder] KV publish failed for {slug}: {type(e).__name__}: {e}")
+        return False
+    if isinstance(data, dict) and data.get("result") == "OK":
+        return True
+    print(f"[demo_builder] KV publish unexpected response for {slug}: {data!r}")
+    return False
+
+
 def write_config(lead: dict, out_dir: str | Path | None = None) -> Path:
     """Build + write web_demo/api/configs/<slug>.json. Returns the path.
 
     The filename stem equals cfg['slug'] (== the mp4 filename == the demo_url
     slug). ensure_ascii=False keeps the Hinglish greeting readable in the file.
+
+    After the local write (which stays the deploy-time fallback) the same
+    override is ALSO published to Upstash KV so the demo serves this lead with
+    no redeploy. The KV publish is best-effort and never raises.
     """
     cfg = build_config(lead)
     d = Path(out_dir) if out_dir else config_dir()
     d.mkdir(parents=True, exist_ok=True)
     path = d / f"{cfg['slug']}.json"
     path.write_text(json.dumps(cfg, ensure_ascii=False, indent=2), encoding="utf-8")
+    # Publish the SAME partial override to KV so a new lead needs no redeploy.
+    publish_to_kv(cfg["slug"], cfg)
     return path
 
 
