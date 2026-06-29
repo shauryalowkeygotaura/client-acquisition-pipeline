@@ -98,11 +98,35 @@ def send_freeform(to_mobile: str, text: str) -> bool:
     return _post("sendText", {"to": _chat_id(mobile), "content": text})
 
 
+def send_video(to_mobile: str, path, caption: str = "") -> bool:
+    """Send a native mp4 (cold distribution video) via the EASY API sendFile
+    endpoint. Reads the file as a base64 data URI. Returns False on any failure."""
+    import base64
+    from pathlib import Path as _Path
+
+    mp4 = _Path(path)
+    if not mp4.exists():
+        log.warning("openWA video missing: %s", path)
+        return False
+    mobile = _extract_mobile(to_mobile) or to_mobile.lstrip("+")
+    try:
+        b64 = base64.b64encode(mp4.read_bytes()).decode("ascii")
+    except OSError as e:
+        log.error("openWA could not read video %s: %s", path, e)
+        return False
+    return _post("sendFile", {
+        "to": _chat_id(mobile),
+        "file": f"data:video/mp4;base64,{b64}",
+        "filename": mp4.name,
+        "caption": caption,
+    })
+
+
 def send_pitch(to_mobile: str, niche: str) -> bool:
     """Touch 2 — the pitch."""
     niche_str = niche or "service"
     text = (
-        f"I build voice agents for {niche_str} businesses — they answer calls and "
+        f"I build voice agents for {niche_str} businesses. They answer calls and "
         f"handle bookings automatically. Want me to send a 2-min clip?"
     )
     return send_freeform(to_mobile, text)

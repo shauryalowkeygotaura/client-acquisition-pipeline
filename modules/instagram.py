@@ -138,3 +138,79 @@ def send(data: dict) -> bool:
     except Exception as e:
         log.error("Instagram DM failed for @%s: %s", handle, e)
         return False
+
+
+# ── Distribution (feature f): cold video DM / warm link, DRAFT by default ────
+# Double-gated: needs INSTAGRAM_ENABLED=1 (account warmed) AND
+# OUTREACH_AUTOSEND_INSTAGRAM=1 (explicit opt-in) before anything sends. Cold =
+# a video DM (IG shadow-filters cold DMs that contain links into Requests); warm
+# = the /demo/<slug> link, only after a reply so the thread is already open. The
+# cold/warm rule lives in modules/delivery, not here.
+
+def _autosend() -> bool:
+    return os.getenv("OUTREACH_AUTOSEND_INSTAGRAM", "0").strip() == "1"
+
+
+def _send_video(handle: str, path, caption: str = "") -> bool:
+    """Send an mp4 as an Instagram video DM via instagrapi. NO-OP unless the
+    channel is enabled + credentialed. Returns False on any failure."""
+    from pathlib import Path as _Path
+    if not INSTAGRAM_ENABLED or not (INSTAGRAM_USERNAME and INSTAGRAM_PASSWORD):
+        return False
+    if not _within_daily_limit():
+        log.warning("Instagram daily DM limit (%d) reached - video queued", DAILY_DM_LIMIT)
+        return False
+    mp4 = _Path(path)
+    if not mp4.exists():
+        log.warning("Instagram video missing: %s", path)
+        return False
+    try:
+        from instagrapi import Client  # type: ignore
+
+        cl = Client()
+        cl.login(INSTAGRAM_USERNAME, INSTAGRAM_PASSWORD)
+        user_id = cl.user_id_from_username(handle)
+        cl.direct_send_video(str(mp4), [user_id])
+        if caption:
+            cl.direct_send(caption[:1000], [user_id])
+        time.sleep(MIN_DELAY_SECONDS)
+        _increment_count()
+        log.info("Instagram video DM sent to @%s", handle)
+        return True
+    except ImportError:
+        log.error("instagrapi not installed - pip install instagrapi")
+        return False
+    except Exception as e:
+        log.error("Instagram video DM failed for @%s: %s", handle, e)
+        return False
+
+
+def deliver(data: dict, autosend: bool | None = None) -> dict:
+    """Attach the right asset to an Instagram outreach, per the two-state rule.
+
+    DRAFT by default: returns what WOULD be sent and only transmits when BOTH
+    INSTAGRAM_ENABLED=1 and the OUTREACH_AUTOSEND_INSTAGRAM flag (or an explicit
+    autosend=True) are set.
+    """
+    from modules import delivery
+    asset = delivery.instagram_asset(data)
+    do_send = _autosend() if autosend is None else bool(autosend)
+    result = {**asset, "autosend": do_send, "sent": False}
+
+    if asset["kind"] == "none":
+        return result
+    handle = resolve_handle(data)
+    if not do_send or not handle:
+        log.info("Instagram %s DRAFTED (autosend off or no handle) for %s",
+                 asset["kind"], data.get("company_name"))
+        return result
+
+    if asset["kind"] == "link":
+        result["sent"] = send({
+            "instagram_handle": handle,
+            "instagram_msg": f"{asset['line']} {asset['url']}",
+            "company_name": data.get("company_name", handle),
+        })
+    elif asset["kind"] == "video":
+        result["sent"] = _send_video(handle, asset["path"])
+    return result

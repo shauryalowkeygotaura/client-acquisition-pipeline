@@ -12,3 +12,4 @@ pytest
 pytest-asyncio
 dnspython
 twilio
+edge-tts          # $0 neural TTS for modules/video_pitch.py (personalized lead videos)

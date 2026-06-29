@@ -50,6 +50,12 @@ HEADERS = [
     "icebreaker", "rating", "review_count", "maps_url",
     # ── 2026-05-30 merged source: where the lead came from + hot hiring flag ──
     "source_type", "hiring_now",
+    # ── 2026-06-28 integration hub: per-lead interactive demo (jio-voice-demo) ──
+    # demo_url is the clean path-based link (https://.../demo/<slug>) handed to a
+    # WARM lead only; demo_generated_at is when warm_mockup built the slug assets.
+    # Appended last so existing column positions never shift (update_field +
+    # build_row both index off HEADERS, so order is the contract).
+    "demo_url", "demo_generated_at",
 ]
 
 NICHE_ANALYTICS_HEADERS = [
@@ -201,6 +207,9 @@ def build_row(data: dict) -> list:
         # ── 2026-05-30 merged source + hot hiring flag ──
         data.get("source_type", ""),
         data.get("hiring_now", ""),
+        # ── 2026-06-28 integration hub: demo assets (filled later by warm_mockup) ──
+        data.get("demo_url", ""),
+        data.get("demo_generated_at", ""),
     ]
 
 

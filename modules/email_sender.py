@@ -5,9 +5,13 @@ import re
 import secrets
 import smtplib
 from datetime import datetime, timezone
+from email import encoders
 from email.charset import QP, Charset
+from email.mime.base import MIMEBase
+from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.utils import formatdate, make_msgid
+from pathlib import Path
 
 log = logging.getLogger(__name__)
 
@@ -108,15 +112,52 @@ def build_message(
     from_addr: str,
     in_reply_to: str | None = None,
     references: str | None = None,
-) -> MIMEText:
+    attach_path: str | Path | None = None,
+    demo_anchor: tuple[str, str] | None = None,
+):
+    """Build the outreach email.
+
+    attach_path  COLD distribution: a small mp4 attached to the message (the
+                 personalized pitch video). Promotes the body to a multipart.
+    demo_anchor  WARM distribution: a (label, url) pair appended as ONE
+                 descriptive labelled link (never a bare pasted URL, one max).
+
+    With neither set the result is byte-for-byte the original plain MIMEText, so
+    the existing cold campaign and all tests are unaffected.
+    """
     body = data["email_body"]
+    # Warm: one labelled link, placed above the opt-out footer. Cold never gets here.
+    if demo_anchor:
+        label, url = demo_anchor
+        body += f"\n\n{label}: {url}"
     opt_out = data.get("opt_out_token", "")
     if opt_out:
         body += _unsubscribe_footer(opt_out)
 
     # Plain text only: HTML triggers Gmail promo-tab routing and stricter
     # Outlook spam scoring. Body uses real \n paragraph breaks (SMTP preserves).
-    msg = MIMEText(body, "plain", _BODY_CHARSET)
+    text_part = MIMEText(body, "plain", _BODY_CHARSET)
+
+    msg = text_part
+    if attach_path is not None:
+        # COLD video attach -> multipart/mixed (text part + the mp4).
+        try:
+            mp4 = Path(attach_path)
+            payload = mp4.read_bytes()
+            wrapper = MIMEMultipart("mixed")
+            wrapper.attach(text_part)
+            part = MIMEBase("video", "mp4")
+            part.set_payload(payload)
+            encoders.encode_base64(part)
+            part.add_header("Content-Disposition", "attachment", filename=mp4.name)
+            wrapper.attach(part)
+            msg = wrapper
+        except OSError as e:
+            # Missing/unreadable file: fall back to the plain text part. We do
+            # NOT substitute a bare link: a cold lead never gets a URL.
+            log.warning("Could not attach video %s (%s) - sending text only", attach_path, e)
+            msg = text_part
+
     msg["From"] = from_addr
     msg["To"] = data["email"]
     msg["Subject"] = data["email_subject"]
@@ -200,8 +241,23 @@ def send(
             log.warning("All Gmail accounts at daily limit (%d/day). Skipping send.", MAX_PER_ACCOUNT)
             return False, "", ""
 
+    # ── Distribution (feature f): cold attaches the video, warm gets the link ──
+    # Centralized in modules/delivery so every channel agrees. Best-effort: any
+    # planning hiccup falls back to a plain text-only send (and never a link).
+    attach_path = None
+    demo_anchor = None
+    if os.getenv("DELIVERY_DISABLE") != "1":
+        try:
+            from . import delivery
+            assets = delivery.email_assets(data)
+            attach_path = assets.get("attach_path")
+            demo_anchor = assets.get("anchor")
+        except Exception as e:
+            log.debug("delivery planning failed (%s) - sending plain text", e)
+
     msg = build_message(data, from_addr=acct["address"],
-                        in_reply_to=in_reply_to, references=references)
+                        in_reply_to=in_reply_to, references=references,
+                        attach_path=attach_path, demo_anchor=demo_anchor)
     sent_message_id = msg["Message-ID"]
 
     try:

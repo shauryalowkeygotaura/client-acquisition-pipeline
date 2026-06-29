@@ -161,8 +161,8 @@ def send_pitch(to_mobile: str, niche: str) -> bool:
     """
     niche_str = niche or "service"
     text = (
-        f"I build voice agents for {niche_str} businesses — "
-        f"they answer calls and handle bookings automatically. "
+        f"I build voice agents for {niche_str} businesses. "
+        f"They answer calls and handle bookings automatically. "
         f"Want me to send a 2-min clip?"
     )
     return send_freeform(to_mobile, text)
@@ -203,6 +203,101 @@ def send_freeform(to_mobile: str, text: str) -> bool:
     except Exception as e:
         log.error("WhatsApp freeform failed to %s: %s", to_mobile, e)
         return False
+
+
+# ── Distribution (feature f): cold video / warm link, DRAFT by default ───────
+# Auto-send only when OUTREACH_AUTOSEND_WHATSAPP=1 (OFF by default; the user is
+# a minor and social auto-send stays gated). Cold leads get the personalized
+# video natively (a cold link gets the number reported); warm/replied leads get
+# the clean /demo/<slug> link with one human context line. The cold/warm rule is
+# owned by modules/delivery, not re-derived here.
+
+def _autosend() -> bool:
+    return os.getenv("OUTREACH_AUTOSEND_WHATSAPP", "0").strip() == "1"
+
+
+def _send_video_meta(mobile: str, path) -> bool:
+    """Upload an mp4 to Meta then send it as a native video message. Two HTTP
+    boundaries, both status-checked. Returns False on any failure."""
+    from pathlib import Path as _Path
+    if not PHONE_NUMBER_ID or not ACCESS_TOKEN:
+        return False
+    mp4 = _Path(path)
+    if not mp4.exists():
+        log.warning("WhatsApp video missing: %s", path)
+        return False
+    base = "https://graph.facebook.com/v20.0/{}".format(PHONE_NUMBER_ID)
+    try:
+        with mp4.open("rb") as fh:
+            up = requests.post(
+                f"{base}/media",
+                data={"messaging_product": "whatsapp", "type": "video/mp4"},
+                files={"file": (mp4.name, fh, "video/mp4")},
+                headers={"Authorization": f"Bearer {ACCESS_TOKEN}"},
+                timeout=30,
+            )
+        if up.status_code != 200:
+            log.error("WhatsApp media upload HTTP %s: %s", up.status_code, up.text[:200])
+            return False
+        media_id = up.json().get("id")
+        if not media_id:
+            log.error("WhatsApp media upload returned no id: %s", up.text[:200])
+            return False
+        send_resp = requests.post(
+            f"{base}/messages",
+            json={"messaging_product": "whatsapp", "to": mobile,
+                  "type": "video", "video": {"id": media_id}},
+            headers={"Authorization": f"Bearer {ACCESS_TOKEN}",
+                     "Content-Type": "application/json"},
+            timeout=15,
+        )
+        return send_resp.status_code == 200
+    except Exception as e:
+        log.error("WhatsApp video send failed to %s: %s", mobile, e)
+        return False
+
+
+def _send_video(mobile: str, path) -> bool:
+    """Provider-aware native video send. openWA (personal number) handles cold
+    media; Meta is the compliant default."""
+    if _provider() == "openwa":
+        from modules import openwa
+        fn = getattr(openwa, "send_video", None)
+        if fn:
+            return fn(mobile, path)
+        log.info("openWA has no send_video - leaving WhatsApp video as a draft")
+        return False
+    return _send_video_meta(mobile, path)
+
+
+def deliver(data: dict, autosend: bool | None = None) -> dict:
+    """Attach the right asset to a WhatsApp outreach, per the two-state rule.
+
+    DRAFT by default: returns what WOULD be sent and only transmits when the
+    OUTREACH_AUTOSEND_WHATSAPP flag (or an explicit autosend=True) is set.
+    """
+    from modules import delivery
+    asset = delivery.whatsapp_asset(data)
+    do_send = _autosend() if autosend is None else bool(autosend)
+    result = {**asset, "autosend": do_send, "sent": False}
+
+    if asset["kind"] == "none":
+        return result
+    if not do_send:
+        log.info("WhatsApp %s DRAFTED (autosend off) for %s",
+                 asset["kind"], data.get("company_name"))
+        return result
+
+    mobile = _extract_mobile(data.get("phone", ""))
+    if not mobile:
+        log.debug("No valid mobile for %s - WhatsApp delivery skipped", data.get("company_name"))
+        return result
+
+    if asset["kind"] == "link":
+        result["sent"] = send_freeform(mobile, f"{asset['line']} {asset['url']}")
+    elif asset["kind"] == "video":
+        result["sent"] = _send_video(mobile, asset["path"])
+    return result
 
 
 def handle_reply(webhook_payload: dict) -> bool:
