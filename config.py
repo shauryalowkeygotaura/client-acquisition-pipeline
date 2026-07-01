@@ -12,6 +12,20 @@ CITIES = [
     "Mumbai, Maharashtra",
     "Hyderabad, Telangana",
     "Pune, Maharashtra",
+    # 2026-07-01: the original 6 metros got fished out on the free OSM fallback
+    # (weeks of re-scraping the same clinics → mostly duplicates → 0 new saved).
+    # Added fresh tier-2 metros with dense OSM clinic/school coverage so the
+    # keyless fallback has un-scraped ponds. Also widens Apollo's reach once
+    # APOLLO_COOKIES_JSON is set. Rotation (MAX_CITIES_PER_RUN) cycles all of
+    # these over a few runs.
+    "Chennai, Tamil Nadu",
+    "Kolkata, West Bengal",
+    "Ahmedabad, Gujarat",
+    "Chandigarh, Chandigarh",
+    "Lucknow, Uttar Pradesh",
+    "Indore, Madhya Pradesh",
+    "Nagpur, Maharashtra",
+    "Kochi, Kerala",
 ]
 
 # Google Maps backfill (last paid resort before the keyless OSM floor). Each
