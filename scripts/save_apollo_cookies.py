@@ -33,12 +33,19 @@ DASHBOARD_HINT = "https://app.apollo.io/#/control-center"
 
 def _launch_headful(p):
     """A visible browser to log in through. Prefer the user's real Google Chrome
-    (least bot-like for Apollo's login), fall back to bundled Chromium."""
+    (least bot-like for Apollo's login), fall back to bundled Chromium.
+
+    Strips the automation fingerprint that makes Google's sign-in refuse with
+    "this browser or app may not be secure": ignore_default_args drops the
+    --enable-automation switch, and the blink flag hides navigator.webdriver."""
+    args = ["--disable-blink-features=AutomationControlled"]
+    ignore = ["--enable-automation"]
     try:
-        return p.chromium.launch(headless=False, channel="chrome")
+        return p.chromium.launch(headless=False, channel="chrome",
+                                 args=args, ignore_default_args=ignore)
     except Exception as e:
         print(f"       (real Chrome unavailable [{type(e).__name__}], using bundled Chromium)")
-        return p.chromium.launch(headless=False)  # raises loudly if this also fails
+        return p.chromium.launch(headless=False, args=args, ignore_default_args=ignore)
 
 
 def main() -> int:
