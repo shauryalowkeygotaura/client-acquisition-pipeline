@@ -1,15 +1,29 @@
 {
   "pipeline": "client-acquisition",
-  "ts": "2026-07-22T11:24:00Z",
-  "mode": "replies",
+  "ts": "2026-07-23T06:17:02Z",
+  "mode": "scrape",
   "status": "ok",
-  "summary": "0 replies, 0 email follow-ups, 0 opt-outs",
+  "summary": "[OSM rescue] 50 found, 0 new, 0 emailed, 0 WhatsApp, 0 IG, 0 LinkedIn",
   "metrics": {
-    "inbox_msgs": 161,
-    "replies_handled": 0,
-    "optouts": 0,
-    "followups_sent": 0,
-    "whatsapp_followups_sent": 0
+    "found": 50,
+    "saved": 0,
+    "emailed": 0,
+    "linkedin": 0,
+    "whatsapp": 0,
+    "instagram": 0,
+    "skipped_low": 2,
+    "scraper_errors": 0,
+    "cities_scraped": 2,
+    "lead_source": "apollo",
+    "osm_rescued": true,
+    "maps_backfilled": false,
+    "effective_source": "osm"
   },
-  "budgets": {}
+  "budgets": {
+    "serpapi": {
+      "limit": 100,
+      "left": null,
+      "note": "not checked (apollo source)"
+    }
+  }
 }
