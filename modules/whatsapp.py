@@ -53,10 +53,17 @@ Notes:
 import logging
 import os
 import re
+import time
 
 import requests
 
 log = logging.getLogger(__name__)
+
+# Longest pause between two bubbles of the same reply. Real thumb-typing of a
+# 20-word line is slower than this, but the batch runner sends up to 20 leads
+# in one pass, so the gap is capped to keep a full run inside a few minutes.
+# Raise it if a prospect ever remarks on how fast the second message lands.
+_MAX_BUBBLE_GAP_SECONDS = 12.0
 
 PHONE_NUMBER_ID = os.getenv("WHATSAPP_PHONE_NUMBER_ID")
 ACCESS_TOKEN = os.getenv("WHATSAPP_ACCESS_TOKEN")
@@ -152,20 +159,62 @@ def send(data: dict) -> bool:
         return False
 
 
-def send_pitch(to_mobile: str, niche: str) -> bool:
+def send_pitch(to_mobile: str, niche: str, data: dict | None = None) -> bool:
     """
     Send touch 2: the pitch — fires after prospect replies to the question template.
     Only valid within the 24h free-form window opened by their reply.
 
     Called by handle_reply() when Meta webhook receives an inbound message.
+
+    HUMAN-SHAPED SEND (2026-08). This used to push one hardcoded, three-clause,
+    grammatically flawless sentence, identical for every lead, the instant the
+    webhook fired. Three separate tells at once: same copy, written register,
+    inhuman latency. Now:
+
+      * copy is the per-lead `whatsapp_msg` from the generator when `data`
+        carries one, already put through modules/humanize,
+      * it lands as 2-3 short bubbles instead of one paragraph,
+      * with a pause before the first one and a typing-length pause between
+        them, so the cadence matches a person holding a phone.
+
+    NOT called from the Meta webhook — process_whatsapp_replies() below picks
+    these up on the daily scheduled run, which is also where the "don't answer
+    instantly" delay lives (_PITCH_DELAY_HOURS). This function therefore only
+    paces the gap BETWEEN bubbles; it must not add a reply delay of its own or
+    a 20-lead run would sit in sleep() for over an hour.
+
+    `data` is optional so existing callers keep working; without it the generic
+    line is still used, humanized and bubbled.
     """
+    from modules import humanize
+
     niche_str = niche or "service"
-    text = (
-        f"I build voice agents for {niche_str} businesses. "
-        f"They answer calls and handle bookings automatically. "
-        f"Want me to send a 2-min clip?"
-    )
-    return send_freeform(to_mobile, text)
+    raw = (data or {}).get("whatsapp_msg")
+    if not isinstance(raw, str) or not raw.strip():
+        # Fallback only. Still not the old three-clause sentence: two short
+        # thoughts, no "automatically", nothing that reads as a brochure.
+        raw = (
+            f"i set up the phone line for {niche_str} places so it picks up when "
+            f"nobody can get to it and books the slot. "
+            f"want me to send a 2 min clip of it taking a call?"
+        )
+
+    parts = humanize.bubbles(raw)
+    if not parts:
+        return False
+
+    for i, part in enumerate(parts):
+        if i:
+            # Real typing speed, capped: the point is that bubble 2 does not
+            # arrive in the same second as bubble 1, and the cap keeps a full
+            # batch run inside a few minutes.
+            time.sleep(min(humanize.typing_delay_seconds(part), _MAX_BUBBLE_GAP_SECONDS))
+        if not send_freeform(to_mobile, part):
+            # Partial delivery is still a live conversation; report the failure
+            # but do not retry the earlier bubbles into a double-send.
+            log.error("WhatsApp pitch bubble %d/%d failed to %s", i + 1, len(parts), to_mobile)
+            return False
+    return True
 
 
 def send_freeform(to_mobile: str, text: str) -> bool:
@@ -430,7 +479,10 @@ def process_whatsapp_replies(max_per_run: int = 20):
             continue
 
         niche = lead.get("niche", "service")
-        ok = send_pitch(mobile, niche)
+        # Pass the whole lead row: it carries the per-lead `whatsapp_msg` the
+        # generator wrote for this business. Without it every prospect gets the
+        # same fallback sentence, which is the tell this change exists to kill.
+        ok = send_pitch(mobile, niche, lead)
         if ok:
             sheets_writer.update_field(lead["slug"], "whatsapp_stage", "pitch_sent")
             log.info(

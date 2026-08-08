@@ -22,6 +22,11 @@ _FULL_OUTPUT = {
     "email_body_outcome": "Most new-patient enquiries to Meridian Dental after 8pm go unanswered.\n\nOutcome body.\n\n— Shaurya",
     "linkedin_msg": "Hey Sarah — saw Meridian Dental needs...",
     "linkedin_post": "Post text here.",
+    # DM copy became REQUIRED when instagram.send lost its linkedin_msg
+    # fallback: a missing DM field must fail generation loudly rather than
+    # silently ship LinkedIn-register copy into a texting window.
+    "instagram_msg": "Yo your clinic page is clean — the dental reels are actually good.\nI set up a lil thing that picks up missed calls.\nWant me to send a 10-sec demo?",
+    "whatsapp_msg": "I wanted to reach out — I set up the phone line so it picks up when nobody can. Want me to send a 2 min clip?",
 }
 
 def test_parse_output_valid():

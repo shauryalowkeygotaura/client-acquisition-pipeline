@@ -100,10 +100,25 @@ def send(data: dict) -> bool:
         log.warning("Instagram daily DM limit (%d) reached — queuing for tomorrow", DAILY_DM_LIMIT)
         return False
 
-    message = data.get("instagram_msg") or data.get("linkedin_msg") or ""
-    if not message:
-        log.warning("No instagram_msg for %s — skipping", handle)
+    # No linkedin_msg fallback. It used to be here, and it meant any lead whose
+    # instagram_msg went missing got LinkedIn-register copy ("I wanted to reach
+    # out regarding...") dropped into a texting window, which reads as a blast
+    # instantly. instagram_msg is now a REQUIRED generator field; if it is still
+    # absent, not sending is strictly better than sending the wrong voice.
+    from modules import humanize
+
+    raw = data.get("instagram_msg") or ""
+    if not isinstance(raw, str) or not raw.strip():
+        log.warning("No instagram_msg for %s — skipping (no LinkedIn fallback)", handle)
         return False
+
+    message = humanize.humanize(raw, lowercase_opener=True)
+    if not message:
+        log.warning("instagram_msg for %s was empty after cleanup — skipping", handle)
+        return False
+    found = humanize.tells(message)
+    if found:
+        log.warning("IG DM to @%s still carries tells %s after cleanup", handle, found)
 
     try:
         from instagrapi import Client  # type: ignore

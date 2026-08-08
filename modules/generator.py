@@ -1,4 +1,5 @@
 import json
+import logging
 import os
 import random
 import re
@@ -6,6 +7,8 @@ import re
 from openai import OpenAI
 
 from config import LLM_MODEL, LLM_BASE_URL
+
+log = logging.getLogger(__name__)
 
 # Self-improving loop: how often to EXPLORE (ignore the learned winner and let
 # the fixed rules pick) vs EXPLOIT the best-performing variant for this niche.
@@ -33,6 +36,12 @@ REQUIRED_FIELDS = {
     "email_body_pain", "email_body_curiosity", "email_body_roi",
     "email_body_question", "email_body_outcome",
     "linkedin_msg", "linkedin_post",
+    # DM copy is REQUIRED, not optional. When instagram_msg was merely nice to
+    # have, instagram.send quietly fell back to linkedin_msg and shipped
+    # LinkedIn-register copy into a texting window. A missing DM field is now a
+    # generation failure, which is loud, instead of a wrong-register send, which
+    # is silent.
+    "instagram_msg", "whatsapp_msg",
 }
 
 
@@ -306,7 +315,7 @@ Generate a JSON object with exactly these fields:
 
    Structure (keep it tiny — 2 to 4 short lines, under 45 words total):
    - line 1: a genuine, specific compliment or observation about their page/clinic ("yo your clinic page is clean,
-     the {niche} reels are actually good").
+     the {industry} reels are actually good").
    - line 2: one casual line on what you do, plainly ("i set up a lil thing that auto-replies to DMs + missed
      calls so you stop losing patients after hours").
    - line 3: a super low-pressure ask ("want me to send a 10-sec demo? no pressure").
@@ -314,6 +323,31 @@ Generate a JSON object with exactly these fields:
    Hard rules: NO sign-off, NO "Dear", NO "I hope this finds you", NO corporate words ("solution",
    "leverage", "reach out", "opportunity"). NO links. If a person_hook/company_hook exists, use it
    naturally in line 1. Never write more than 4 lines.
+
+11. "whatsapp_msg"
+   The SECOND WhatsApp touch: what Shaurya types back after the prospect replies
+   to the opening template. This is a reply inside a live chat, not a broadcast.
+
+   Assume the whole context is: he asked "are you still looking to cover front
+   desk calls?" and they answered something short like "yes" or "what is this".
+
+   Tone: a person on their phone. Contractions. Plain words. Sentences a builder
+   would type, not sentences a marketer would write. It is fine to start with a
+   lowercase word. It is fine for one sentence to be three words long.
+
+   Structure (2 to 3 short sentences, under 40 words TOTAL):
+   - what he actually does, in their vocabulary, tied to {industry} and {company}
+     if it fits naturally ("i set up the phone line so it picks up when nobody
+     can get to it, books the slot, texts you the details")
+   - the offer to show rather than explain ("can send you a 2 min clip of it
+     taking a call for a {industry} place if you want")
+
+   Hard rules: NO greeting (the chat is already open), NO sign-off, NO name at
+   the end, NO links, NO bullet points, NO emojis, no "AI", no "automation", no
+   "solution", no "reach out". Never use an em dash. Never write three items in
+   a comma list. Do not restate their reply back to them.
+
+   The test: if you read it out loud and it sounds like it was written, rewrite it.
 
 Return ONLY valid JSON. No markdown fences, no explanation, no extra keys.
 """.strip()
@@ -348,6 +382,26 @@ def parse_output(raw: str) -> dict:
             import re as _re
             body = _re.sub(r'\n{3,}', '\n\n', body).strip()
             data[field] = body
+
+    # DM copy gets the deterministic humanize pass here, at the point of
+    # generation, so every downstream sender (WhatsApp, Instagram, the manual
+    # review sheet) sees the same cleaned text. The model writes the substance;
+    # this strips the em dashes, the corporate vocabulary and the email closers
+    # it cannot stop reaching for. See modules/humanize.py.
+    # Defensive like _learned(): a fault in the cleanup pass must never destroy
+    # an otherwise-valid generation we have already paid for.
+    try:
+        from modules import humanize as _humanize
+
+        for field, lowercase in (("instagram_msg", True), ("whatsapp_msg", False)):
+            value = data.get(field)
+            if isinstance(value, str) and value.strip():
+                found = _humanize.tells(value)
+                if found:
+                    log.debug("%s carried generated-text tells %s, cleaning", field, found)
+                data[field] = _humanize.humanize(value, lowercase_opener=lowercase)
+    except Exception as e:
+        log.warning("humanize pass skipped, keeping raw DM copy: %s", e)
 
     return data
 
