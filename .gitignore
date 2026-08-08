@@ -16,6 +16,9 @@ runs/social_leads.jsonl
 runs/console_inbox.jsonl
 runs/console_outbox.jsonl
 
+# Grill Room drill-pull checkpoint (machine-local seen-file state)
+runs/drill_pull_state.json
+
 # LinkedIn session (contains auth cookies)
 .linkedin_profile/
 

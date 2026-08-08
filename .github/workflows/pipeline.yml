@@ -35,6 +35,10 @@ env:
   # Free-tier guard: with Apollo the cap is ~5 email-unlocks/day, so a rotating
   # 2-city window per run keeps every run inside the free allowance.
   MAX_CITIES_PER_RUN: '2'
+  # Per-lead demo KV (modules/demo_builder.py publishes /demo/<slug> overrides).
+  # Re-pointed 2026-07-04 to the new Upstash DB (old apt-starfish host died).
+  UPSTASH_REDIS_REST_URL: ${{ secrets.UPSTASH_REDIS_REST_URL }}
+  UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_REDIS_REST_TOKEN }}
 
 jobs:
   run:
