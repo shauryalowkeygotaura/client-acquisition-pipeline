@@ -1,6 +1,263 @@
 {
   "pipeline": "client-acquisition",
-  "ts": "2026-08-07T05:19:15Z",
-  "count": 0,
-  "leads": []
+  "ts": "2026-08-10T05:13:38Z",
+  "count": 16,
+  "leads": [
+    {
+      "label": "Agarwals Dental Clinic",
+      "source": "osm",
+      "niche": "dental",
+      "score": 5,
+      "city": "Lucknow, Uttar Pradesh",
+      "phone": "",
+      "whatsapp": "",
+      "website": "",
+      "channels": {
+        "email": false,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "All Dental Remedies - Dr. Anup Kumar Gupta",
+      "source": "osm",
+      "niche": "dental",
+      "score": 5,
+      "city": "Lucknow, Uttar Pradesh",
+      "phone": "",
+      "whatsapp": "",
+      "website": "",
+      "channels": {
+        "email": false,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "Dr. Avinash Srivastava",
+      "source": "osm",
+      "niche": "dental",
+      "score": 5,
+      "city": "Lucknow, Uttar Pradesh",
+      "phone": "",
+      "whatsapp": "",
+      "website": "",
+      "channels": {
+        "email": false,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "Anugrah Dental Clinic",
+      "source": "osm",
+      "niche": "dental",
+      "score": 5,
+      "city": "Lucknow, Uttar Pradesh",
+      "phone": "",
+      "whatsapp": "",
+      "website": "",
+      "channels": {
+        "email": false,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "Dr. Raghav's Tooth Care",
+      "source": "osm",
+      "niche": "dental",
+      "score": 5,
+      "city": "Lucknow, Uttar Pradesh",
+      "phone": "",
+      "whatsapp": "",
+      "website": "",
+      "channels": {
+        "email": false,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "Mahanagar Dental Clinic",
+      "source": "osm",
+      "niche": "dental",
+      "score": 5,
+      "city": "Lucknow, Uttar Pradesh",
+      "phone": "",
+      "whatsapp": "",
+      "website": "",
+      "channels": {
+        "email": false,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "Dynamic Dental Care Clinic & Implant Centre, Lucknow",
+      "source": "osm",
+      "niche": "dental",
+      "score": 5,
+      "city": "Lucknow, Uttar Pradesh",
+      "phone": "",
+      "whatsapp": "",
+      "website": "",
+      "channels": {
+        "email": false,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "Riizwi Dental Clinic",
+      "source": "osm",
+      "niche": "dental",
+      "score": 5,
+      "city": "Lucknow, Uttar Pradesh",
+      "phone": "",
+      "whatsapp": "",
+      "website": "",
+      "channels": {
+        "email": false,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "Keshava Physiotherapist Clinic",
+      "source": "osm",
+      "niche": "medical",
+      "score": 5,
+      "city": "Lucknow, Uttar Pradesh",
+      "phone": "",
+      "whatsapp": "",
+      "website": "",
+      "channels": {
+        "email": false,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "Lenskart",
+      "source": "osm",
+      "niche": "optometry",
+      "score": 5,
+      "city": "Lucknow, Uttar Pradesh",
+      "phone": "",
+      "whatsapp": "",
+      "website": "",
+      "channels": {
+        "email": false,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "Titan Eye+",
+      "source": "osm",
+      "niche": "optometry",
+      "score": 5,
+      "city": "Lucknow, Uttar Pradesh",
+      "phone": "",
+      "whatsapp": "",
+      "website": "",
+      "channels": {
+        "email": false,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "Rashmi Dental Clinic",
+      "source": "osm",
+      "niche": "dental",
+      "score": 5,
+      "city": "Indore, Madhya Pradesh",
+      "phone": "",
+      "whatsapp": "",
+      "website": "",
+      "channels": {
+        "email": false,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "दांत एवं ऑर्थोडेंटिक चिकित्सा केंद्र - डॉ राकेश ठकराल",
+      "source": "osm",
+      "niche": "dental",
+      "score": 5,
+      "city": "Indore, Madhya Pradesh",
+      "phone": "",
+      "whatsapp": "",
+      "website": "",
+      "channels": {
+        "email": false,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "Mahendra Dental Clinic",
+      "source": "osm",
+      "niche": "dental",
+      "score": 5,
+      "city": "Indore, Madhya Pradesh",
+      "phone": "",
+      "whatsapp": "",
+      "website": "",
+      "channels": {
+        "email": false,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "Advance Dental Care Clinic",
+      "source": "osm",
+      "niche": "dental",
+      "score": 5,
+      "city": "Indore, Madhya Pradesh",
+      "phone": "",
+      "whatsapp": "",
+      "website": "",
+      "channels": {
+        "email": false,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "Dental hospital",
+      "source": "osm",
+      "niche": "dental",
+      "score": 5,
+      "city": "Indore, Madhya Pradesh",
+      "phone": "",
+      "whatsapp": "",
+      "website": "",
+      "channels": {
+        "email": false,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    }
+  ]
 }
