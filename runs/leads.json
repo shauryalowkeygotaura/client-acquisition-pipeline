@@ -1,14 +1,14 @@
 {
   "pipeline": "client-acquisition",
-  "ts": "2026-08-11T05:02:22Z",
-  "count": 14,
+  "ts": "2026-08-12T05:27:21Z",
+  "count": 15,
   "leads": [
     {
-      "label": "Tushar Dental Clinic",
+      "label": "Dental Care Centre 2",
       "source": "osm",
       "niche": "dental",
       "score": 5,
-      "city": "Nagpur, Maharashtra",
+      "city": "Jaipur, Rajasthan",
       "phone": "",
       "whatsapp": "",
       "website": "",
@@ -20,203 +20,219 @@
       }
     },
     {
-      "label": "Shree Gurukrupa Dental Hospital",
-      "source": "osm",
-      "niche": "dental",
-      "score": 5,
-      "city": "Nagpur, Maharashtra",
-      "phone": "",
-      "whatsapp": "",
-      "website": "",
-      "channels": {
-        "email": false,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "Wankhade's Dental Clinic",
-      "source": "osm",
-      "niche": "dental",
-      "score": 5,
-      "city": "Nagpur, Maharashtra",
-      "phone": "",
-      "whatsapp": "",
-      "website": "",
-      "channels": {
-        "email": false,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "Dr. Mrunal Ale",
-      "source": "osm",
-      "niche": "dental",
-      "score": 5,
-      "city": "Nagpur, Maharashtra",
-      "phone": "",
-      "whatsapp": "",
-      "website": "",
-      "channels": {
-        "email": false,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "Rainbow Dental Clinic and Orthodontic Centre",
-      "source": "osm",
-      "niche": "dental",
-      "score": 5,
-      "city": "Nagpur, Maharashtra",
-      "phone": "",
-      "whatsapp": "",
-      "website": "",
-      "channels": {
-        "email": false,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "Dr. Mohit Dental Clinic",
-      "source": "osm",
-      "niche": "dental",
-      "score": 5,
-      "city": "Nagpur, Maharashtra",
-      "phone": "",
-      "whatsapp": "",
-      "website": "",
-      "channels": {
-        "email": false,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "Dr. Amar Nagpal's Eye and Dental Clinic",
-      "source": "osm",
-      "niche": "dental",
-      "score": 5,
-      "city": "Nagpur, Maharashtra",
-      "phone": "",
-      "whatsapp": "",
-      "website": "",
-      "channels": {
-        "email": false,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "Dental Speciality Clinic",
-      "source": "osm",
-      "niche": "dental",
-      "score": 5,
-      "city": "Nagpur, Maharashtra",
-      "phone": "",
-      "whatsapp": "",
-      "website": "",
-      "channels": {
-        "email": false,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "Care Dental Clinic",
-      "source": "osm",
-      "niche": "dental",
-      "score": 5,
-      "city": "Nagpur, Maharashtra",
-      "phone": "",
-      "whatsapp": "",
-      "website": "",
-      "channels": {
-        "email": false,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "Janhavi Dental Clinic",
-      "source": "osm",
-      "niche": "dental",
-      "score": 5,
-      "city": "Nagpur, Maharashtra",
-      "phone": "",
-      "whatsapp": "",
-      "website": "",
-      "channels": {
-        "email": false,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "Choudhari Hospital and Dental Clinic",
-      "source": "osm",
-      "niche": "dental",
-      "score": 5,
-      "city": "Nagpur, Maharashtra",
-      "phone": "",
-      "whatsapp": "",
-      "website": "",
-      "channels": {
-        "email": false,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "Advance Dental Clinic",
-      "source": "osm",
-      "niche": "dental",
-      "score": 5,
-      "city": "Nagpur, Maharashtra",
-      "phone": "",
-      "whatsapp": "",
-      "website": "",
-      "channels": {
-        "email": false,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "Siddiqui Dental Clinic",
-      "source": "osm",
-      "niche": "dental",
-      "score": 5,
-      "city": "Nagpur, Maharashtra",
-      "phone": "",
-      "whatsapp": "",
-      "website": "",
-      "channels": {
-        "email": false,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "Sai Clinic",
+      "label": "Anurag Nursing Home, Mansarovar",
       "source": "osm",
       "niche": "medical",
       "score": 5,
-      "city": "Nagpur, Maharashtra",
+      "city": "Jaipur, Rajasthan",
+      "phone": "",
+      "whatsapp": "",
+      "website": "",
+      "channels": {
+        "email": false,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "Getwell Poly Clinic and Hospital",
+      "source": "osm",
+      "niche": "medical",
+      "score": 5,
+      "city": "Jaipur, Rajasthan",
+      "phone": "",
+      "whatsapp": "",
+      "website": "",
+      "channels": {
+        "email": false,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "Jain Nursing Home, Jaipur",
+      "source": "osm",
+      "niche": "medical",
+      "score": 5,
+      "city": "Jaipur, Rajasthan",
+      "phone": "",
+      "whatsapp": "",
+      "website": "",
+      "channels": {
+        "email": false,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "Somvati Memorial Hospital",
+      "source": "osm",
+      "niche": "medical",
+      "score": 5,
+      "city": "Jaipur, Rajasthan",
+      "phone": "",
+      "whatsapp": "",
+      "website": "",
+      "channels": {
+        "email": false,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "Jyotiba Hospital",
+      "source": "osm",
+      "niche": "medical",
+      "score": 5,
+      "city": "Jaipur, Rajasthan",
+      "phone": "",
+      "whatsapp": "",
+      "website": "",
+      "channels": {
+        "email": false,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "Gem Nursing Home",
+      "source": "osm",
+      "niche": "medical",
+      "score": 5,
+      "city": "Jaipur, Rajasthan",
+      "phone": "",
+      "whatsapp": "",
+      "website": "",
+      "channels": {
+        "email": false,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "Gupta Dental Clinic and Perio Surgery Hospital",
+      "source": "osm",
+      "niche": "dental",
+      "score": 5,
+      "city": "Jaipur, Rajasthan",
+      "phone": "",
+      "whatsapp": "",
+      "website": "",
+      "channels": {
+        "email": false,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "Gupta Fracture Clinic and Spine Centre",
+      "source": "osm",
+      "niche": "medical",
+      "score": 5,
+      "city": "Jaipur, Rajasthan",
+      "phone": "",
+      "whatsapp": "",
+      "website": "",
+      "channels": {
+        "email": false,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "Roma Nursing Home",
+      "source": "osm",
+      "niche": "medical",
+      "score": 5,
+      "city": "Jaipur, Rajasthan",
+      "phone": "",
+      "whatsapp": "",
+      "website": "",
+      "channels": {
+        "email": false,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "Dr.Mehta's Dignostic Clinic",
+      "source": "osm",
+      "niche": "medical",
+      "score": 5,
+      "city": "Jaipur, Rajasthan",
+      "phone": "",
+      "whatsapp": "",
+      "website": "",
+      "channels": {
+        "email": false,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "Krishna Clinic and Nursing Home",
+      "source": "osm",
+      "niche": "medical",
+      "score": 5,
+      "city": "Jaipur, Rajasthan",
+      "phone": "",
+      "whatsapp": "",
+      "website": "",
+      "channels": {
+        "email": false,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "Surinder Nursing Home",
+      "source": "osm",
+      "niche": "medical",
+      "score": 5,
+      "city": "Jaipur, Rajasthan",
+      "phone": "",
+      "whatsapp": "",
+      "website": "",
+      "channels": {
+        "email": false,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "Vinayak Nursing Home",
+      "source": "osm",
+      "niche": "medical",
+      "score": 5,
+      "city": "Jaipur, Rajasthan",
+      "phone": "",
+      "whatsapp": "",
+      "website": "",
+      "channels": {
+        "email": false,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "Dr. K.C. KASLIWAL Ear,Nose and Throat Centre",
+      "source": "osm",
+      "niche": "medical",
+      "score": 5,
+      "city": "Jaipur, Rajasthan",
       "phone": "",
       "whatsapp": "",
       "website": "",
