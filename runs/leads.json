@@ -1,14 +1,14 @@
 {
   "pipeline": "client-acquisition",
-  "ts": "2026-08-12T05:27:21Z",
+  "ts": "2026-08-13T05:26:32Z",
   "count": 15,
   "leads": [
     {
-      "label": "Dental Care Centre 2",
+      "label": "Shroff's Dental Clinic",
       "source": "osm",
       "niche": "dental",
       "score": 5,
-      "city": "Jaipur, Rajasthan",
+      "city": "Mumbai, Maharashtra",
       "phone": "",
       "whatsapp": "",
       "website": "",
@@ -20,107 +20,11 @@
       }
     },
     {
-      "label": "Anurag Nursing Home, Mansarovar",
-      "source": "osm",
-      "niche": "medical",
-      "score": 5,
-      "city": "Jaipur, Rajasthan",
-      "phone": "",
-      "whatsapp": "",
-      "website": "",
-      "channels": {
-        "email": false,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "Getwell Poly Clinic and Hospital",
-      "source": "osm",
-      "niche": "medical",
-      "score": 5,
-      "city": "Jaipur, Rajasthan",
-      "phone": "",
-      "whatsapp": "",
-      "website": "",
-      "channels": {
-        "email": false,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "Jain Nursing Home, Jaipur",
-      "source": "osm",
-      "niche": "medical",
-      "score": 5,
-      "city": "Jaipur, Rajasthan",
-      "phone": "",
-      "whatsapp": "",
-      "website": "",
-      "channels": {
-        "email": false,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "Somvati Memorial Hospital",
-      "source": "osm",
-      "niche": "medical",
-      "score": 5,
-      "city": "Jaipur, Rajasthan",
-      "phone": "",
-      "whatsapp": "",
-      "website": "",
-      "channels": {
-        "email": false,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "Jyotiba Hospital",
-      "source": "osm",
-      "niche": "medical",
-      "score": 5,
-      "city": "Jaipur, Rajasthan",
-      "phone": "",
-      "whatsapp": "",
-      "website": "",
-      "channels": {
-        "email": false,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "Gem Nursing Home",
-      "source": "osm",
-      "niche": "medical",
-      "score": 5,
-      "city": "Jaipur, Rajasthan",
-      "phone": "",
-      "whatsapp": "",
-      "website": "",
-      "channels": {
-        "email": false,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "Gupta Dental Clinic and Perio Surgery Hospital",
+      "label": "Belle 32",
       "source": "osm",
       "niche": "dental",
       "score": 5,
-      "city": "Jaipur, Rajasthan",
+      "city": "Mumbai, Maharashtra",
       "phone": "",
       "whatsapp": "",
       "website": "",
@@ -132,11 +36,11 @@
       }
     },
     {
-      "label": "Gupta Fracture Clinic and Spine Centre",
+      "label": "My Dentist",
       "source": "osm",
-      "niche": "medical",
+      "niche": "dental",
       "score": 5,
-      "city": "Jaipur, Rajasthan",
+      "city": "Mumbai, Maharashtra",
       "phone": "",
       "whatsapp": "",
       "website": "",
@@ -148,11 +52,11 @@
       }
     },
     {
-      "label": "Roma Nursing Home",
+      "label": "Dental Centre",
       "source": "osm",
-      "niche": "medical",
+      "niche": "dental",
       "score": 5,
-      "city": "Jaipur, Rajasthan",
+      "city": "Mumbai, Maharashtra",
       "phone": "",
       "whatsapp": "",
       "website": "",
@@ -164,11 +68,11 @@
       }
     },
     {
-      "label": "Dr.Mehta's Dignostic Clinic",
+      "label": "Orlem Dental Clinic",
       "source": "osm",
-      "niche": "medical",
+      "niche": "dental",
       "score": 5,
-      "city": "Jaipur, Rajasthan",
+      "city": "Mumbai, Maharashtra",
       "phone": "",
       "whatsapp": "",
       "website": "",
@@ -180,11 +84,11 @@
       }
     },
     {
-      "label": "Krishna Clinic and Nursing Home",
+      "label": "Rajaram Dental Clinic",
       "source": "osm",
-      "niche": "medical",
+      "niche": "dental",
       "score": 5,
-      "city": "Jaipur, Rajasthan",
+      "city": "Mumbai, Maharashtra",
       "phone": "",
       "whatsapp": "",
       "website": "",
@@ -196,11 +100,11 @@
       }
     },
     {
-      "label": "Surinder Nursing Home",
+      "label": "Dr. Umesh Trivedi",
       "source": "osm",
-      "niche": "medical",
+      "niche": "dental",
       "score": 5,
-      "city": "Jaipur, Rajasthan",
+      "city": "Mumbai, Maharashtra",
       "phone": "",
       "whatsapp": "",
       "website": "",
@@ -212,11 +116,11 @@
       }
     },
     {
-      "label": "Vinayak Nursing Home",
+      "label": "Dental Clinic - Dr Tania Thukral",
       "source": "osm",
-      "niche": "medical",
+      "niche": "dental",
       "score": 5,
-      "city": "Jaipur, Rajasthan",
+      "city": "Mumbai, Maharashtra",
       "phone": "",
       "whatsapp": "",
       "website": "",
@@ -228,11 +132,107 @@
       }
     },
     {
-      "label": "Dr. K.C. KASLIWAL Ear,Nose and Throat Centre",
+      "label": "Dr. Jadhav's Dental clinic",
       "source": "osm",
-      "niche": "medical",
+      "niche": "dental",
       "score": 5,
-      "city": "Jaipur, Rajasthan",
+      "city": "Mumbai, Maharashtra",
+      "phone": "",
+      "whatsapp": "",
+      "website": "",
+      "channels": {
+        "email": false,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "Dr. Shalini Jaisinghani Dental Surgeon - Chembur",
+      "source": "osm",
+      "niche": "dental",
+      "score": 5,
+      "city": "Mumbai, Maharashtra",
+      "phone": "",
+      "whatsapp": "",
+      "website": "",
+      "channels": {
+        "email": false,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "Dr. Khosla's Dental Centre",
+      "source": "osm",
+      "niche": "dental",
+      "score": 5,
+      "city": "Mumbai, Maharashtra",
+      "phone": "",
+      "whatsapp": "",
+      "website": "",
+      "channels": {
+        "email": false,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "Dr Turners's Speciality Dental Centre",
+      "source": "osm",
+      "niche": "dental",
+      "score": 5,
+      "city": "Mumbai, Maharashtra",
+      "phone": "",
+      "whatsapp": "",
+      "website": "",
+      "channels": {
+        "email": false,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "Surbhi Dental Clinic(Dr.Samata Dhuppad)",
+      "source": "osm",
+      "niche": "dental",
+      "score": 5,
+      "city": "Mumbai, Maharashtra",
+      "phone": "",
+      "whatsapp": "",
+      "website": "",
+      "channels": {
+        "email": false,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "Dr. Umesh Nisar Dental Clinic",
+      "source": "osm",
+      "niche": "dental",
+      "score": 5,
+      "city": "Mumbai, Maharashtra",
+      "phone": "",
+      "whatsapp": "",
+      "website": "",
+      "channels": {
+        "email": false,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "Ganesh Dental Speciality Clinic",
+      "source": "osm",
+      "niche": "dental",
+      "score": 5,
+      "city": "Mumbai, Maharashtra",
       "phone": "",
       "whatsapp": "",
       "website": "",
