@@ -1,14 +1,14 @@
 {
   "pipeline": "client-acquisition",
-  "ts": "2026-08-13T05:26:32Z",
-  "count": 15,
+  "ts": "2026-08-14T05:26:53Z",
+  "count": 13,
   "leads": [
     {
-      "label": "Shroff's Dental Clinic",
+      "label": "Dental Paradise",
       "source": "osm",
       "niche": "dental",
       "score": 5,
-      "city": "Mumbai, Maharashtra",
+      "city": "Hyderabad, Telangana",
       "phone": "",
       "whatsapp": "",
       "website": "",
@@ -20,11 +20,11 @@
       }
     },
     {
-      "label": "Belle 32",
+      "label": "siri dental clinic",
       "source": "osm",
       "niche": "dental",
       "score": 5,
-      "city": "Mumbai, Maharashtra",
+      "city": "Hyderabad, Telangana",
       "phone": "",
       "whatsapp": "",
       "website": "",
@@ -36,11 +36,11 @@
       }
     },
     {
-      "label": "My Dentist",
+      "label": "Chaitanya Dental",
       "source": "osm",
       "niche": "dental",
       "score": 5,
-      "city": "Mumbai, Maharashtra",
+      "city": "Hyderabad, Telangana",
       "phone": "",
       "whatsapp": "",
       "website": "",
@@ -52,11 +52,11 @@
       }
     },
     {
-      "label": "Dental Centre",
+      "label": "Sai Dental Clinic",
       "source": "osm",
       "niche": "dental",
       "score": 5,
-      "city": "Mumbai, Maharashtra",
+      "city": "Hyderabad, Telangana",
       "phone": "",
       "whatsapp": "",
       "website": "",
@@ -68,11 +68,11 @@
       }
     },
     {
-      "label": "Orlem Dental Clinic",
+      "label": "Vasan Dental Care",
       "source": "osm",
       "niche": "dental",
       "score": 5,
-      "city": "Mumbai, Maharashtra",
+      "city": "Hyderabad, Telangana",
       "phone": "",
       "whatsapp": "",
       "website": "",
@@ -84,11 +84,11 @@
       }
     },
     {
-      "label": "Rajaram Dental Clinic",
+      "label": "Dr.Raju's Dental Care",
       "source": "osm",
       "niche": "dental",
       "score": 5,
-      "city": "Mumbai, Maharashtra",
+      "city": "Hyderabad, Telangana",
       "phone": "",
       "whatsapp": "",
       "website": "",
@@ -100,11 +100,11 @@
       }
     },
     {
-      "label": "Dr. Umesh Trivedi",
+      "label": "Hasaa Super speciality Dental Hospital",
       "source": "osm",
       "niche": "dental",
       "score": 5,
-      "city": "Mumbai, Maharashtra",
+      "city": "Hyderabad, Telangana",
       "phone": "",
       "whatsapp": "",
       "website": "",
@@ -116,11 +116,11 @@
       }
     },
     {
-      "label": "Dental Clinic - Dr Tania Thukral",
+      "label": "Profile dental care",
       "source": "osm",
       "niche": "dental",
       "score": 5,
-      "city": "Mumbai, Maharashtra",
+      "city": "Hyderabad, Telangana",
       "phone": "",
       "whatsapp": "",
       "website": "",
@@ -132,11 +132,11 @@
       }
     },
     {
-      "label": "Dr. Jadhav's Dental clinic",
+      "label": "Shubham Dental Clinic",
       "source": "osm",
       "niche": "dental",
       "score": 5,
-      "city": "Mumbai, Maharashtra",
+      "city": "Hyderabad, Telangana",
       "phone": "",
       "whatsapp": "",
       "website": "",
@@ -148,11 +148,11 @@
       }
     },
     {
-      "label": "Dr. Shalini Jaisinghani Dental Surgeon - Chembur",
+      "label": "Appaji Dental Clinic",
       "source": "osm",
       "niche": "dental",
       "score": 5,
-      "city": "Mumbai, Maharashtra",
+      "city": "Hyderabad, Telangana",
       "phone": "",
       "whatsapp": "",
       "website": "",
@@ -164,11 +164,11 @@
       }
     },
     {
-      "label": "Dr. Khosla's Dental Centre",
+      "label": "Hyderabad Laser Dentistry",
       "source": "osm",
       "niche": "dental",
       "score": 5,
-      "city": "Mumbai, Maharashtra",
+      "city": "Hyderabad, Telangana",
       "phone": "",
       "whatsapp": "",
       "website": "",
@@ -180,11 +180,11 @@
       }
     },
     {
-      "label": "Dr Turners's Speciality Dental Centre",
+      "label": "Hyderabad Dental Hospital",
       "source": "osm",
       "niche": "dental",
       "score": 5,
-      "city": "Mumbai, Maharashtra",
+      "city": "Hyderabad, Telangana",
       "phone": "",
       "whatsapp": "",
       "website": "",
@@ -196,43 +196,11 @@
       }
     },
     {
-      "label": "Surbhi Dental Clinic(Dr.Samata Dhuppad)",
+      "label": "Kalyan Super Speciality Dental Hospital, Moosapet",
       "source": "osm",
       "niche": "dental",
       "score": 5,
-      "city": "Mumbai, Maharashtra",
-      "phone": "",
-      "whatsapp": "",
-      "website": "",
-      "channels": {
-        "email": false,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "Dr. Umesh Nisar Dental Clinic",
-      "source": "osm",
-      "niche": "dental",
-      "score": 5,
-      "city": "Mumbai, Maharashtra",
-      "phone": "",
-      "whatsapp": "",
-      "website": "",
-      "channels": {
-        "email": false,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "Ganesh Dental Speciality Clinic",
-      "source": "osm",
-      "niche": "dental",
-      "score": 5,
-      "city": "Mumbai, Maharashtra",
+      "city": "Hyderabad, Telangana",
       "phone": "",
       "whatsapp": "",
       "website": "",
