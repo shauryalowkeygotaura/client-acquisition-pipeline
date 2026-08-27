@@ -72,6 +72,9 @@ VOICE = os.getenv("VIDEO_PITCH_VOICE", "en-US-AndrewMultilingualNeural")
 WIDTH = _num_env("VIDEO_PITCH_W", 1280, int)
 HEIGHT = _num_env("VIDEO_PITCH_H", 720, int)
 TAIL_S = _num_env("VIDEO_PITCH_TAIL", 0.8, float)      # hold on the last frame
+# Recorded, then trimmed back off in _mux. Chromium paints its default white canvas
+# for the first frames of a capture; this discards that flash instead of shipping it.
+PREROLL_S = _num_env("VIDEO_PITCH_PREROLL", 1.0, float)
 MIN_DUR_S = 6.0                                         # never record shorter
 
 
@@ -281,22 +284,23 @@ def render_page(data: dict, script: dict, html_path: Path, dur: float) -> None:
   .sub {{ font-size:22px; color:#a1a1aa; opacity:0; transform:translateY(10px); }}
   .beats {{ margin-top:46px; display:flex; flex-direction:column; gap:18px; }}
   .beat {{ opacity:0; transform:translateX(-16px); display:flex; gap:18px; align-items:baseline; }}
-  .beat .k {{ color:#dc2626; font-weight:700; font-size:15px; min-width:130px;
+  .beat .k {{ color:#dc2626; font-weight:700; font-size:15px; width:170px; flex:0 0 170px;
     text-transform:uppercase; letter-spacing:.06em; }}
   .beat .v {{ font-size:26px; color:#e4e4e7; }}
-  .cta {{ position:fixed; bottom:54px; left:50%; transform:translate(-50%,12px); opacity:0;
-    background:#dc2626; color:#fff; padding:14px 30px; border-radius:999px; font-size:20px;
-    font-weight:700; box-shadow:0 10px 40px rgba(220,38,38,.4); }}
+  .cta {{ position:fixed; bottom:54px; left:0; right:0; display:flex; justify-content:center;
+    opacity:0; transform:translateY(12px); }}
+  .cta span {{ background:#dc2626; color:#fff; padding:14px 30px; border-radius:999px;
+    font-size:20px; font-weight:700; box-shadow:0 10px 40px rgba(220,38,38,.4); }}
   .show {{ opacity:1 !important; transform:none !important; transition:all .7s cubic-bezier(.2,.7,.2,1); }}
 </style></head><body class="grain">
   <div class="glow"></div>
   <div class="wrap">
-    <div class="kicker" id="kicker">For {company}</div>
-    <h1 id="h1">{headline}</h1>
-    <div class="sub" id="sub">{subhead}</div>
+    <div class="kicker show" id="kicker">For {company}</div>
+    <h1 class="show" id="h1">{headline}</h1>
+    <div class="sub show" id="sub">{subhead}</div>
     <div class="beats" id="beats"></div>
   </div>
-  <div class="cta" id="cta">Want the 2-minute version? &nbsp;&rarr;</div>
+  <div class="cta" id="cta"><span>Want the 2-minute version? &nbsp;&rarr;</span></div>
 <script>
   var dur = {dur:.2f} * 1000;
   var beats = {beats_json};
@@ -308,15 +312,23 @@ def render_page(data: dict, script: dict, html_path: Path, dur: float) -> None:
     el.appendChild(k); el.appendChild(v); bWrap.appendChild(el);
   }});
   function show(id, t){{ setTimeout(function(){{ document.getElementById(id).classList.add('show'); }}, t); }}
-  // Headline lands in the first ~12% of the narration; beats split the middle 65%;
-  // CTA arrives near the end. All proportional to `dur`, so it tracks the voiceover.
-  show('kicker', dur*0.02); show('h1', dur*0.06); show('sub', dur*0.12);
-  var beatEls = document.querySelectorAll('.beat');
-  var start = dur*0.22, span = dur*0.62;
-  beatEls.forEach(function(el,i){{
-    setTimeout(function(){{ el.classList.add('show'); }}, start + span*(i/Math.max(1,beatEls.length)));
-  }});
-  show('cta', dur*0.90);
+  // The header (kicker/headline/subhead) is painted immediately, so the first kept
+  // frame is a legible personalized card rather than a blank one. That frame is the
+  // poster thumbnail in WhatsApp/Instagram/email, so it has to carry the message.
+  //
+  // The moving part of the timeline does NOT auto-start: the recorder calls
+  // __start() only after the page has actually painted, then trims the pre-roll.
+  // Without that gate the timers race the first paint and the video opens on a
+  // white or black flash. Beats split the middle 62% of the narration; the CTA
+  // lands near the end. All proportional to `dur`, so motion tracks the voiceover.
+  window.__start = function(){{
+    var beatEls = document.querySelectorAll('.beat');
+    var start = dur*0.22, span = dur*0.62;
+    beatEls.forEach(function(el,i){{
+      setTimeout(function(){{ el.classList.add('show'); }}, start + span*(i/Math.max(1,beatEls.length)));
+    }});
+    show('cta', dur*0.90);
+  }};
 </script></body></html>"""
     html_path.write_text(page, encoding="utf-8")
 
@@ -335,7 +347,12 @@ async def _record(html_path: Path, out_dir: Path, dur: float) -> Path:
             record_video_size={"width": WIDTH, "height": HEIGHT},
         )
         page = await context.new_page()
-        await page.goto(html_path.as_uri())
+        await page.goto(html_path.as_uri(), wait_until="load")
+        # Let the first real paint land and settle inside the pre-roll window, THEN
+        # start the animation clock, so the voiceover lines up with frame 0 of the
+        # trimmed video rather than with the browser's blank canvas.
+        await page.wait_for_timeout(int(PREROLL_S * 1000))
+        await page.evaluate("window.__start && window.__start()")
         await page.wait_for_timeout(int(dur * 1000) + int(TAIL_S * 1000))
         video = page.video
         await context.close()   # finalizes the .webm
@@ -347,15 +364,20 @@ async def _record(html_path: Path, out_dir: Path, dur: float) -> Path:
 # 5. MUX  (ffmpeg: recording video + voiceover audio -> shareable mp4)
 # ─────────────────────────────────────────────────────────────────────────────
 
-def _mux(video_path: Path, audio_path: Path, out_path: Path) -> None:
+def _mux(video_path: Path, audio_path: Path, out_path: Path, trim: float = 0.0) -> None:
+    """Mux recording + voiceover. `trim` drops that many seconds off the FRONT of the
+    video only (the recorder's pre-roll); the audio starts at 0 either way, which is
+    what keeps the narration aligned with the on-screen beats."""
     cmd = [
         "ffmpeg", "-y",
+        *(["-ss", f"{trim:.2f}"] if trim > 0 else []),
         "-i", str(video_path),
         "-i", str(audio_path),
         "-map", "0:v:0", "-map", "1:a:0",
         "-c:v", "libx264", "-pix_fmt", "yuv420p", "-preset", "veryfast",
         "-vf", "scale=trunc(iw/2)*2:trunc(ih/2)*2",
         "-c:a", "aac", "-b:a", "160k",
+        "-movflags", "+faststart",
         "-shortest",
         str(out_path),
     ]
@@ -404,7 +426,7 @@ def make(data: dict, force: bool = False, allow_unqualified: bool = False) -> Pa
         video_webm, dur = asyncio.run(_audio_then_video())
         if not video_webm or not video_webm.exists():
             raise VideoPitchError("Playwright produced no recording")
-        _mux(video_webm, audio, out_path)
+        _mux(video_webm, audio, out_path, trim=PREROLL_S)
 
     print(f"  [video_pitch] {name}: {dur:.1f}s video -> {out_path}")
     return out_path
