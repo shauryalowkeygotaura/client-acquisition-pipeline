@@ -52,7 +52,7 @@ MAPS_PAGES_PER_QUERY = int(os.getenv("MAPS_PAGES_PER_QUERY", "1"))
 # Per-city lead count below which maps backfill kicks in.
 MAPS_BACKFILL_MIN = int(os.getenv("MAPS_BACKFILL_MIN", "5"))
 
-LLM_MODEL = os.getenv("LLM_MODEL", "llama-3.3-70b-versatile")
+LLM_MODEL = os.getenv("LLM_MODEL", "qwen/qwen3.8-27b")
 LLM_BASE_URL = "https://api.groq.com/openai/v1"
 
 LINKEDIN_DAILY_LIMIT = 15

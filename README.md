@@ -65,7 +65,7 @@ Open Vapi dashboard → find the assistant → Test tab → share screen on call
 
 Edit `config.py` to change:
 - `CITIES` — which cities to target
-- `LLM_MODEL` — which Groq model to use (default: `llama-3.3-70b-versatile`)
+- `LLM_MODEL` — which Groq model to use (default: `qwen/qwen3.8-27b`)
 - `LINKEDIN_DAILY_LIMIT` — max LinkedIn messages per day (default: 15)
 
 ## Cost
