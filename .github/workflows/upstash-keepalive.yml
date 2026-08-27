@@ -1,0 +1,47 @@
+name: Upstash keepalive
+
+# Upstash free-tier databases get reaped after a stretch of inactivity. Two have
+# already died this way: apt-starfish (July 2026) and excited-sturgeon-110590
+# (August 2026), each time silently, and each time the failure surfaced as
+# per-lead /demo/<slug> personalisation quietly falling back to the generic demo
+# because publish_to_kv is best-effort and never raises.
+#
+# One cheap write every few days is enough to count as activity. This is
+# deliberately its OWN workflow rather than a step inside the pipeline: the
+# pipeline only touches the KV when it actually has leads, so a quiet week of
+# lead-gen was exactly the situation that let the database expire.
+
+on:
+  schedule:
+    - cron: "0 6 * * 1,4"     # Monday and Thursday, 06:00 UTC
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Write and read a heartbeat key
+        env:
+          URL: ${{ secrets.UPSTASH_REDIS_REST_URL }}
+          TOKEN: ${{ secrets.UPSTASH_REDIS_REST_TOKEN }}
+        run: |
+          set -euo pipefail
+          if [ -z "${URL:-}" ] || [ -z "${TOKEN:-}" ]; then
+            echo "UPSTASH_REDIS_REST_URL/TOKEN not set; nothing to keep warm." >&2
+            exit 1
+          fi
+          STAMP="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+
+          # A WRITE, not just /ping. Read-only traffic does not always count as
+          # activity, and the point here is to look like a live database.
+          set_out=$(curl -sS -m 25 -H "Authorization: Bearer $TOKEN" \
+                    "$URL/set/keepalive_heartbeat/$STAMP")
+          echo "set  -> $set_out"
+          echo "$set_out" | grep -q '"result"' || { echo "SET failed" >&2; exit 1; }
+
+          get_out=$(curl -sS -m 25 -H "Authorization: Bearer $TOKEN" \
+                    "$URL/get/keepalive_heartbeat")
+          echo "get  -> $get_out"
+          echo "$get_out" | grep -q "$STAMP" || { echo "GET did not return what SET wrote" >&2; exit 1; }
+
+          echo "Upstash heartbeat OK at $STAMP"
