@@ -32,6 +32,8 @@ from urllib.parse import urlparse
 
 from slugify import slugify
 
+from modules.lead_quality import classify
+
 log = logging.getLogger(__name__)
 
 OVERPASS_URL = os.getenv("OVERPASS_URL", "https://overpass-api.de/api/interpreter")
@@ -141,6 +143,19 @@ def _to_lead(el: dict, city: str, niche: str) -> dict | None:
     if not name:
         return None
 
+    # A government dispensary has no owner, no P&L and no authority to buy,
+    # so it is not a lead however well it scores downstream. The medical
+    # niche below queries amenity=clinic, which in Indian OSM is 43%
+    # public health infrastructure by phone-bearing node.
+    verdict = classify(
+        name,
+        operator=tags.get("operator", ""),
+        operator_type=tags.get("operator:type", ""),
+    )
+    if not verdict.sellable:
+        log.debug("OSM: dropping %s (%s)", name, verdict.reason)
+        return None
+
     website = _own_website(tags.get("website") or tags.get("contact:website"))
     phone = (tags.get("phone") or tags.get("contact:phone") or "").strip()
     email = (tags.get("email") or tags.get("contact:email") or "").strip()
@@ -201,9 +216,13 @@ def run(city: str) -> list[dict]:
             continue
 
         kept = 0
+        dropped = 0
         for el in elements:
             lead = _to_lead(el, city, niche)
             if not lead:
+                # Unnamed, or not a business that can buy. Counted so a
+                # thin result is never mistaken for a thin pond.
+                dropped += 1
                 continue
             slug = lead["slug"]
             if not slug or slug in seen:
@@ -212,7 +231,8 @@ def run(city: str) -> list[dict]:
             all_leads.append(lead)
             kept += 1
 
-        print(f"    [OSM] {city} | '{niche}' -> {len(elements)} elements, {kept} new leads")
+        print(f"    [OSM] {city} | '{niche}' -> {len(elements)} elements, "
+              f"{kept} new leads, {dropped} skipped")
         time.sleep(_SLEEP_BETWEEN_QUERIES_S)
 
     return all_leads

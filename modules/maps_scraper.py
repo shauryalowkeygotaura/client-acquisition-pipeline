@@ -19,6 +19,8 @@ from urllib.parse import urlparse
 from serpapi import GoogleSearch
 from slugify import slugify
 
+from modules.lead_quality import classify
+
 from config import MAPS_QUERIES, MAPS_PAGES_PER_QUERY
 
 log = logging.getLogger(__name__)
@@ -65,6 +67,12 @@ def _own_website(website: str | None) -> str | None:
 def _to_lead(item: dict, city: str, niche: str) -> dict | None:
     name = (item.get("title") or "").strip()
     if not name:
+        return None
+
+    # Same gate as osm_scraper: "dental clinic in Delhi" on Google Maps
+    # returns CGHS wellness centres and district hospital OPDs alongside
+    # private practices, and none of those can buy.
+    if not classify(name).sellable:
         return None
 
     website = _own_website(item.get("website"))
