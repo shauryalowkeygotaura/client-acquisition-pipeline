@@ -1,0 +1,35 @@
+{
+  "generated_at": "2026-08-15T01:30:49.191396+00:00",
+  "min_score": 7,
+  "target": 5,
+  "count": 2,
+  "skipped": {
+    "below_a_tier": 1,
+    "no_handle": 1,
+    "already_sent": 1
+  },
+  "cities": [
+    "jaipur",
+    "kochi"
+  ],
+  "leads": [
+    {
+      "slug": "b",
+      "company_name": "B Clinic",
+      "handle": "b_clinic",
+      "city": "kochi",
+      "niche": "medical",
+      "score": 9,
+      "instagram_msg": "hi"
+    },
+    {
+      "slug": "a",
+      "company_name": "A Dental",
+      "handle": "a_dental",
+      "city": "jaipur",
+      "niche": "dental",
+      "score": 9,
+      "instagram_msg": "hi"
+    }
+  ]
+}

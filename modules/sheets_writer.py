@@ -116,6 +116,27 @@ def domain_exists(domain: str, existing: list[dict]) -> bool:
     return any(row.get("domain", "").lower() == target for row in existing)
 
 
+def slug_exists(slug: str, existing: list[dict]) -> bool:
+    """True if a lead with this slug is already saved.
+
+    The domain check alone is not enough. Most OSM leads carry no website, so
+    `domain` is empty and domain_exists() returns False for every one of them —
+    meaning the same clinic was re-saved and re-messaged on every run, forever.
+    The slug is derived from the business name and is stable across runs, so it
+    is the only dedupe key those leads have.
+    """
+    if not slug:
+        return False
+    target = slug.lower()
+    return any((row.get("slug") or "").lower() == target for row in existing)
+
+
+def already_saved(data: dict, existing: list[dict]) -> bool:
+    """Dedupe on domain when we have one, slug otherwise."""
+    return (domain_exists(data.get("domain"), existing)
+            or slug_exists(data.get("slug"), existing))
+
+
 def build_row(data: dict) -> list:
     # Inbound leads (modules/inbound_intake.py) pass explicit values for
     # status / sent_at / conversation_stage / reply_status / channel_used and
@@ -217,7 +238,7 @@ def save(data: dict, existing: list[dict] | None = None) -> bool:
     if existing is None:
         existing = get_all_leads()
 
-    if domain_exists(data.get("domain"), existing):
+    if already_saved(data, existing):
         return False
 
     sheet = get_sheet("leads")

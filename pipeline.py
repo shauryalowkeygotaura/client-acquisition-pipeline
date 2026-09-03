@@ -201,10 +201,18 @@ def run():
         for job in jobs:
             company = job["company_name"]
             try:
-                if sheets_writer.domain_exists(job.get("domain"), existing):
+                # Dedupe BEFORE enrichment and before any send. save() gates on
+                # the same rule, but by then the outreach has already gone out —
+                # so this gate is the one that actually prevents re-messaging a
+                # clinic we contacted on a previous run. Scrapers stamp `slug`
+                # at harvest time (see osm_scraper._to_lead), so the slug half of
+                # the check is populated here, before researcher.run().
+                if sheets_writer.already_saved(job, existing):
                     print(f"    [SKIP] {company} (already in Sheets)")
                     audit.append("pipeline", "skip", company, ok=True,
-                                 detail={"reason": "duplicate_domain", "domain": job.get("domain", "")})
+                                 detail={"reason": "duplicate_lead",
+                                         "domain": job.get("domain") or "",
+                                         "slug": job.get("slug") or ""})
                     continue
 
                 print(f"    Processing: {company}")
@@ -245,7 +253,11 @@ def run():
                 saved = sheets_writer.save(data, existing)
                 if saved:
                     total_saved += 1
-                    existing.append({"domain": data.get("domain", "")})
+                    # Slug too, not just domain — otherwise the same websiteless
+                    # clinic appearing in two cities' results inside ONE run
+                    # passes the in-memory check twice.
+                    existing.append({"domain": data.get("domain") or "",
+                                     "slug": data.get("slug") or ""})
 
                     # Trigger optimizer every N leads
                     if total_saved % OPTIMIZER_INTERVAL == 0:
@@ -536,7 +548,10 @@ if __name__ == "__main__":
     mode = sys.argv[1] if len(sys.argv) > 1 else "pipeline"
 
     try:
-        if mode == "replies":
+        if mode == "ig_queue":
+            from modules import ig_queue
+            ig_queue.run()
+        elif mode == "replies":
             run_reply_handler()
         elif mode == "analytics":
             run_analytics()

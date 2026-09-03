@@ -8,8 +8,8 @@ inbound item it:
      social agent stays self-contained and testable without Google Sheets.
   2. craft_reply() — Groq writes the actual reply, in a register that matches
      the category:
-        lead   → consultative, offer the 2-min clip, no hard pitch (mirrors the
-                 reply_handler Hormozi ladder, stage "initial").
+        lead   → consultative, offer the free demo, no hard pitch (mirrors the
+                 reply_handler ladder, stage "initial").
         engage → warm, human, peer-to-peer; answer briefly, invite more.
 
 Both prompts put their static block FIRST for Groq cache hits.
@@ -51,14 +51,17 @@ Return ONLY valid JSON with keys: category, niche, intent, summary.
 """.strip()
 
 _REPLY_SYSTEM = """
-You write replies on social platforms for Shaurya, who builds AI voice
-receptionists for small businesses. Voice rules, always:
+You write replies on social platforms for Shaurya, a school student who built an
+AI voice receptionist for a school project. He is not an agency and not a
+freelancer, and the student frame is the whole reason people answer him, so never
+write as a vendor. Voice rules, always:
 - Real human, not a marketer. Plain words. No buzzwords, no "I hope this finds".
 - Never use em dashes. Use commas, colons, or parentheses.
 - 15-55 words. One idea. Sound like a quick, friendly DM reply.
-- If category is "lead": be consultative, acknowledge their specific pain, and
-  offer to send a 2-minute clip of the agent handling a real call. Do NOT ask
-  for a call yet and do NOT hard-pitch price.
+- If category is "lead": be consultative, acknowledge their specific pain, mention
+  he can set a free demo up on their own business's details, then ask if he can
+  talk to them about it sometime because he just wants feedback on it. Do NOT
+  propose a specific time or a calendar link, and do NOT mention price at all.
 - If category is "engage": answer their question briefly and honestly, like a
   peer. No selling. End with a light question to keep it going.
 - Sign nothing. No "Best,". Just the message.
@@ -106,8 +109,8 @@ def craft_reply(text: str, classification: dict, author: str = "", client=None) 
     Never raises; returns a safe human fallback."""
     category = classification.get("category", ENGAGE)
     if category == LEAD:
-        fallback = ("Totally hear you on the missed calls. Want me to send a "
-                    "2-min clip of the agent handling a real one so you can judge it?")
+        fallback = ("Totally hear you on the missed calls. I can set a free demo up on your "
+                    "own details. Can I talk to you about it sometime? Just want feedback.")
     else:
         fallback = "Appreciate you reaching out. What are you working on?"
 

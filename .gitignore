@@ -41,3 +41,8 @@ venv/
 # OS
 .DS_Store
 Thumbs.db
+
+# Generated per-prospect video pitches. Regenerable build artifacts, and this
+# repo is public - a personalised sales video for a named clinic does not
+# belong in it.
+runs/video_pitches/

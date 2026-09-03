@@ -23,18 +23,20 @@ env:
   HUNTER_API_KEY: ${{ secrets.HUNTER_API_KEY }}
   SNOV_CLIENT_ID: ${{ secrets.SNOV_CLIENT_ID }}
   SNOV_CLIENT_SECRET: ${{ secrets.SNOV_CLIENT_SECRET }}
-  # Lead source switched SerpAPI -> Apollo (2026-06-05): the SerpAPI free quota
-  # (100 searches/mo) is exhausted for the month, so we scrape Apollo.io for free
-  # on top of Obscura (stealth headless Chrome) using a saved session cookie.
-  # REQUIRED: set the APOLLO_COOKIES_JSON repo secret first — generate it once by
-  # running `python scripts/save_apollo_cookies.py` locally and pasting the JSON.
-  # Without it apollo_scraper finds 0 leads. Revert by setting LEAD_SOURCE=indeed
-  # after the SerpAPI quota resets next month.
-  LEAD_SOURCE: apollo
+  # Lead source: OSM (2026-08-15). Was `apollo`, but Apollo's session cookies
+  # expire and had been returning 0, so every run was falling through the
+  # per-city OSM rescue anyway — paying a failed Apollo attempt per city first.
+  # Naming OSM as the primary removes that dead leg. It is keyless and has no
+  # quota, so nothing here needs a budget guard.
+  # To go back to Apollo: refresh APOLLO_COOKIES_JSON via
+  # `python scripts/save_apollo_cookies.py`, then set LEAD_SOURCE=apollo and
+  # restore MAX_CITIES_PER_RUN=2 (Apollo's ~5 email-unlocks/day free cap).
+  LEAD_SOURCE: osm
   APOLLO_COOKIES_JSON: ${{ secrets.APOLLO_COOKIES_JSON }}
-  # Free-tier guard: with Apollo the cap is ~5 email-unlocks/day, so a rotating
-  # 2-city window per run keeps every run inside the free allowance.
-  MAX_CITIES_PER_RUN: '2'
+  # 0 = all cities every run. The 2-city window existed purely for Apollo's free
+  # allowance; on OSM it just starved the pool the Instagram queue picks from and
+  # kept the funnel circling the same two markets.
+  MAX_CITIES_PER_RUN: '0'
   # Per-lead demo KV (modules/demo_builder.py publishes /demo/<slug> overrides).
   # Re-pointed 2026-07-04 to the new Upstash DB (old apt-starfish host died).
   UPSTASH_REDIS_REST_URL: ${{ secrets.UPSTASH_REDIS_REST_URL }}
@@ -61,11 +63,19 @@ jobs:
       - name: Run pipeline
         run: python pipeline.py
 
+      # Today's A-tier Instagram send list, ranked across ALL cities (not just
+      # the home market) from every lead ever saved — not only the ones scraped
+      # in the run above. Runs even if the scrape failed, because yesterday's
+      # pool is still perfectly sendable today.
+      - name: Build Instagram queue
+        if: always()
+        run: python pipeline.py ig_queue
+
       - name: Commit run metrics
         if: always()
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add -A runs/   # latest.json, history.jsonl, leads.json (gitignore drops social_*)
+          git add -A runs/   # latest.json, history.jsonl, leads.json, ig_queue.json
           git diff --cached --quiet || git commit -m "chore: run metrics [skip ci]"
           git push

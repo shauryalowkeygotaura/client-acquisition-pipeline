@@ -1,15 +1,23 @@
 """
 modules/whatsapp.py — WhatsApp outreach via Meta Cloud API (free tier)
 
-Sequence (Hormozi 2-message rule):
+Sequence (2-message rule):
   Message 1 — Template (cold, requires Meta approval):
-    "Hi [name], are you still looking to fill the receptionist gap at [company]?"
-    → question only. No pitch, no link, no sell.
+    "Hi [name], I'm Shaurya, I'm a student at DPS RKP and I'm doing a school
+     project. Can I show you what I built for [company]?"
+    → who + why only. No pitch, no link, no sell.
 
   Message 2 — Freeform (auto-sent after they reply, 24h window opens):
-    "I build voice agents for [niche] businesses — they answer calls and handle
-     bookings automatically. Want me to send a 2-min clip? — Shaurya"
-    → triggered by Meta webhook → handle_reply()
+    what it does + the real client count + the free demo ask.
+    → per-lead copy from the generator (`whatsapp_msg`); see send_pitch().
+
+  ⚠️  CHANGING MESSAGE 1 REQUIRES META RE-APPROVAL. The body below is a
+      registered template — editing this docstring does not change what Meta
+      sends. Submit the new body as a NEW template, wait for approval, then
+      point WHATSAPP_TEMPLATE_NAME at it. Until that is done, the Meta path
+      still sends the OLD template while every other channel sends the school
+      frame, and the two will not match. The openWA path (modules/openwa.py)
+      has no template system and is already on the new copy.
 
 Setup (one-time):
   1. business.facebook.com → Create a Business → Add a WhatsApp account
@@ -27,14 +35,19 @@ Required Doppler secrets:
   WHATSAPP_TEMPLATE_NAME     — name of your approved template (default: receptionist_outreach)
 
 TEMPLATE to submit for approval in Meta Business Manager:
-  Name:     receptionist_outreach
+  Name:     school_project_outreach
   Category: MARKETING
   Language: English (en)
-  Body:     Hi {{1}}, are you still looking to fill the receptionist gap at {{2}}?
+  Body:     Hi {{1}}, I'm Shaurya, I'm a student at DPS RKP and I'm doing a school
+            project. Can I show you what I built for {{2}}?
   Footer:   Reply STOP to opt out.
   Variables:
     {{1}} = contact name (or "there")
     {{2}} = company name
+
+  Then set WHATSAPP_TEMPLATE_NAME=school_project_outreach once approved.
+  The old `receptionist_outreach` template remains the default until you do,
+  so an un-migrated deployment keeps sending rather than erroring.
 
   Submit at: business.facebook.com → WhatsApp Manager → Message Templates → Create
 
@@ -193,10 +206,15 @@ def send_pitch(to_mobile: str, niche: str, data: dict | None = None) -> bool:
     if not isinstance(raw, str) or not raw.strip():
         # Fallback only. Still not the old three-clause sentence: two short
         # thoughts, no "automatically", nothing that reads as a brochure.
+        from modules import persona
+
+        proof = persona.proof_line()
         raw = (
             f"i set up the phone line for {niche_str} places so it picks up when "
             f"nobody can get to it and books the slot. "
-            f"want me to send a 2 min clip of it taking a call?"
+            + (f"{proof}. " if proof else "")
+            + "can set one up on ur details for free too. "
+            + "can i talk to u about it sometime? jus want some feedback on it"
         )
 
     parts = humanize.bubbles(raw)

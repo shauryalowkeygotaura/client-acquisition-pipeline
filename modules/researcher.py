@@ -196,6 +196,49 @@ def extract_phone(text: str) -> str:
     return ""
 
 
+# Instagram usernames: 1–30 chars, letters/digits/._ only. The reserved paths
+# below are Instagram's own routes, not businesses — a homepage linking to
+# instagram.com/explore/ or /p/<postid> must not become a DM target.
+_IG_URL_RE = re.compile(
+    r'instagram\.com/(?:#!/)?([A-Za-z0-9._]{1,30})', re.IGNORECASE
+)
+_IG_RESERVED = {
+    "p", "reel", "reels", "tv", "stories", "explore", "accounts", "about",
+    "developer", "developers", "legal", "privacy", "terms", "directory",
+    "web", "graphql", "api", "oauth", "login", "signup", "emails", "session",
+    "challenge", "direct", "invites", "your_activity", "share",
+}
+
+
+def extract_instagram_handle(*texts: str) -> str:
+    """First real Instagram handle linked from a business's own page, or "".
+
+    Why this exists: modules/instagram.py has always read `instagram_handle`
+    off the lead dict, and nothing ever wrote it — so the Instagram channel
+    could never send, for any lead, regardless of INSTAGRAM_ENABLED. The
+    homepage is already being scraped for email; the handle is sitting in the
+    same HTML behind the footer's social icons and costs nothing extra to take.
+
+    Also the only honest source for "I saw your reels": a handle found on the
+    business's OWN site is evidence they have an Instagram. Guessing one from
+    the business name is not, and would put a fabricated observation in front
+    of a stranger.
+    """
+    for text in texts:
+        if not text:
+            continue
+        for match in _IG_URL_RE.finditer(text):
+            handle = match.group(1).strip(". _")
+            if not handle or handle.lower() in _IG_RESERVED:
+                continue
+            # A bare "instagram.com/" with nothing after it matches nothing
+            # useful; a handle of only dots/underscores is not a real account.
+            if not any(c.isalnum() for c in handle):
+                continue
+            return handle
+    return ""
+
+
 def extract_structured_fields(markdown: str) -> dict:
     """
     Extract address, phone, services, hours from scraped markdown.
@@ -257,6 +300,7 @@ def scrape_company(job: dict) -> dict:
         "hours": "",
         "email": None,
         "linkedin_url": None,
+        "instagram_handle": "",
         "scraped_details": "",
         "tone": "professional",
     }
@@ -271,6 +315,14 @@ def scrape_company(job: dict) -> dict:
             research["scraped_details"] = markdown[:3000]
             structured = extract_structured_fields(markdown)
             research.update(structured)
+
+            # Social handle from the business's own page. HTML first: the footer
+            # icon links survive there but often get dropped from the markdown
+            # conversion, which is why this reads both.
+            handle = extract_instagram_handle(html, markdown)
+            if handle:
+                research["instagram_handle"] = handle
+                log.info("Instagram handle for %s: @%s", company_name, handle)
 
             emails = extract_emails_from_html(html) or extract_email_from_text(markdown)
 

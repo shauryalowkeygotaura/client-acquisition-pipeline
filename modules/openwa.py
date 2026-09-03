@@ -28,6 +28,8 @@ import logging
 import os
 import re
 
+from modules import persona
+
 import requests
 
 log = logging.getLogger(__name__)
@@ -85,7 +87,13 @@ def send(data: dict) -> bool:
         return False
     contact = data.get("poster_name") or "there"
     company = data.get("company_name", "your business")
-    text = f"Hi {contact}, are you still looking to fill the receptionist gap at {company}?"
+    # Touch 1 carries the OPENER only — who he is and why he's writing — and asks
+    # nothing but permission. The demo, the proof and the meeting all come later.
+    # Wording mirrors modules/persona.py; keep them in step.
+    text = (
+        f"Hi {contact}, I'm {persona.SENDER_NAME}, I'm a student at {persona.SCHOOL_SHORT} "
+        f"and I'm doing a school project. Can I show you what I built for {company}?"
+    )
     ok = _post("sendText", {"to": _chat_id(mobile), "content": text})
     if ok:
         log.info("openWA touch 1 sent to %s", mobile)
@@ -123,10 +131,19 @@ def send_video(to_mobile: str, path, caption: str = "") -> bool:
 
 
 def send_pitch(to_mobile: str, niche: str) -> bool:
-    """Touch 2 — the pitch."""
+    """Touch 2 — what it is, the proof, and the free demo ask.
+
+    Fallback only. The Meta path passes the generator's per-lead `whatsapp_msg`
+    into whatsapp.send_pitch; this generic version exists so an openWA-only run
+    still says something in the right voice rather than nothing.
+    """
     niche_str = niche or "service"
+    proof = persona.proof_line()
+    proof_sentence = f" {proof[0].upper()}{proof[1:]}." if proof else ""
     text = (
-        f"I build voice agents for {niche_str} businesses. They answer calls and "
-        f"handle bookings automatically. Want me to send a 2-min clip?"
+        f"I built a thing that picks up the phone for {niche_str} places when nobody "
+        f"can get to it and books the appointment.{proof_sentence} "
+        f"I can set one up on your details for free too. "
+        f"Can I talk to you about it sometime? Just want some feedback on it."
     )
     return send_freeform(to_mobile, text)

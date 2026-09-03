@@ -7,11 +7,16 @@ Classifies each reply → generates a response → sends it → updates sheets.
 Requires: GMAIL_ADDRESS, GMAIL_APP_PASSWORD env vars (same as email_sender).
 Run this module from the pipeline daily (separate from the main send loop).
 
-CTA Ladder (Hormozi sequence — never skip a step):
-  Stage 1 (initial reply):     Offer the 2-min clip. No call ask.
-  Stage 2 (follow_up_1):       Follow up on the clip. Ask one question about their situation.
-  Stage 3 (warm):              "Worth a quick 5-min call?" — first time a call is mentioned.
-  Stage 4 (follow_up_2):       Direct Google Meet booking link.
+CTA Ladder (never skip a step). Touch 1 (modules/generator.py) asks only for permission
+to send the free demo; by the time a lead reaches this module they have already said
+something back, so the ask escalates to the meeting:
+  Stage 1 (initial reply):     Confirm the free demo on their details, ask for a short meeting.
+  Stage 2 (follow_up_1):       Ask again with two concrete windows. Still no link.
+  Stage 3 (warm):              Drop the booking link.
+  Stage 4 (follow_up_2):       Booking link once more, then stop.
+
+Sender identity, the proof number and the offer all come from modules/persona.py — do not
+restate them here, or the two halves of the conversation drift apart.
 """
 import email as email_lib
 import imaplib
@@ -26,7 +31,7 @@ from email.mime.text import MIMEText
 from openai import OpenAI
 
 from config import LLM_MODEL, LLM_BASE_URL
-from modules import sheets_writer
+from modules import persona, sheets_writer
 
 log = logging.getLogger(__name__)
 
@@ -85,40 +90,49 @@ def _classify_reply(reply_text: str) -> dict:
 
 # ── Response generation ──────────────────────────────────────────────────────
 
+# Fallback copy, used only when the LLM is unavailable or errors. Kept in the
+# student voice so a degraded run never sends a message in the old vendor frame
+# — a prospect who got the school-project opener and then a sales rebuttal has
+# caught us switching masks mid-conversation.
 _OBJECTION_REBUTTALS = {
     "cost": (
-        "Completely fair — most people ask this first. "
-        "The short answer: it's less than one hour of a receptionist's pay per day, "
-        "with no sick days, no training time, and no hiring cost. "
-        "Want me to send a quick breakdown so you can compare properly?"
+        "Fair question, and the honest answer is the demo costs you nothing. "
+        "I'd rather you see it working on your own clinic's details first and "
+        "decide after that. Want me to set it up?"
     ),
     "timing": (
-        "Totally makes sense — the hiring gap is exactly when this is most useful. "
-        "It takes less than a day to set up and can hand off cleanly once you hire. "
-        "Want me to send a 2-min clip so you can see what it looks like in practice?"
+        "That's fair. Setting up the demo takes nothing from you though, and it "
+        "takes me about a day. Want me to send it over when it's ready?"
     ),
     "trust": (
-        "Reasonable. I don't expect you to take my word for it. "
-        "Want me to send a short recording of it handling a call for a similar business? "
+        "Reasonable, I wouldn't take my word for it either. "
+        "Want me to send a short recording of it handling a call for a similar clinic? "
         "You can hear exactly how it sounds before deciding anything."
     ),
     "existing_solution": (
-        "Got it — what are you using currently? "
+        "Got it, what are you using currently? "
         "I ask because most setups still miss calls after hours or during peak times. "
-        "If yours doesn't, it's genuinely not worth switching. "
-        "Happy to send a quick clip so you can compare."
+        "If yours doesn't, it's genuinely not worth switching."
     ),
     "other": (
-        "Fair point. "
-        "Happy to answer any specific questions — or I can just send a 2-min clip "
-        "so you can see exactly what it does before we go further. "
-        "Would that be useful?"
+        "Fair point. Happy to answer anything specific, or I can just set the demo "
+        "up on your details so you can see exactly what it does. Would that help?"
     ),
 }
 
+# Used when there is no LLM and no specific objection to answer.
+_DEFAULT_REPLY = (
+    f"Thanks for getting back to me. I can set the demo up on {{}}'s own details "
+    f"for free so you can hear it properly. Want me to?\n\n— {persona.SENDER_NAME}"
+).replace("{}", "your clinic")
+
 _RESPONSE_PROMPT = """
-You are Shaurya — a developer who builds AI voice receptionists for small businesses.
-Write a reply FROM Shaurya TO the business owner at {company_name}.
+You are {sender_name}, a school student at {school}. You are NOT an agency, a company, or a
+freelancer. You built a voice agent for a school project and this business replied to you.
+Write a reply FROM {sender_name} TO the business owner at {company_name}.
+
+Keep the frame you opened with. You are still the student — do not graduate into a vendor the
+moment they show interest. No "our team", no "we", no "clients", no pricing, no packages.
 
 Context:
 - Business type: {niche}
@@ -128,27 +142,30 @@ Context:
 - Objection type (if any): {objection_type}
 - Conversation stage: {stage}
 
-CTA ladder — Hormozi sequence. NEVER skip a step. NEVER ask for a call before stage warm.
-  initial     → offer the 2-min clip only. No call mention. No booking link.
-  follow_up_1 → ask one specific question about their situation OR follow up on the clip.
-                Still no call ask.
-  warm        → "Worth a quick 5-min call?" — first and only time a call is suggested.
-  follow_up_2 → drop the direct booking link: {booking_link}
+CTA ladder. They have ALREADY replied, so the free demo is no longer the ask — the meeting is.
+The first touch bought the reply; this half converts it. Never skip a step, never jump ahead.
+  initial     → they replied to the school-project message. Confirm you'll set the free demo up on
+                THEIR details, then ask for a short meeting to walk them through it.
+                Exactly one ask: the meeting. No link yet.
+  follow_up_1 → they haven't picked a time. Ask once more, concretely — offer two specific windows
+                ("tomorrow evening or Saturday morning?"). Still no link.
+  warm        → they're engaged. Drop the booking link: {booking_link}
+  follow_up_2 → last nudge. Booking link again: {booking_link}. One line. No pressure, no guilt.
 
 Rules per category:
   interested → match the current stage CTA above. Never jump ahead.
-  neutral → one sharp specific question about their situation. No clip, no ask.
+  neutral → one sharp specific question about their situation. No meeting ask yet.
   objection:
-    cost: less than one hour of a receptionist's wage per day. No sick leave, no notice period.
-    timing: takes less than a day to set up; most useful during the hiring gap.
+    cost: the demo costs them nothing and you are not asking for money at this stage.
+    timing: it takes less than a day to set up, and the demo needs nothing from them.
     trust: offer a recording of it handling a real call for a similar business.
     existing_solution: ask what they use — most setups still miss after-hours calls.
-    other: acknowledge the specific concern, then ask if a quick clip would help.
+    other: acknowledge the specific concern, then ask if seeing the demo would help.
 
 Hard rules:
 - 60–100 words max. No buzzwords. No "I hope". Sound like a real human.
-- "I" = Shaurya. "You/your" = the business owner.
-- Sign off: — Shaurya
+- "I" = {sender_name}, the student. "You/your" = the business owner.
+- Sign off: — {sender_name}
 
 Return ONLY the reply text. No JSON, no subject line, no explanation.
 """.strip()
@@ -163,7 +180,7 @@ def _generate_response(lead: dict, classification: dict, reply_text: str = "") -
     if not GROQ_API_KEY:
         if category == "objection":
             return _OBJECTION_REBUTTALS.get(objection_type, _OBJECTION_REBUTTALS["other"])
-        return "Thanks for getting back to me. Happy to send a 2-min clip if that would help — just say the word. — Shaurya"
+        return _DEFAULT_REPLY
 
     client = OpenAI(api_key=GROQ_API_KEY, base_url=LLM_BASE_URL)
     try:
@@ -178,6 +195,8 @@ def _generate_response(lead: dict, classification: dict, reply_text: str = "") -
                 objection_type=objection_type or "none",
                 stage=stage,
                 booking_link=BOOKING_LINK,
+                sender_name=persona.SENDER_NAME,
+                school=persona.SCHOOL,
             )}],
             temperature=0.55,
             max_tokens=200,
@@ -190,7 +209,7 @@ def _generate_response(lead: dict, classification: dict, reply_text: str = "") -
         log.error("generate_response LLM failed: %s — using fallback", e)
         if category == "objection":
             return _OBJECTION_REBUTTALS.get(objection_type, _OBJECTION_REBUTTALS["other"])
-        return "Thanks for getting back to me. Happy to send a 2-min clip if that would help — just say the word. — Shaurya"
+        return _DEFAULT_REPLY
 
 
 # ── Gmail IMAP + SMTP ────────────────────────────────────────────────────────
@@ -501,29 +520,36 @@ def send_follow_ups(max_per_run: int = 10):
         location = lead.get("location", "your area")
         subject = lead.get("email_subject", "following up")
 
+        sender = persona.SENDER_NAME
         if follow_up_count == 0:
             body = (
                 f"Wanted to add something useful to this.\n\n"
-                f"Most {niche} businesses in {location} miss 20–35% of inbound calls during a "
-                f"hiring gap — mostly afternoons when existing staff are with patients or clients.\n\n"
+                f"Most {niche} businesses in {location} miss 20–35% of inbound calls — mostly "
+                f"afternoons, when whoever is on the desk is with someone.\n\n"
                 f"Happy to pull a rough missed-call estimate for {company} specifically if that "
                 f"would be useful. No call needed.\n\n"
-                f"— Shaurya"
+                f"— {sender}"
             )
         elif follow_up_count == 1:
+            # No proof claim here. The touch-1 message already stated the real
+            # client count; restating it as if it were news ("since I wrote...")
+            # would be a fabricated update, and attributing a retention story to
+            # those clinics invents facts no field supports. The observation
+            # below is non-falsifiable and true of the category.
             body = (
                 f"Quick follow-up with something concrete.\n\n"
-                f"A {niche} practice in a similar situation used a voice agent during their hiring gap. "
-                f"They ended up keeping it after they hired someone — it was catching after-hours calls "
-                f"they'd never recovered before.\n\n"
-                f"If the timing's off, completely fine. If calls are still slipping, worth a 2-min look.\n\n"
-                f"— Shaurya"
+                f"The calls that cost the most aren't the busy-hour ones. They're the ones coming in "
+                f"after close that nobody was ever going to answer.\n\n"
+                f"If the timing's off, completely fine. If calls are still slipping, I can set the "
+                f"free demo up on {company}'s details and send it over.\n\n"
+                f"— {sender}"
             )
         elif follow_up_count == 2:
             body = (
                 f"If covering the front desk isn't the problem right now, ignore this completely.\n\n"
-                f"If it still is — happy to send a 2-min clip, no strings.\n\n"
-                f"— Shaurya"
+                f"If it still is, I'll set the demo up on your details for free. No strings, and it's "
+                f"still for the school project either way.\n\n"
+                f"— {sender}"
             )
         elif follow_up_count == 3:
             # v3 follow-up 4 — concrete operational value, no ask.
@@ -540,7 +566,7 @@ def send_follow_ups(max_per_run: int = 10):
                     f"being able to get through by phone. That's usually the visible 5% of the missed-call "
                     f"iceberg, the rest never leave a trace.\n\n"
                     f"If you ever want a rough estimate of what that's costing, happy to send it. No call.\n\n"
-                    f"— Shaurya"
+                    f"— {sender}"
                 )
             else:
                 body = (
@@ -548,7 +574,7 @@ def send_follow_ups(max_per_run: int = 10):
                     f"Whenever I look at {niche} practices, the reviews mentioning \"couldn't get through\" "
                     f"are usually the visible 5% of the missed-call iceberg. The rest never leave a trace.\n\n"
                     f"If you ever want a rough estimate of what {company} is actually missing, happy to send it. No call.\n\n"
-                    f"— Shaurya"
+                    f"— {sender}"
                 )
         else:
             # v3 follow-up 5 — the actual breakup, lowest friction
@@ -556,7 +582,7 @@ def send_follow_ups(max_per_run: int = 10):
                 f"Closing the loop on this thread.\n\n"
                 f"If the front desk is sorted, ignore. If it's not and you'd ever want to compare "
                 f"options, my line is open — no follow-up from me after this.\n\n"
-                f"— Shaurya"
+                f"— {sender}"
             )
 
         msg_id = lead.get("message_id") or None
