@@ -19,6 +19,19 @@ _SEND_HOUR_END   = 18  # 6 PM local time
 _SEND_WEEKDAYS   = {0, 1, 2, 3, 4}  # Mon–Fri
 
 
+def has_contact_method(job: dict) -> bool:
+    """Can this lead be reached by any channel the pipeline owns?
+
+    Email, phone or a website (which email_finder turns into an address) are
+    the only three routes in. A lead with none of them is a name, and a name
+    cannot be contacted.
+    """
+    # Stripped, because a whitespace-only field is truthy and a scraper
+    # that found nothing often writes " " rather than "".
+    return any((job.get(k) or "").strip()
+               for k in ("email", "phone", "company_website"))
+
+
 def _in_send_window(location: str) -> bool:
     """Return True if it's currently office hours in the lead's timezone."""
     loc = (location or "").lower()
@@ -117,6 +130,13 @@ def run():
     total_whatsapp = 0
     total_instagram = 0
     total_skipped_low = 0
+    # Why a saved lead produced no outreach. Until these existed the run
+    # summary said "38 new, 0 emailed, 0 WhatsApp" with no reason, and the
+    # workflow stayed green: 15,010 leads found over three months, 225
+    # saved, 5 contacted, and nothing in the log said why.
+    total_no_contact = 0      # no email, no phone, no website - unreachable
+    total_no_email = 0        # qualified, but the only channel open needed one
+    total_tz_skipped = 0      # outside the lead's office hours
     lead_list: list[dict] = []  # published to runs/leads.json for the Command Center
 
     if LEAD_SOURCE == "apollo":
@@ -215,6 +235,23 @@ def run():
                                          "slug": job.get("slug") or ""})
                     continue
 
+                # A lead with no email, no phone and no website cannot be
+                # reached by ANY channel this pipeline owns. All 38 leads
+                # saved on 2026-09-03 were exactly that: no site, no phone,
+                # every one scored 5, every channel false. Enriching and
+                # scoring them costs LLM calls to produce a row that can
+                # never be actioned, so they are refused at the door.
+                #
+                # Checked BEFORE researcher.run(): enrichment can discover a
+                # website, but not from a bare name, and the scrapers already
+                # carry whatever contact details the source had.
+                if not has_contact_method(job):
+                    total_no_contact += 1
+                    print(f"    [SKIP] {company} - no email, phone or website; nothing could contact it")
+                    audit.append("pipeline", "skip", company, ok=True,
+                                 detail={"reason": "no_contact_method"})
+                    continue
+
                 print(f"    Processing: {company}")
 
                 # ── Enrichment + Scoring ─────────────────────────────────
@@ -270,6 +307,7 @@ def run():
                 # ── Timezone window check ─────────────────────────────────
                 location = data.get("location", "")
                 if not _in_send_window(location):
+                    total_tz_skipped += 1
                     print(f"      [TZ SKIP] {company} — outside office hours in {location or 'IST'}. "
                           f"Run pipeline between 9am–6pm local time.")
                     audit.append("pipeline", "skip", company, ok=True,
@@ -287,8 +325,9 @@ def run():
                 # closures update run()'s tallies.
                 if score >= SCORE_HIGH:
                     def _send_email():
-                        nonlocal total_emailed
+                        nonlocal total_emailed, total_no_email
                         if not data.get("email"):
+                            total_no_email += 1
                             print(f"      [NO EMAIL] {company} — no address found")
                             return
                         print(f"      [EMAIL HIGH] → {data['email']}")
@@ -379,6 +418,7 @@ def run():
                             audit.append("email_sender", "send", slug, ok=False,
                                          detail={"channel": "email", "tier": "medium"})
                     else:
+                        total_no_email += 1
                         print(f"      [NO EMAIL] {company} — no address found, skipping")
 
                 # ── Record for the Command Center lead list (runs/leads.json) ──
@@ -400,6 +440,8 @@ def run():
                 continue
 
     print(
+        f"\nNo contact method: {total_no_contact} | No email address: {total_no_email} | "
+        f"Outside office hours: {total_tz_skipped}"
         f"\nDone. Found: {total_found} | Saved: {total_saved} | Emailed: {total_emailed} | "
         f"LinkedIn: {total_linkedin} | WhatsApp: {total_whatsapp} | "
         f"Instagram: {total_instagram} | Skipped (low score): {total_skipped_low}"
@@ -446,6 +488,8 @@ def run():
             "linkedin": total_linkedin, "whatsapp": total_whatsapp,
             "instagram": total_instagram,
             "skipped_low": total_skipped_low, "scraper_errors": scraper_errors,
+            "no_contact_method": total_no_contact, "no_email_address": total_no_email,
+            "tz_skipped": total_tz_skipped,
             "cities_scraped": len(cities), "lead_source": LEAD_SOURCE,
             "osm_rescued": osm_rescued, "maps_backfilled": maps_backfilled,
             "effective_source": "osm" if (osm_rescued or source_label.startswith("OSM")) else LEAD_SOURCE,
