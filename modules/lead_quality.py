@@ -2,7 +2,7 @@
 lead_quality.py -- VENDORED from command-center/scripts/lead_quality.py.
 
 Vendored rather than imported because these are separate repos, the same way
-groq_pool.py is vendored across the vault. command-center is the source of
+this vault vendors its shared Groq client module. command-center is the source of
 truth: fix it there first, then copy the file across. Only the module docstring
 below this banner differs.
 
