@@ -1,14 +1,46 @@
 {
   "pipeline": "client-acquisition",
-  "ts": "2026-09-03T08:47:47Z",
-  "count": 38,
+  "ts": "2026-09-07T09:15:52Z",
+  "count": 28,
   "leads": [
     {
-      "label": "Shroff's Dental Clinic",
+      "label": "Thaper Dental Clinic",
       "source": "osm",
       "niche": "dental",
       "score": 5,
-      "city": "Mumbai, Maharashtra",
+      "city": "Jaipur, Rajasthan",
+      "phone": "+917073478477",
+      "whatsapp": "+917073478477",
+      "website": "",
+      "channels": {
+        "email": true,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "Maheshwari girls public school",
+      "source": "osm",
+      "niche": "optometry",
+      "score": 5,
+      "city": "Jaipur, Rajasthan",
+      "phone": "1428761070",
+      "whatsapp": "1428761070",
+      "website": "",
+      "channels": {
+        "email": true,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "Doctor Archna Dental and Orthodontal Clinic",
+      "source": "osm",
+      "niche": "dental",
+      "score": 5,
+      "city": "Delhi, Delhi",
       "phone": "",
       "whatsapp": "",
       "website": "",
@@ -20,11 +52,43 @@
       }
     },
     {
-      "label": "Belle 32",
+      "label": "Dantam - Complete Dental Care",
+      "source": "osm",
+      "niche": "dental",
+      "score": 6,
+      "city": "Delhi, Delhi",
+      "phone": "+91 99714 66087",
+      "whatsapp": "+91 99714 66087",
+      "website": "",
+      "channels": {
+        "email": false,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "क्लोव डेंटल पालम",
       "source": "osm",
       "niche": "dental",
       "score": 5,
-      "city": "Mumbai, Maharashtra",
+      "city": "Delhi, Delhi",
+      "phone": "",
+      "whatsapp": "",
+      "website": "",
+      "channels": {
+        "email": true,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "The Pearl White Dental Clinic",
+      "source": "osm",
+      "niche": "dental",
+      "score": 5,
+      "city": "Delhi, Delhi",
       "phone": "",
       "whatsapp": "",
       "website": "",
@@ -36,11 +100,11 @@
       }
     },
     {
-      "label": "My Dentist",
+      "label": "The Best Care Physiotherapy Clinic",
       "source": "osm",
-      "niche": "dental",
+      "niche": "medical",
       "score": 5,
-      "city": "Mumbai, Maharashtra",
+      "city": "Delhi, Delhi",
       "phone": "",
       "whatsapp": "",
       "website": "",
@@ -52,11 +116,11 @@
       }
     },
     {
-      "label": "Dental Centre",
+      "label": "Spects & Lens Store",
       "source": "osm",
-      "niche": "dental",
+      "niche": "legal",
       "score": 5,
-      "city": "Mumbai, Maharashtra",
+      "city": "Hyderabad, Telangana",
       "phone": "",
       "whatsapp": "",
       "website": "",
@@ -68,11 +132,11 @@
       }
     },
     {
-      "label": "Orlem Dental Clinic",
+      "label": "Advanced Dental Care Center",
       "source": "osm",
       "niche": "dental",
       "score": 5,
-      "city": "Mumbai, Maharashtra",
+      "city": "Pune, Maharashtra",
       "phone": "",
       "whatsapp": "",
       "website": "",
@@ -84,11 +148,11 @@
       }
     },
     {
-      "label": "Rajaram Dental Clinic",
+      "label": "Dr Hinge's Dental Clinic",
       "source": "osm",
       "niche": "dental",
       "score": 5,
-      "city": "Mumbai, Maharashtra",
+      "city": "Pune, Maharashtra",
       "phone": "",
       "whatsapp": "",
       "website": "",
@@ -100,11 +164,11 @@
       }
     },
     {
-      "label": "Dr. Umesh Trivedi",
+      "label": "Ridgeway Dental Spa",
       "source": "osm",
       "niche": "dental",
       "score": 5,
-      "city": "Mumbai, Maharashtra",
+      "city": "Pune, Maharashtra",
       "phone": "",
       "whatsapp": "",
       "website": "",
@@ -116,11 +180,11 @@
       }
     },
     {
-      "label": "Dental Clinic - Dr Tania Thukral",
+      "label": "Dr Prachi’s dental care",
       "source": "osm",
       "niche": "dental",
       "score": 5,
-      "city": "Mumbai, Maharashtra",
+      "city": "Pune, Maharashtra",
       "phone": "",
       "whatsapp": "",
       "website": "",
@@ -132,11 +196,11 @@
       }
     },
     {
-      "label": "Dr. Jadhav's Dental clinic",
+      "label": "Atharva Multispeciality Dental Clinic",
       "source": "osm",
       "niche": "dental",
       "score": 5,
-      "city": "Mumbai, Maharashtra",
+      "city": "Pune, Maharashtra",
       "phone": "",
       "whatsapp": "",
       "website": "",
@@ -148,11 +212,11 @@
       }
     },
     {
-      "label": "Dr. Shalini Jaisinghani Dental Surgeon - Chembur",
+      "label": "Sparsh Physiotherapy & Sport Injury Clinic",
       "source": "osm",
-      "niche": "dental",
+      "niche": "medical",
       "score": 5,
-      "city": "Mumbai, Maharashtra",
+      "city": "Chennai, Tamil Nadu",
       "phone": "",
       "whatsapp": "",
       "website": "",
@@ -164,11 +228,11 @@
       }
     },
     {
-      "label": "Dr. Khosla's Dental Centre",
+      "label": "Relief Centre",
       "source": "osm",
-      "niche": "dental",
+      "niche": "medical",
       "score": 5,
-      "city": "Mumbai, Maharashtra",
+      "city": "Kolkata, West Bengal",
       "phone": "",
       "whatsapp": "",
       "website": "",
@@ -180,11 +244,11 @@
       }
     },
     {
-      "label": "Dr Turners's Speciality Dental Centre",
+      "label": "Ramesh Chandra Sen Clinic",
       "source": "osm",
-      "niche": "dental",
+      "niche": "medical",
       "score": 5,
-      "city": "Mumbai, Maharashtra",
+      "city": "Kolkata, West Bengal",
       "phone": "",
       "whatsapp": "",
       "website": "",
@@ -196,11 +260,11 @@
       }
     },
     {
-      "label": "Surbhi Dental Clinic(Dr.Samata Dhuppad)",
+      "label": "Park Site Nursing Home",
       "source": "osm",
-      "niche": "dental",
+      "niche": "medical",
       "score": 5,
-      "city": "Mumbai, Maharashtra",
+      "city": "Kolkata, West Bengal",
       "phone": "",
       "whatsapp": "",
       "website": "",
@@ -212,11 +276,11 @@
       }
     },
     {
-      "label": "Ganesh Dental Speciality Clinic",
+      "label": "Chhaya Maternity Nursing Home",
       "source": "osm",
-      "niche": "dental",
+      "niche": "medical",
       "score": 5,
-      "city": "Mumbai, Maharashtra",
+      "city": "Ahmedabad, Gujarat",
       "phone": "",
       "whatsapp": "",
       "website": "",
@@ -228,11 +292,27 @@
       }
     },
     {
-      "label": "Medismile Dental Studio",
+      "label": "Nova Pulse Ivf Clinic Ahmedabad Pvt.Ltd.",
       "source": "osm",
-      "niche": "dental",
+      "niche": "medical",
       "score": 5,
-      "city": "Mumbai, Maharashtra",
+      "city": "Ahmedabad, Gujarat",
+      "phone": "",
+      "whatsapp": "",
+      "website": "",
+      "channels": {
+        "email": true,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "Sanidhaya Maternity and Nursing Home",
+      "source": "osm",
+      "niche": "medical",
+      "score": 5,
+      "city": "Ahmedabad, Gujarat",
       "phone": "",
       "whatsapp": "",
       "website": "",
@@ -244,11 +324,27 @@
       }
     },
     {
-      "label": "Ashka Dental Clinic",
+      "label": "Centre For Sight",
       "source": "osm",
-      "niche": "dental",
+      "niche": "medical",
       "score": 5,
-      "city": "Mumbai, Maharashtra",
+      "city": "Chandigarh, Chandigarh",
+      "phone": "08065423777",
+      "whatsapp": "08065423777",
+      "website": "",
+      "channels": {
+        "email": true,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "Bharat Optical Center",
+      "source": "osm",
+      "niche": "optometry",
+      "score": 5,
+      "city": "Chandigarh, Chandigarh",
       "phone": "",
       "whatsapp": "",
       "website": "",
@@ -260,11 +356,27 @@
       }
     },
     {
-      "label": "Dental Rite Centre",
+      "label": "Ganga Laxmi IVF",
+      "source": "osm",
+      "niche": "medical",
+      "score": 5,
+      "city": "Lucknow, Uttar Pradesh",
+      "phone": "+917275649692",
+      "whatsapp": "+917275649692",
+      "website": "",
+      "channels": {
+        "email": false,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "Dental Solutions and Implant Clinic- Dr. Amit Nirwan and Himani Nirwan",
       "source": "osm",
       "niche": "dental",
       "score": 5,
-      "city": "Mumbai, Maharashtra",
+      "city": "Indore, Madhya Pradesh",
       "phone": "",
       "whatsapp": "",
       "website": "",
@@ -276,11 +388,11 @@
       }
     },
     {
-      "label": "West Coast Dental Clinc",
+      "label": "Perfect Dental Solutions",
       "source": "osm",
       "niche": "dental",
       "score": 5,
-      "city": "Mumbai, Maharashtra",
+      "city": "Indore, Madhya Pradesh",
       "phone": "",
       "whatsapp": "",
       "website": "",
@@ -292,11 +404,11 @@
       }
     },
     {
-      "label": "Chawla Dental Speciality Clinic",
+      "label": "P.C Dental Clinic",
       "source": "osm",
       "niche": "dental",
       "score": 5,
-      "city": "Mumbai, Maharashtra",
+      "city": "Indore, Madhya Pradesh",
       "phone": "",
       "whatsapp": "",
       "website": "",
@@ -308,11 +420,11 @@
       }
     },
     {
-      "label": "Mangal Dental Clinic",
+      "label": "Maa Narmada Dental Clinic",
       "source": "osm",
       "niche": "dental",
       "score": 5,
-      "city": "Mumbai, Maharashtra",
+      "city": "Indore, Madhya Pradesh",
       "phone": "",
       "whatsapp": "",
       "website": "",
@@ -324,283 +436,11 @@
       }
     },
     {
-      "label": "Dr. Chen Dental Clinic",
+      "label": "Dr.P Mittal",
       "source": "osm",
       "niche": "dental",
       "score": 5,
-      "city": "Mumbai, Maharashtra",
-      "phone": "",
-      "whatsapp": "",
-      "website": "",
-      "channels": {
-        "email": false,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "Mera Dentist",
-      "source": "osm",
-      "niche": "dental",
-      "score": 5,
-      "city": "Mumbai, Maharashtra",
-      "phone": "",
-      "whatsapp": "",
-      "website": "",
-      "channels": {
-        "email": false,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "Saurabh Gangurde Dental Clinic",
-      "source": "osm",
-      "niche": "dental",
-      "score": 5,
-      "city": "Mumbai, Maharashtra",
-      "phone": "",
-      "whatsapp": "",
-      "website": "",
-      "channels": {
-        "email": false,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "Advani Dental Care",
-      "source": "osm",
-      "niche": "dental",
-      "score": 5,
-      "city": "Mumbai, Maharashtra",
-      "phone": "",
-      "whatsapp": "",
-      "website": "",
-      "channels": {
-        "email": false,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "Sobo Smiles Dental Clinic",
-      "source": "osm",
-      "niche": "dental",
-      "score": 5,
-      "city": "Mumbai, Maharashtra",
-      "phone": "",
-      "whatsapp": "",
-      "website": "",
-      "channels": {
-        "email": false,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "Pink And White Dental Clinic",
-      "source": "osm",
-      "niche": "dental",
-      "score": 5,
-      "city": "Mumbai, Maharashtra",
-      "phone": "",
-      "whatsapp": "",
-      "website": "",
-      "channels": {
-        "email": false,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "The Dental Zone",
-      "source": "osm",
-      "niche": "dental",
-      "score": 5,
-      "city": "Mumbai, Maharashtra",
-      "phone": "",
-      "whatsapp": "",
-      "website": "",
-      "channels": {
-        "email": false,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "Ganatra's Dental Care",
-      "source": "osm",
-      "niche": "dental",
-      "score": 5,
-      "city": "Mumbai, Maharashtra",
-      "phone": "",
-      "whatsapp": "",
-      "website": "",
-      "channels": {
-        "email": false,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "Dentist4U",
-      "source": "osm",
-      "niche": "dental",
-      "score": 5,
-      "city": "Mumbai, Maharashtra",
-      "phone": "",
-      "whatsapp": "",
-      "website": "",
-      "channels": {
-        "email": false,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "Dr Sheetal Salva Dentist",
-      "source": "osm",
-      "niche": "dental",
-      "score": 5,
-      "city": "Mumbai, Maharashtra",
-      "phone": "",
-      "whatsapp": "",
-      "website": "",
-      "channels": {
-        "email": false,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "Pearly Whites",
-      "source": "osm",
-      "niche": "dental",
-      "score": 5,
-      "city": "Mumbai, Maharashtra",
-      "phone": "",
-      "whatsapp": "",
-      "website": "",
-      "channels": {
-        "email": false,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "Oasis",
-      "source": "osm",
-      "niche": "dental",
-      "score": 5,
-      "city": "Mumbai, Maharashtra",
-      "phone": "",
-      "whatsapp": "",
-      "website": "",
-      "channels": {
-        "email": false,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "Millennium Smile Dental Clinic",
-      "source": "osm",
-      "niche": "dental",
-      "score": 5,
-      "city": "Mumbai, Maharashtra",
-      "phone": "",
-      "whatsapp": "",
-      "website": "",
-      "channels": {
-        "email": false,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "Oracare Dental",
-      "source": "osm",
-      "niche": "dental",
-      "score": 5,
-      "city": "Mumbai, Maharashtra",
-      "phone": "",
-      "whatsapp": "",
-      "website": "",
-      "channels": {
-        "email": false,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "Dr. Farooqui's Smile Dental Clinic",
-      "source": "osm",
-      "niche": "dental",
-      "score": 5,
-      "city": "Mumbai, Maharashtra",
-      "phone": "",
-      "whatsapp": "",
-      "website": "",
-      "channels": {
-        "email": false,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "Auro Dental Clinic and Implant Centre",
-      "source": "osm",
-      "niche": "dental",
-      "score": 5,
-      "city": "Mumbai, Maharashtra",
-      "phone": "",
-      "whatsapp": "",
-      "website": "",
-      "channels": {
-        "email": false,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "Dent House Multispeciality Dental Clinic",
-      "source": "osm",
-      "niche": "dental",
-      "score": 5,
-      "city": "Mumbai, Maharashtra",
-      "phone": "",
-      "whatsapp": "",
-      "website": "",
-      "channels": {
-        "email": false,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "Dentifi Dental Clinic - Implants & Cosmetic Dentistry",
-      "source": "osm",
-      "niche": "dental",
-      "score": 5,
-      "city": "Mumbai, Maharashtra",
+      "city": "Indore, Madhya Pradesh",
       "phone": "",
       "whatsapp": "",
       "website": "",
