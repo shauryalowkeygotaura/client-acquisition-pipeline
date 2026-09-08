@@ -1,106 +1,10 @@
 {
   "pipeline": "client-acquisition",
-  "ts": "2026-09-07T09:15:52Z",
-  "count": 28,
+  "ts": "2026-09-08T09:20:04Z",
+  "count": 6,
   "leads": [
     {
-      "label": "Thaper Dental Clinic",
-      "source": "osm",
-      "niche": "dental",
-      "score": 5,
-      "city": "Jaipur, Rajasthan",
-      "phone": "+917073478477",
-      "whatsapp": "+917073478477",
-      "website": "",
-      "channels": {
-        "email": true,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "Maheshwari girls public school",
-      "source": "osm",
-      "niche": "optometry",
-      "score": 5,
-      "city": "Jaipur, Rajasthan",
-      "phone": "1428761070",
-      "whatsapp": "1428761070",
-      "website": "",
-      "channels": {
-        "email": true,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "Doctor Archna Dental and Orthodontal Clinic",
-      "source": "osm",
-      "niche": "dental",
-      "score": 5,
-      "city": "Delhi, Delhi",
-      "phone": "",
-      "whatsapp": "",
-      "website": "",
-      "channels": {
-        "email": false,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "Dantam - Complete Dental Care",
-      "source": "osm",
-      "niche": "dental",
-      "score": 6,
-      "city": "Delhi, Delhi",
-      "phone": "+91 99714 66087",
-      "whatsapp": "+91 99714 66087",
-      "website": "",
-      "channels": {
-        "email": false,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "क्लोव डेंटल पालम",
-      "source": "osm",
-      "niche": "dental",
-      "score": 5,
-      "city": "Delhi, Delhi",
-      "phone": "",
-      "whatsapp": "",
-      "website": "",
-      "channels": {
-        "email": true,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "The Pearl White Dental Clinic",
-      "source": "osm",
-      "niche": "dental",
-      "score": 5,
-      "city": "Delhi, Delhi",
-      "phone": "",
-      "whatsapp": "",
-      "website": "",
-      "channels": {
-        "email": false,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "The Best Care Physiotherapy Clinic",
+      "label": "DGD Budh Nagar",
       "source": "osm",
       "niche": "medical",
       "score": 5,
@@ -116,13 +20,29 @@
       }
     },
     {
-      "label": "Spects & Lens Store",
+      "label": "DGD Jwala Puri",
       "source": "osm",
-      "niche": "legal",
+      "niche": "medical",
+      "score": 5,
+      "city": "Delhi, Delhi",
+      "phone": "",
+      "whatsapp": "",
+      "website": "",
+      "channels": {
+        "email": false,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "Sora Dental Clinic",
+      "source": "osm",
+      "niche": "dental",
       "score": 5,
       "city": "Hyderabad, Telangana",
-      "phone": "",
-      "whatsapp": "",
+      "phone": "+91-9398720680",
+      "whatsapp": "+91-9398720680",
       "website": "",
       "channels": {
         "email": false,
@@ -132,93 +52,13 @@
       }
     },
     {
-      "label": "Advanced Dental Care Center",
-      "source": "osm",
-      "niche": "dental",
-      "score": 5,
-      "city": "Pune, Maharashtra",
-      "phone": "",
-      "whatsapp": "",
-      "website": "",
-      "channels": {
-        "email": false,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "Dr Hinge's Dental Clinic",
-      "source": "osm",
-      "niche": "dental",
-      "score": 5,
-      "city": "Pune, Maharashtra",
-      "phone": "",
-      "whatsapp": "",
-      "website": "",
-      "channels": {
-        "email": false,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "Ridgeway Dental Spa",
-      "source": "osm",
-      "niche": "dental",
-      "score": 5,
-      "city": "Pune, Maharashtra",
-      "phone": "",
-      "whatsapp": "",
-      "website": "",
-      "channels": {
-        "email": false,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "Dr Prachi’s dental care",
-      "source": "osm",
-      "niche": "dental",
-      "score": 5,
-      "city": "Pune, Maharashtra",
-      "phone": "",
-      "whatsapp": "",
-      "website": "",
-      "channels": {
-        "email": false,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "Atharva Multispeciality Dental Clinic",
-      "source": "osm",
-      "niche": "dental",
-      "score": 5,
-      "city": "Pune, Maharashtra",
-      "phone": "",
-      "whatsapp": "",
-      "website": "",
-      "channels": {
-        "email": false,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "Sparsh Physiotherapy & Sport Injury Clinic",
+      "label": "Dr Rajeev Raut Eye Clinic",
       "source": "osm",
       "niche": "medical",
-      "score": 5,
-      "city": "Chennai, Tamil Nadu",
-      "phone": "",
-      "whatsapp": "",
+      "score": 6,
+      "city": "Pune, Maharashtra",
+      "phone": "9198811398",
+      "whatsapp": "9198811398",
       "website": "",
       "channels": {
         "email": false,
@@ -228,13 +68,13 @@
       }
     },
     {
-      "label": "Relief Centre",
+      "label": "Netaji Subhash Nursing Home and Diagnostic Centre",
       "source": "osm",
       "niche": "medical",
       "score": 5,
       "city": "Kolkata, West Bengal",
-      "phone": "",
-      "whatsapp": "",
+      "phone": "9007991113",
+      "whatsapp": "9007991113",
       "website": "",
       "channels": {
         "email": false,
@@ -244,203 +84,11 @@
       }
     },
     {
-      "label": "Ramesh Chandra Sen Clinic",
-      "source": "osm",
-      "niche": "medical",
-      "score": 5,
-      "city": "Kolkata, West Bengal",
-      "phone": "",
-      "whatsapp": "",
-      "website": "",
-      "channels": {
-        "email": false,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "Park Site Nursing Home",
-      "source": "osm",
-      "niche": "medical",
-      "score": 5,
-      "city": "Kolkata, West Bengal",
-      "phone": "",
-      "whatsapp": "",
-      "website": "",
-      "channels": {
-        "email": false,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "Chhaya Maternity Nursing Home",
+      "label": "Matulya ENT Clinic",
       "source": "osm",
       "niche": "medical",
       "score": 5,
       "city": "Ahmedabad, Gujarat",
-      "phone": "",
-      "whatsapp": "",
-      "website": "",
-      "channels": {
-        "email": false,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "Nova Pulse Ivf Clinic Ahmedabad Pvt.Ltd.",
-      "source": "osm",
-      "niche": "medical",
-      "score": 5,
-      "city": "Ahmedabad, Gujarat",
-      "phone": "",
-      "whatsapp": "",
-      "website": "",
-      "channels": {
-        "email": true,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "Sanidhaya Maternity and Nursing Home",
-      "source": "osm",
-      "niche": "medical",
-      "score": 5,
-      "city": "Ahmedabad, Gujarat",
-      "phone": "",
-      "whatsapp": "",
-      "website": "",
-      "channels": {
-        "email": false,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "Centre For Sight",
-      "source": "osm",
-      "niche": "medical",
-      "score": 5,
-      "city": "Chandigarh, Chandigarh",
-      "phone": "08065423777",
-      "whatsapp": "08065423777",
-      "website": "",
-      "channels": {
-        "email": true,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "Bharat Optical Center",
-      "source": "osm",
-      "niche": "optometry",
-      "score": 5,
-      "city": "Chandigarh, Chandigarh",
-      "phone": "",
-      "whatsapp": "",
-      "website": "",
-      "channels": {
-        "email": false,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "Ganga Laxmi IVF",
-      "source": "osm",
-      "niche": "medical",
-      "score": 5,
-      "city": "Lucknow, Uttar Pradesh",
-      "phone": "+917275649692",
-      "whatsapp": "+917275649692",
-      "website": "",
-      "channels": {
-        "email": false,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "Dental Solutions and Implant Clinic- Dr. Amit Nirwan and Himani Nirwan",
-      "source": "osm",
-      "niche": "dental",
-      "score": 5,
-      "city": "Indore, Madhya Pradesh",
-      "phone": "",
-      "whatsapp": "",
-      "website": "",
-      "channels": {
-        "email": false,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "Perfect Dental Solutions",
-      "source": "osm",
-      "niche": "dental",
-      "score": 5,
-      "city": "Indore, Madhya Pradesh",
-      "phone": "",
-      "whatsapp": "",
-      "website": "",
-      "channels": {
-        "email": false,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "P.C Dental Clinic",
-      "source": "osm",
-      "niche": "dental",
-      "score": 5,
-      "city": "Indore, Madhya Pradesh",
-      "phone": "",
-      "whatsapp": "",
-      "website": "",
-      "channels": {
-        "email": false,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "Maa Narmada Dental Clinic",
-      "source": "osm",
-      "niche": "dental",
-      "score": 5,
-      "city": "Indore, Madhya Pradesh",
-      "phone": "",
-      "whatsapp": "",
-      "website": "",
-      "channels": {
-        "email": false,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "Dr.P Mittal",
-      "source": "osm",
-      "niche": "dental",
-      "score": 5,
-      "city": "Indore, Madhya Pradesh",
       "phone": "",
       "whatsapp": "",
       "website": "",
