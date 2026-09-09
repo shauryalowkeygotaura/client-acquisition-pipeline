@@ -1,10 +1,90 @@
 {
   "pipeline": "client-acquisition",
-  "ts": "2026-09-08T09:20:04Z",
-  "count": 6,
+  "ts": "2026-09-09T09:33:07Z",
+  "count": 29,
   "leads": [
     {
-      "label": "DGD Budh Nagar",
+      "label": "SmileTech Dental Clinic",
+      "source": "osm",
+      "niche": "dental",
+      "score": 6,
+      "city": "Jaipur, Rajasthan",
+      "phone": "+91 8403983976",
+      "whatsapp": "+91 8403983976",
+      "website": "",
+      "channels": {
+        "email": false,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "Jain Eye Clinic and Hospital",
+      "source": "osm",
+      "niche": "medical",
+      "score": 5,
+      "city": "Jaipur, Rajasthan",
+      "phone": "",
+      "whatsapp": "",
+      "website": "",
+      "channels": {
+        "email": false,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "The Dentist",
+      "source": "osm",
+      "niche": "dental",
+      "score": 5,
+      "city": "Delhi, Delhi",
+      "phone": "",
+      "whatsapp": "",
+      "website": "",
+      "channels": {
+        "email": false,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "Doctor Dubey's Dental Clinic",
+      "source": "osm",
+      "niche": "dental",
+      "score": 5,
+      "city": "Delhi, Delhi",
+      "phone": "",
+      "whatsapp": "",
+      "website": "",
+      "channels": {
+        "email": false,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "Family Dental Clinic",
+      "source": "osm",
+      "niche": "dental",
+      "score": 5,
+      "city": "Delhi, Delhi",
+      "phone": "",
+      "whatsapp": "",
+      "website": "",
+      "channels": {
+        "email": false,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "MODERN HOMEO HALL",
       "source": "osm",
       "niche": "medical",
       "score": 5,
@@ -20,7 +100,7 @@
       }
     },
     {
-      "label": "DGD Jwala Puri",
+      "label": "DGD Sec 19 Dwarka",
       "source": "osm",
       "niche": "medical",
       "score": 5,
@@ -36,29 +116,61 @@
       }
     },
     {
-      "label": "Sora Dental Clinic",
+      "label": "SPUHC Samalka",
+      "source": "osm",
+      "niche": "medical",
+      "score": 5,
+      "city": "Delhi, Delhi",
+      "phone": "",
+      "whatsapp": "",
+      "website": "",
+      "channels": {
+        "email": false,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "Dass Optics",
+      "source": "osm",
+      "niche": "optometry",
+      "score": 5,
+      "city": "Delhi, Delhi",
+      "phone": "",
+      "whatsapp": "",
+      "website": "",
+      "channels": {
+        "email": false,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "Partha Dental Clinic",
       "source": "osm",
       "niche": "dental",
       "score": 5,
       "city": "Hyderabad, Telangana",
-      "phone": "+91-9398720680",
-      "whatsapp": "+91-9398720680",
+      "phone": "8500779000",
+      "whatsapp": "8500779000",
       "website": "",
       "channels": {
-        "email": false,
+        "email": true,
         "linkedin": false,
         "whatsapp": false,
         "instagram": false
       }
     },
     {
-      "label": "Dr Rajeev Raut Eye Clinic",
+      "label": "Sri Shankara Nethralaya",
       "source": "osm",
       "niche": "medical",
-      "score": 6,
-      "city": "Pune, Maharashtra",
-      "phone": "9198811398",
-      "whatsapp": "9198811398",
+      "score": 5,
+      "city": "Hyderabad, Telangana",
+      "phone": "+91 7673934444",
+      "whatsapp": "+91 7673934444",
       "website": "",
       "channels": {
         "email": false,
@@ -68,13 +180,157 @@
       }
     },
     {
-      "label": "Netaji Subhash Nursing Home and Diagnostic Centre",
+      "label": "Dental Inn",
+      "source": "osm",
+      "niche": "dental",
+      "score": 5,
+      "city": "Pune, Maharashtra",
+      "phone": "9196576213",
+      "whatsapp": "9196576213",
+      "website": "",
+      "channels": {
+        "email": false,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "The White Arch Dental Centre",
+      "source": "osm",
+      "niche": "dental",
+      "score": 6,
+      "city": "Pune, Maharashtra",
+      "phone": "0471431505",
+      "whatsapp": "0471431505",
+      "website": "",
+      "channels": {
+        "email": false,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "Oracare Detal Clinic",
+      "source": "osm",
+      "niche": "dental",
+      "score": 5,
+      "city": "Pune, Maharashtra",
+      "phone": "",
+      "whatsapp": "",
+      "website": "",
+      "channels": {
+        "email": false,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "Dental World Clinic Punawale",
+      "source": "osm",
+      "niche": "dental",
+      "score": 5,
+      "city": "Pune, Maharashtra",
+      "phone": "",
+      "whatsapp": "",
+      "website": "",
+      "channels": {
+        "email": false,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "Modkharkar Clinic",
+      "source": "osm",
+      "niche": "medical",
+      "score": 5,
+      "city": "Pune, Maharashtra",
+      "phone": "",
+      "whatsapp": "",
+      "website": "",
+      "channels": {
+        "email": false,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "2Lensess.com",
+      "source": "osm",
+      "niche": "optometry",
+      "score": 5,
+      "city": "Pune, Maharashtra",
+      "phone": "",
+      "whatsapp": "",
+      "website": "",
+      "channels": {
+        "email": false,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "Just Smile Dental & ENT Specialities",
+      "source": "osm",
+      "niche": "dental",
+      "score": 5,
+      "city": "Chennai, Tamil Nadu",
+      "phone": "",
+      "whatsapp": "",
+      "website": "",
+      "channels": {
+        "email": false,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "Dr Aslam Yousuff Clinic",
+      "source": "osm",
+      "niche": "medical",
+      "score": 5,
+      "city": "Chennai, Tamil Nadu",
+      "phone": "",
+      "whatsapp": "",
+      "website": "",
+      "channels": {
+        "email": false,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "Aesthetic Dental Clinic",
+      "source": "osm",
+      "niche": "dental",
+      "score": 5,
+      "city": "Kolkata, West Bengal",
+      "phone": "",
+      "whatsapp": "",
+      "website": "",
+      "channels": {
+        "email": false,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "Shusrusha Nursing Home, Kolkata",
       "source": "osm",
       "niche": "medical",
       "score": 5,
       "city": "Kolkata, West Bengal",
-      "phone": "9007991113",
-      "whatsapp": "9007991113",
+      "phone": "",
+      "whatsapp": "",
       "website": "",
       "channels": {
         "email": false,
@@ -84,13 +340,125 @@
       }
     },
     {
-      "label": "Matulya ENT Clinic",
+      "label": "Samaritan Clinic (P) Ltd.",
       "source": "osm",
       "niche": "medical",
+      "score": 6,
+      "city": "Kolkata, West Bengal",
+      "phone": "9836292167",
+      "whatsapp": "9836292167",
+      "website": "",
+      "channels": {
+        "email": false,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "Serum Sristi Nursing Home",
+      "source": "osm",
+      "niche": "medical",
+      "score": 6,
+      "city": "Kolkata, West Bengal",
+      "phone": "62922 83522",
+      "whatsapp": "62922 83522",
+      "website": "",
+      "channels": {
+        "email": false,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "A Hamid's Clinic, Maternity and Nursing Home",
+      "source": "osm",
+      "niche": "medical",
+      "score": 5,
+      "city": "Kolkata, West Bengal",
+      "phone": "",
+      "whatsapp": "",
+      "website": "",
+      "channels": {
+        "email": false,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "Shreyas Dental Hospital",
+      "source": "osm",
+      "niche": "dental",
       "score": 5,
       "city": "Ahmedabad, Gujarat",
       "phone": "",
       "whatsapp": "",
+      "website": "",
+      "channels": {
+        "email": false,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "Kishore Opticals",
+      "source": "osm",
+      "niche": "optometry",
+      "score": 5,
+      "city": "Chandigarh, Chandigarh",
+      "phone": "",
+      "whatsapp": "",
+      "website": "",
+      "channels": {
+        "email": false,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "Delhi Public School",
+      "source": "osm",
+      "niche": "optometry",
+      "score": 5,
+      "city": "Chandigarh, Chandigarh",
+      "phone": "178400877223",
+      "whatsapp": "178400877223",
+      "website": "",
+      "channels": {
+        "email": true,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "Shivalik Public School",
+      "source": "osm",
+      "niche": "optometry",
+      "score": 5,
+      "city": "Chandigarh, Chandigarh",
+      "phone": "1784966568",
+      "whatsapp": "1784966568",
+      "website": "",
+      "channels": {
+        "email": false,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "Dev Samaj College for Women",
+      "source": "osm",
+      "niche": "salon",
+      "score": 4,
+      "city": "Chandigarh, Chandigarh",
+      "phone": "112487977458",
+      "whatsapp": "112487977458",
       "website": "",
       "channels": {
         "email": false,
