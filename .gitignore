@@ -46,3 +46,7 @@ Thumbs.db
 # repo is public - a personalised sales video for a named clinic does not
 # belong in it.
 runs/video_pitches/
+
+# Vendored Groq client written here by Scripts/sync_groq_pool.py before that
+# script learned to skip non-consumers. Nothing here imports it.
+modules/groq_pool.py
