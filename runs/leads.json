@@ -1,46 +1,14 @@
 {
   "pipeline": "client-acquisition",
-  "ts": "2026-09-10T09:02:50Z",
-  "count": 15,
+  "ts": "2026-09-11T09:18:38Z",
+  "count": 13,
   "leads": [
     {
-      "label": "Dr Jain's Clinic",
-      "source": "osm",
-      "niche": "medical",
-      "score": 5,
-      "city": "Delhi, Delhi",
-      "phone": "",
-      "whatsapp": "",
-      "website": "",
-      "channels": {
-        "email": false,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "DGD Khyala",
-      "source": "osm",
-      "niche": "medical",
-      "score": 5,
-      "city": "Delhi, Delhi",
-      "phone": "",
-      "whatsapp": "",
-      "website": "",
-      "channels": {
-        "email": false,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "Ocean Eyewear Pvt Ltd. / Supreme Optics",
+      "label": "Parth Optical",
       "source": "osm",
       "niche": "optometry",
       "score": 5,
-      "city": "Mumbai, Maharashtra",
+      "city": "Delhi, Delhi",
       "phone": "",
       "whatsapp": "",
       "website": "",
@@ -52,27 +20,11 @@
       }
     },
     {
-      "label": "IDEA Clinics",
+      "label": "HARI AUM Physiotherapy & Pain Relief Clinic",
       "source": "osm",
       "niche": "medical",
-      "score": 6,
+      "score": 5,
       "city": "Hyderabad, Telangana",
-      "phone": "+918008166166",
-      "whatsapp": "+918008166166",
-      "website": "",
-      "channels": {
-        "email": true,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "Capitol Nursing Home",
-      "source": "osm",
-      "niche": "medical",
-      "score": 5,
-      "city": "Kolkata, West Bengal",
       "phone": "",
       "whatsapp": "",
       "website": "",
@@ -84,23 +36,71 @@
       }
     },
     {
-      "label": "Asutosh College",
+      "label": "Dr Rasika's Dental Wellness Centre",
       "source": "osm",
-      "niche": "optometry",
+      "niche": "dental",
       "score": 5,
-      "city": "Kolkata, West Bengal",
-      "phone": "9789395202",
-      "whatsapp": "9789395202",
+      "city": "Pune, Maharashtra",
+      "phone": "",
+      "whatsapp": "",
       "website": "",
       "channels": {
-        "email": true,
+        "email": false,
         "linkedin": false,
         "whatsapp": false,
         "instagram": false
       }
     },
     {
-      "label": "Harshil Medical Nursing Home, Isanpur",
+      "label": "Smile On Dental Clinic",
+      "source": "osm",
+      "niche": "dental",
+      "score": 5,
+      "city": "Pune, Maharashtra",
+      "phone": "7276184379",
+      "whatsapp": "7276184379",
+      "website": "",
+      "channels": {
+        "email": false,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "Shivnetr Opticals",
+      "source": "osm",
+      "niche": "optometry",
+      "score": 5,
+      "city": "Pune, Maharashtra",
+      "phone": "",
+      "whatsapp": "",
+      "website": "",
+      "channels": {
+        "email": false,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "Smile Squad Dental Clinic",
+      "source": "osm",
+      "niche": "dental",
+      "score": 6,
+      "city": "Chennai, Tamil Nadu",
+      "phone": "+916269626989",
+      "whatsapp": "+916269626989",
+      "website": "",
+      "channels": {
+        "email": false,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "Shree Hari Clinic",
       "source": "osm",
       "niche": "medical",
       "score": 5,
@@ -116,90 +116,58 @@
       }
     },
     {
-      "label": "Ankita parihar dental clinic",
+      "label": "Shishu Niketan Public School",
       "source": "osm",
-      "niche": "dental",
+      "niche": "optometry",
       "score": 5,
-      "city": "Indore, Madhya Pradesh",
-      "phone": "",
-      "whatsapp": "",
+      "city": "Chandigarh, Chandigarh",
+      "phone": "9988666662",
+      "whatsapp": "9988666662",
       "website": "",
       "channels": {
-        "email": false,
+        "email": true,
         "linkedin": false,
         "whatsapp": false,
         "instagram": false
       }
     },
     {
-      "label": "Dr.Arti Rai",
-      "source": "osm",
-      "niche": "dental",
-      "score": 5,
-      "city": "Indore, Madhya Pradesh",
-      "phone": "",
-      "whatsapp": "",
-      "website": "",
-      "channels": {
-        "email": false,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "Hari Geet Dental Clinic",
-      "source": "osm",
-      "niche": "dental",
-      "score": 5,
-      "city": "Indore, Madhya Pradesh",
-      "phone": "",
-      "whatsapp": "",
-      "website": "",
-      "channels": {
-        "email": false,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "Dr Tripathi Dental Clinic",
-      "source": "osm",
-      "niche": "dental",
-      "score": 5,
-      "city": "Indore, Madhya Pradesh",
-      "phone": "",
-      "whatsapp": "",
-      "website": "",
-      "channels": {
-        "email": false,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "Shail Dental & Surgical",
-      "source": "osm",
-      "niche": "dental",
-      "score": 5,
-      "city": "Indore, Madhya Pradesh",
-      "phone": "",
-      "whatsapp": "",
-      "website": "",
-      "channels": {
-        "email": false,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "Dr. H.L.Jain",
+      "label": "Divyavani Clinic",
       "source": "osm",
       "niche": "medical",
       "score": 5,
+      "city": "Lucknow, Uttar Pradesh",
+      "phone": "178911734208",
+      "whatsapp": "178911734208",
+      "website": "",
+      "channels": {
+        "email": false,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "Dental Perfection",
+      "source": "osm",
+      "niche": "dental",
+      "score": 5,
+      "city": "Indore, Madhya Pradesh",
+      "phone": "+91 79990 35453",
+      "whatsapp": "+91 79990 35453",
+      "website": "",
+      "channels": {
+        "email": false,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "Kusum Dental Clinic",
+      "source": "osm",
+      "niche": "dental",
+      "score": 5,
       "city": "Indore, Madhya Pradesh",
       "phone": "",
       "whatsapp": "",
@@ -212,13 +180,13 @@
       }
     },
     {
-      "label": "Dr. Dupare Dental Clinic",
+      "label": "Dev Dental and Smile Clinic",
       "source": "osm",
       "niche": "dental",
       "score": 5,
-      "city": "Nagpur, Maharashtra",
-      "phone": "+919822235989",
-      "whatsapp": "+919822235989",
+      "city": "Indore, Madhya Pradesh",
+      "phone": "",
+      "whatsapp": "",
       "website": "",
       "channels": {
         "email": false,
@@ -228,11 +196,11 @@
       }
     },
     {
-      "label": "Pettewar Clinic",
+      "label": "Our Family Clinic",
       "source": "osm",
       "niche": "medical",
       "score": 5,
-      "city": "Nagpur, Maharashtra",
+      "city": "Kochi, Kerala",
       "phone": "",
       "whatsapp": "",
       "website": "",
