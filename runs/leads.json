@@ -1,12 +1,12 @@
 {
   "pipeline": "client-acquisition",
-  "ts": "2026-09-11T09:18:38Z",
-  "count": 13,
+  "ts": "2026-09-14T09:55:20Z",
+  "count": 17,
   "leads": [
     {
-      "label": "Parth Optical",
+      "label": "Dr S K Jain's Clinic",
       "source": "osm",
-      "niche": "optometry",
+      "niche": "medical",
       "score": 5,
       "city": "Delhi, Delhi",
       "phone": "",
@@ -20,11 +20,11 @@
       }
     },
     {
-      "label": "HARI AUM Physiotherapy & Pain Relief Clinic",
+      "label": "Sparsh Homeopathic Clinic",
       "source": "osm",
       "niche": "medical",
       "score": 5,
-      "city": "Hyderabad, Telangana",
+      "city": "Delhi, Delhi",
       "phone": "",
       "whatsapp": "",
       "website": "",
@@ -36,9 +36,73 @@
       }
     },
     {
-      "label": "Dr Rasika's Dental Wellness Centre",
+      "label": "President Estate Clinic",
       "source": "osm",
-      "niche": "dental",
+      "niche": "medical",
+      "score": 5,
+      "city": "Delhi, Delhi",
+      "phone": "",
+      "whatsapp": "",
+      "website": "",
+      "channels": {
+        "email": false,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "DGD Ram Dutt Enclave",
+      "source": "osm",
+      "niche": "medical",
+      "score": 5,
+      "city": "Delhi, Delhi",
+      "phone": "",
+      "whatsapp": "",
+      "website": "",
+      "channels": {
+        "email": false,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "DGD Nangli Sakrawati",
+      "source": "osm",
+      "niche": "medical",
+      "score": 5,
+      "city": "Delhi, Delhi",
+      "phone": "",
+      "whatsapp": "",
+      "website": "",
+      "channels": {
+        "email": false,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "VitaLife Clinic",
+      "source": "osm",
+      "niche": "medical",
+      "score": 5,
+      "city": "Pune, Maharashtra",
+      "phone": "9183905912",
+      "whatsapp": "9183905912",
+      "website": "",
+      "channels": {
+        "email": true,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "Omkar Clinic & Sonography Center",
+      "source": "osm",
+      "niche": "medical",
       "score": 5,
       "city": "Pune, Maharashtra",
       "phone": "",
@@ -52,13 +116,13 @@
       }
     },
     {
-      "label": "Smile On Dental Clinic",
+      "label": "Sri Meenakshi Nursing Home, Chennai",
       "source": "osm",
-      "niche": "dental",
+      "niche": "medical",
       "score": 5,
-      "city": "Pune, Maharashtra",
-      "phone": "7276184379",
-      "whatsapp": "7276184379",
+      "city": "Chennai, Tamil Nadu",
+      "phone": "",
+      "whatsapp": "",
       "website": "",
       "channels": {
         "email": false,
@@ -68,11 +132,27 @@
       }
     },
     {
-      "label": "Shivnetr Opticals",
+      "label": "Thaker Opticals",
       "source": "osm",
       "niche": "optometry",
       "score": 5,
-      "city": "Pune, Maharashtra",
+      "city": "Chennai, Tamil Nadu",
+      "phone": "+91 94440 35007",
+      "whatsapp": "+91 94440 35007",
+      "website": "",
+      "channels": {
+        "email": false,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "Eye Care Opticians",
+      "source": "osm",
+      "niche": "optometry",
+      "score": 5,
+      "city": "Chennai, Tamil Nadu",
       "phone": "",
       "whatsapp": "",
       "website": "",
@@ -84,25 +164,57 @@
       }
     },
     {
-      "label": "Smile Squad Dental Clinic",
+      "label": "Smile And Profile Dental Treatment Centre Pvt Ltd",
       "source": "osm",
       "niche": "dental",
-      "score": 6,
-      "city": "Chennai, Tamil Nadu",
-      "phone": "+916269626989",
-      "whatsapp": "+916269626989",
+      "score": 5,
+      "city": "Kolkata, West Bengal",
+      "phone": "6292109993",
+      "whatsapp": "6292109993",
       "website": "",
       "channels": {
-        "email": false,
+        "email": true,
         "linkedin": false,
         "whatsapp": false,
         "instagram": false
       }
     },
     {
-      "label": "Shree Hari Clinic",
+      "label": "Lenskart.com",
+      "source": "osm",
+      "niche": "optometry",
+      "score": 5,
+      "city": "Kolkata, West Bengal",
+      "phone": "2147237050",
+      "whatsapp": "2147237050",
+      "website": "",
+      "channels": {
+        "email": true,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "The Assembly of God Church School (Senior Section), Park Street",
       "source": "osm",
       "niche": "medical",
+      "score": 5,
+      "city": "Kolkata, West Bengal",
+      "phone": "",
+      "whatsapp": "",
+      "website": "",
+      "channels": {
+        "email": true,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "Pratham Dental Care",
+      "source": "osm",
+      "niche": "dental",
       "score": 5,
       "city": "Ahmedabad, Gujarat",
       "phone": "",
@@ -116,13 +228,13 @@
       }
     },
     {
-      "label": "Shishu Niketan Public School",
+      "label": "Divan Ballubhai School",
       "source": "osm",
       "niche": "optometry",
       "score": 5,
-      "city": "Chandigarh, Chandigarh",
-      "phone": "9988666662",
-      "whatsapp": "9988666662",
+      "city": "Ahmedabad, Gujarat",
+      "phone": "",
+      "whatsapp": "",
       "website": "",
       "channels": {
         "email": true,
@@ -132,43 +244,11 @@
       }
     },
     {
-      "label": "Divyavani Clinic",
+      "label": "Tricity Opticals",
       "source": "osm",
-      "niche": "medical",
+      "niche": "optometry",
       "score": 5,
-      "city": "Lucknow, Uttar Pradesh",
-      "phone": "178911734208",
-      "whatsapp": "178911734208",
-      "website": "",
-      "channels": {
-        "email": false,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "Dental Perfection",
-      "source": "osm",
-      "niche": "dental",
-      "score": 5,
-      "city": "Indore, Madhya Pradesh",
-      "phone": "+91 79990 35453",
-      "whatsapp": "+91 79990 35453",
-      "website": "",
-      "channels": {
-        "email": false,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "Kusum Dental Clinic",
-      "source": "osm",
-      "niche": "dental",
-      "score": 5,
-      "city": "Indore, Madhya Pradesh",
+      "city": "Chandigarh, Chandigarh",
       "phone": "",
       "whatsapp": "",
       "website": "",
@@ -180,32 +260,16 @@
       }
     },
     {
-      "label": "Dev Dental and Smile Clinic",
+      "label": "Rajagiri Seashore CMI School",
       "source": "osm",
-      "niche": "dental",
-      "score": 5,
-      "city": "Indore, Madhya Pradesh",
-      "phone": "",
-      "whatsapp": "",
-      "website": "",
-      "channels": {
-        "email": false,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "Our Family Clinic",
-      "source": "osm",
-      "niche": "medical",
+      "niche": "optometry",
       "score": 5,
       "city": "Kochi, Kerala",
       "phone": "",
       "whatsapp": "",
       "website": "",
       "channels": {
-        "email": false,
+        "email": true,
         "linkedin": false,
         "whatsapp": false,
         "instagram": false
