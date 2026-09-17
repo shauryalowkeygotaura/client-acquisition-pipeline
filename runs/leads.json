@@ -1,26 +1,10 @@
 {
   "pipeline": "client-acquisition",
-  "ts": "2026-09-16T09:10:02Z",
-  "count": 17,
+  "ts": "2026-09-17T09:27:02Z",
+  "count": 10,
   "leads": [
     {
-      "label": "BIYANI SCHOOL OF NURSING & PARA-MEDICAL SCIENCE (G.N.M.)",
-      "source": "osm",
-      "niche": "medical",
-      "score": 5,
-      "city": "Jaipur, Rajasthan",
-      "phone": "",
-      "whatsapp": "",
-      "website": "",
-      "channels": {
-        "email": false,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "Gulati Clinic",
+      "label": "Physio Hyve Clinic",
       "source": "osm",
       "niche": "medical",
       "score": 5,
@@ -36,106 +20,42 @@
       }
     },
     {
-      "label": "Physio Quantum",
-      "source": "osm",
-      "niche": "medical",
-      "score": 5,
-      "city": "Delhi, Delhi",
-      "phone": "",
-      "whatsapp": "",
-      "website": "",
-      "channels": {
-        "email": false,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "Vishwa Yuvak Kendra",
-      "source": "osm",
-      "niche": "medical",
-      "score": 5,
-      "city": "Delhi, Delhi",
-      "phone": "",
-      "whatsapp": "",
-      "website": "",
-      "channels": {
-        "email": false,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "Sri Sai Santhoshi Superspeciality Dental Clinic",
-      "source": "osm",
-      "niche": "dental",
-      "score": 5,
-      "city": "Hyderabad, Telangana",
-      "phone": "",
-      "whatsapp": "",
-      "website": "",
-      "channels": {
-        "email": false,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "Varad Dental Clinic & Implant Centre",
-      "source": "osm",
-      "niche": "dental",
-      "score": 5,
-      "city": "Pune, Maharashtra",
-      "phone": "",
-      "whatsapp": "",
-      "website": "",
-      "channels": {
-        "email": false,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "Spandant",
-      "source": "osm",
-      "niche": "dental",
-      "score": 5,
-      "city": "Pune, Maharashtra",
-      "phone": "",
-      "whatsapp": "",
-      "website": "",
-      "channels": {
-        "email": false,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "Please Dental Clinic",
-      "source": "osm",
-      "niche": "dental",
-      "score": 5,
-      "city": "Pune, Maharashtra",
-      "phone": "",
-      "whatsapp": "",
-      "website": "",
-      "channels": {
-        "email": false,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "Gangar Eyenation",
+      "label": "Frameszon",
       "source": "osm",
       "niche": "optometry",
       "score": 5,
+      "city": "Delhi, Delhi",
+      "phone": "",
+      "whatsapp": "",
+      "website": "",
+      "channels": {
+        "email": false,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "Dr Bhanushali's Dental Studio",
+      "source": "osm",
+      "niche": "dental",
+      "score": 5,
+      "city": "Mumbai, Maharashtra",
+      "phone": "",
+      "whatsapp": "",
+      "website": "",
+      "channels": {
+        "email": false,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "T.G.h.eye Clinic",
+      "source": "osm",
+      "niche": "medical",
+      "score": 5,
       "city": "Pune, Maharashtra",
       "phone": "",
       "whatsapp": "",
@@ -148,11 +68,27 @@
       }
     },
     {
-      "label": "Neuro Clinic",
+      "label": "DENTA CARE",
+      "source": "osm",
+      "niche": "dental",
+      "score": 5,
+      "city": "Ahmedabad, Gujarat",
+      "phone": "",
+      "whatsapp": "",
+      "website": "",
+      "channels": {
+        "email": false,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "Dr. A. R. pawar",
       "source": "osm",
       "niche": "medical",
       "score": 5,
-      "city": "Chennai, Tamil Nadu",
+      "city": "Indore, Madhya Pradesh",
       "phone": "",
       "whatsapp": "",
       "website": "",
@@ -164,11 +100,11 @@
       }
     },
     {
-      "label": "Ekbalpur Nursing Home Pvt Ltd",
+      "label": "Sheanil Clinic",
       "source": "osm",
       "niche": "medical",
       "score": 5,
-      "city": "Kolkata, West Bengal",
+      "city": "Indore, Madhya Pradesh",
       "phone": "",
       "whatsapp": "",
       "website": "",
@@ -180,9 +116,9 @@
       }
     },
     {
-      "label": "Divine And Healthy Smiles- Dr Tarun And Pushpa Verma",
+      "label": "Poly Clinic",
       "source": "osm",
-      "niche": "dental",
+      "niche": "medical",
       "score": 5,
       "city": "Indore, Madhya Pradesh",
       "phone": "",
@@ -196,11 +132,11 @@
       }
     },
     {
-      "label": "Sanvi Dental Clinic",
+      "label": "Shubham Nursing Home",
       "source": "osm",
-      "niche": "dental",
+      "niche": "medical",
       "score": 5,
-      "city": "Indore, Madhya Pradesh",
+      "city": "Nagpur, Maharashtra",
       "phone": "",
       "whatsapp": "",
       "website": "",
@@ -212,59 +148,11 @@
       }
     },
     {
-      "label": "Complete Dental Solution",
+      "label": "Prajay Opticals",
       "source": "osm",
-      "niche": "dental",
+      "niche": "optometry",
       "score": 5,
-      "city": "Indore, Madhya Pradesh",
-      "phone": "",
-      "whatsapp": "",
-      "website": "",
-      "channels": {
-        "email": false,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "The dental world",
-      "source": "osm",
-      "niche": "dental",
-      "score": 5,
-      "city": "Indore, Madhya Pradesh",
-      "phone": "",
-      "whatsapp": "",
-      "website": "",
-      "channels": {
-        "email": false,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "Shrayas Multispeciality dental clinic",
-      "source": "osm",
-      "niche": "dental",
-      "score": 5,
-      "city": "Indore, Madhya Pradesh",
-      "phone": "",
-      "whatsapp": "",
-      "website": "",
-      "channels": {
-        "email": false,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "Dr Asmita Hawaldar",
-      "source": "osm",
-      "niche": "dental",
-      "score": 5,
-      "city": "Indore, Madhya Pradesh",
+      "city": "Nagpur, Maharashtra",
       "phone": "",
       "whatsapp": "",
       "website": "",
