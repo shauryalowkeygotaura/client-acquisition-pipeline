@@ -1,10 +1,10 @@
 {
   "pipeline": "client-acquisition",
-  "ts": "2026-09-17T09:27:02Z",
-  "count": 10,
+  "ts": "2026-09-18T09:32:21Z",
+  "count": 29,
   "leads": [
     {
-      "label": "Physio Hyve Clinic",
+      "label": "Hebe Health Clinic",
       "source": "osm",
       "niche": "medical",
       "score": 5,
@@ -20,7 +20,39 @@
       }
     },
     {
-      "label": "Frameszon",
+      "label": "Tirupati Medical Centre",
+      "source": "osm",
+      "niche": "medical",
+      "score": 5,
+      "city": "Delhi, Delhi",
+      "phone": "",
+      "whatsapp": "",
+      "website": "",
+      "channels": {
+        "email": false,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "DGD Mayapuri",
+      "source": "osm",
+      "niche": "medical",
+      "score": 5,
+      "city": "Delhi, Delhi",
+      "phone": "",
+      "whatsapp": "",
+      "website": "",
+      "channels": {
+        "email": false,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "Navjot Opticians",
       "source": "osm",
       "niche": "optometry",
       "score": 5,
@@ -36,11 +68,11 @@
       }
     },
     {
-      "label": "Dr Bhanushali's Dental Studio",
+      "label": "STHIRA Dentistry & Facial Surgery",
       "source": "osm",
       "niche": "dental",
       "score": 5,
-      "city": "Mumbai, Maharashtra",
+      "city": "Hyderabad, Telangana",
       "phone": "",
       "whatsapp": "",
       "website": "",
@@ -52,9 +84,25 @@
       }
     },
     {
-      "label": "T.G.h.eye Clinic",
+      "label": "Pushpagiri Eye Institute",
       "source": "osm",
       "niche": "medical",
+      "score": 5,
+      "city": "Hyderabad, Telangana",
+      "phone": "",
+      "whatsapp": "",
+      "website": "",
+      "channels": {
+        "email": false,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "Dr. Dixit's Dental Speciality Clinic and Implant Centre",
+      "source": "osm",
+      "niche": "dental",
       "score": 5,
       "city": "Pune, Maharashtra",
       "phone": "",
@@ -68,11 +116,11 @@
       }
     },
     {
-      "label": "DENTA CARE",
+      "label": "CDIC",
       "source": "osm",
       "niche": "dental",
       "score": 5,
-      "city": "Ahmedabad, Gujarat",
+      "city": "Pune, Maharashtra",
       "phone": "",
       "whatsapp": "",
       "website": "",
@@ -84,9 +132,89 @@
       }
     },
     {
-      "label": "Dr. A. R. pawar",
+      "label": "Dental Hub",
+      "source": "osm",
+      "niche": "dental",
+      "score": 5,
+      "city": "Pune, Maharashtra",
+      "phone": "",
+      "whatsapp": "",
+      "website": "",
+      "channels": {
+        "email": false,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "Smile Please Dental Clinic",
+      "source": "osm",
+      "niche": "dental",
+      "score": 5,
+      "city": "Pune, Maharashtra",
+      "phone": "",
+      "whatsapp": "",
+      "website": "",
+      "channels": {
+        "email": false,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "Dr. Ram's Diabetes & Endocrine Clinic",
       "source": "osm",
       "niche": "medical",
+      "score": 5,
+      "city": "Chennai, Tamil Nadu",
+      "phone": "",
+      "whatsapp": "",
+      "website": "",
+      "channels": {
+        "email": false,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "Keerthi clinic",
+      "source": "osm",
+      "niche": "medical",
+      "score": 5,
+      "city": "Chennai, Tamil Nadu",
+      "phone": "",
+      "whatsapp": "",
+      "website": "",
+      "channels": {
+        "email": false,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "Suman Clinic",
+      "source": "osm",
+      "niche": "medical",
+      "score": 5,
+      "city": "Chennai, Tamil Nadu",
+      "phone": "",
+      "whatsapp": "",
+      "website": "",
+      "channels": {
+        "email": false,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "Smile Maker Dental Clinic",
+      "source": "osm",
+      "niche": "dental",
       "score": 5,
       "city": "Indore, Madhya Pradesh",
       "phone": "",
@@ -100,9 +228,9 @@
       }
     },
     {
-      "label": "Sheanil Clinic",
+      "label": "Dr. Hemlata Kulkarni",
       "source": "osm",
-      "niche": "medical",
+      "niche": "dental",
       "score": 5,
       "city": "Indore, Madhya Pradesh",
       "phone": "",
@@ -116,9 +244,9 @@
       }
     },
     {
-      "label": "Poly Clinic",
+      "label": "Dr. Rashmi Dental Clinic",
       "source": "osm",
-      "niche": "medical",
+      "niche": "dental",
       "score": 5,
       "city": "Indore, Madhya Pradesh",
       "phone": "",
@@ -132,11 +260,11 @@
       }
     },
     {
-      "label": "Shubham Nursing Home",
+      "label": "Care Dental Clinic & Implant Center",
       "source": "osm",
-      "niche": "medical",
+      "niche": "dental",
       "score": 5,
-      "city": "Nagpur, Maharashtra",
+      "city": "Indore, Madhya Pradesh",
       "phone": "",
       "whatsapp": "",
       "website": "",
@@ -148,11 +276,187 @@
       }
     },
     {
-      "label": "Prajay Opticals",
+      "label": "Ideal Dental Care",
       "source": "osm",
-      "niche": "optometry",
+      "niche": "dental",
       "score": 5,
-      "city": "Nagpur, Maharashtra",
+      "city": "Indore, Madhya Pradesh",
+      "phone": "",
+      "whatsapp": "",
+      "website": "",
+      "channels": {
+        "email": false,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "Chopra Dental Clinic",
+      "source": "osm",
+      "niche": "dental",
+      "score": 5,
+      "city": "Indore, Madhya Pradesh",
+      "phone": "",
+      "whatsapp": "",
+      "website": "",
+      "channels": {
+        "email": false,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "Dental Brace",
+      "source": "osm",
+      "niche": "dental",
+      "score": 5,
+      "city": "Indore, Madhya Pradesh",
+      "phone": "",
+      "whatsapp": "",
+      "website": "",
+      "channels": {
+        "email": false,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "Dentist",
+      "source": "osm",
+      "niche": "dental",
+      "score": 5,
+      "city": "Indore, Madhya Pradesh",
+      "phone": "",
+      "whatsapp": "",
+      "website": "",
+      "channels": {
+        "email": false,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "Dr Arpit Chopra",
+      "source": "osm",
+      "niche": "dental",
+      "score": 5,
+      "city": "Indore, Madhya Pradesh",
+      "phone": "",
+      "whatsapp": "",
+      "website": "",
+      "channels": {
+        "email": false,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "CBC Dental Clinic",
+      "source": "osm",
+      "niche": "dental",
+      "score": 5,
+      "city": "Indore, Madhya Pradesh",
+      "phone": "",
+      "whatsapp": "",
+      "website": "",
+      "channels": {
+        "email": false,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "Dr Jyotsna Wadia",
+      "source": "osm",
+      "niche": "dental",
+      "score": 5,
+      "city": "Indore, Madhya Pradesh",
+      "phone": "",
+      "whatsapp": "",
+      "website": "",
+      "channels": {
+        "email": false,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "Smile Indore Dental Solutions",
+      "source": "osm",
+      "niche": "dental",
+      "score": 5,
+      "city": "Indore, Madhya Pradesh",
+      "phone": "",
+      "whatsapp": "",
+      "website": "",
+      "channels": {
+        "email": false,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "Platinum Dental Care",
+      "source": "osm",
+      "niche": "dental",
+      "score": 5,
+      "city": "Indore, Madhya Pradesh",
+      "phone": "",
+      "whatsapp": "",
+      "website": "",
+      "channels": {
+        "email": false,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "Chaitanya Dental Clinic",
+      "source": "osm",
+      "niche": "dental",
+      "score": 5,
+      "city": "Indore, Madhya Pradesh",
+      "phone": "",
+      "whatsapp": "",
+      "website": "",
+      "channels": {
+        "email": false,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "Iconic Dental Care",
+      "source": "osm",
+      "niche": "dental",
+      "score": 5,
+      "city": "Indore, Madhya Pradesh",
+      "phone": "",
+      "whatsapp": "",
+      "website": "",
+      "channels": {
+        "email": false,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "Dental Cosmos",
+      "source": "osm",
+      "niche": "dental",
+      "score": 5,
+      "city": "Indore, Madhya Pradesh",
       "phone": "",
       "whatsapp": "",
       "website": "",
