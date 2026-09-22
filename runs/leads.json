@@ -1,12 +1,12 @@
 {
   "pipeline": "client-acquisition",
-  "ts": "2026-09-21T10:40:33Z",
-  "count": 14,
+  "ts": "2026-09-22T09:43:36Z",
+  "count": 15,
   "leads": [
     {
-      "label": "The Dentists",
+      "label": "DGD Bamnoli",
       "source": "osm",
-      "niche": "dental",
+      "niche": "medical",
       "score": 5,
       "city": "Delhi, Delhi",
       "phone": "",
@@ -20,9 +20,9 @@
       }
     },
     {
-      "label": "Muskaan Clinic",
+      "label": "DGD Hiran Kudna",
       "source": "osm",
-      "niche": "dental",
+      "niche": "medical",
       "score": 5,
       "city": "Delhi, Delhi",
       "phone": "",
@@ -36,71 +36,7 @@
       }
     },
     {
-      "label": "Mursalin Dental Clinic",
-      "source": "osm",
-      "niche": "dental",
-      "score": 5,
-      "city": "Delhi, Delhi",
-      "phone": "",
-      "whatsapp": "",
-      "website": "",
-      "channels": {
-        "email": false,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "Indident Dental Clinic And Implantology Research Centre",
-      "source": "osm",
-      "niche": "dental",
-      "score": 5,
-      "city": "Delhi, Delhi",
-      "phone": "",
-      "whatsapp": "",
-      "website": "",
-      "channels": {
-        "email": false,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "Jain Dental Centre",
-      "source": "osm",
-      "niche": "dental",
-      "score": 5,
-      "city": "Delhi, Delhi",
-      "phone": "",
-      "whatsapp": "",
-      "website": "",
-      "channels": {
-        "email": false,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "Divine Dental",
-      "source": "osm",
-      "niche": "dental",
-      "score": 5,
-      "city": "Delhi, Delhi",
-      "phone": "",
-      "whatsapp": "",
-      "website": "",
-      "channels": {
-        "email": false,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "Aswini Diabetic Centre & Multi-Speciality Clinics",
+      "label": "Healing Hastha Physiotherapy Clinic",
       "source": "osm",
       "niche": "medical",
       "score": 5,
@@ -116,7 +52,7 @@
       }
     },
     {
-      "label": "Vishvand Ayurvedic Clinic",
+      "label": "Dr Alifia Cementwala Clinic",
       "source": "osm",
       "niche": "medical",
       "score": 5,
@@ -132,7 +68,39 @@
       }
     },
     {
-      "label": "N. Madhav Ayurvedic",
+      "label": "The Devine Sparsh Physio",
+      "source": "osm",
+      "niche": "physio",
+      "score": 5,
+      "city": "Pune, Maharashtra",
+      "phone": "",
+      "whatsapp": "",
+      "website": "",
+      "channels": {
+        "email": false,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "Kardile Opticks",
+      "source": "osm",
+      "niche": "optometry",
+      "score": 5,
+      "city": "Pune, Maharashtra",
+      "phone": "",
+      "whatsapp": "",
+      "website": "",
+      "channels": {
+        "email": false,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "Oscar Eye Hospital",
       "source": "osm",
       "niche": "medical",
       "score": 5,
@@ -148,11 +116,11 @@
       }
     },
     {
-      "label": "Dwarika Multi-specialty Clinic",
+      "label": "Ramkrishna Medical Complex Nursing Home",
       "source": "osm",
       "niche": "medical",
       "score": 5,
-      "city": "Pune, Maharashtra",
+      "city": "Kolkata, West Bengal",
       "phone": "",
       "whatsapp": "",
       "website": "",
@@ -164,11 +132,11 @@
       }
     },
     {
-      "label": "BK ENT care",
+      "label": "EVES Clinic Nursing Home",
       "source": "osm",
       "niche": "medical",
       "score": 5,
-      "city": "Chennai, Tamil Nadu",
+      "city": "Kolkata, West Bengal",
       "phone": "",
       "whatsapp": "",
       "website": "",
@@ -180,11 +148,11 @@
       }
     },
     {
-      "label": "Chandak Nursing Home",
+      "label": "Sindhi Polyclinic",
       "source": "osm",
       "niche": "medical",
       "score": 5,
-      "city": "Nagpur, Maharashtra",
+      "city": "Kolkata, West Bengal",
       "phone": "",
       "whatsapp": "",
       "website": "",
@@ -196,11 +164,11 @@
       }
     },
     {
-      "label": "Drishti Eye Clinic and Squint Centre",
+      "label": "H.P.Poddar Memorial Clinic And Nursing Home",
       "source": "osm",
       "niche": "medical",
       "score": 5,
-      "city": "Nagpur, Maharashtra",
+      "city": "Kolkata, West Bengal",
       "phone": "",
       "whatsapp": "",
       "website": "",
@@ -212,11 +180,59 @@
       }
     },
     {
-      "label": "Gupta Nursing Home and Fine Morning Hospital and Research Center",
+      "label": "Surana Dental Clinic",
       "source": "osm",
-      "niche": "medical",
+      "niche": "dental",
       "score": 5,
-      "city": "Nagpur, Maharashtra",
+      "city": "Indore, Madhya Pradesh",
+      "phone": "",
+      "whatsapp": "",
+      "website": "",
+      "channels": {
+        "email": false,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "Atharv Dental Clinic",
+      "source": "osm",
+      "niche": "dental",
+      "score": 5,
+      "city": "Indore, Madhya Pradesh",
+      "phone": "",
+      "whatsapp": "",
+      "website": "",
+      "channels": {
+        "email": false,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "Elegance Dental Clinic",
+      "source": "osm",
+      "niche": "dental",
+      "score": 5,
+      "city": "Indore, Madhya Pradesh",
+      "phone": "",
+      "whatsapp": "",
+      "website": "",
+      "channels": {
+        "email": false,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "St. Patrick's Dental Clinic",
+      "source": "osm",
+      "niche": "dental",
+      "score": 5,
+      "city": "Indore, Madhya Pradesh",
       "phone": "",
       "whatsapp": "",
       "website": "",
