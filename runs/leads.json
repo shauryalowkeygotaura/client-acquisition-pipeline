@@ -1,14 +1,30 @@
 {
   "pipeline": "client-acquisition",
-  "ts": "2026-09-22T09:43:36Z",
-  "count": 15,
+  "ts": "2026-09-23T09:46:19Z",
+  "count": 16,
   "leads": [
     {
-      "label": "DGD Bamnoli",
+      "label": "Sparkle Dental Care",
       "source": "osm",
-      "niche": "medical",
+      "niche": "dental",
       "score": 5,
-      "city": "Delhi, Delhi",
+      "city": "Mumbai, Maharashtra",
+      "phone": "+91 99677 33736",
+      "whatsapp": "+91 99677 33736",
+      "website": "",
+      "channels": {
+        "email": true,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "32 Creations Dental Clinic",
+      "source": "osm",
+      "niche": "dental",
+      "score": 5,
+      "city": "Mumbai, Maharashtra",
       "phone": "",
       "whatsapp": "",
       "website": "",
@@ -20,11 +36,11 @@
       }
     },
     {
-      "label": "DGD Hiran Kudna",
+      "label": "Richfeel Hair And Scalp Clinic",
       "source": "osm",
       "niche": "medical",
       "score": 5,
-      "city": "Delhi, Delhi",
+      "city": "Mumbai, Maharashtra",
       "phone": "",
       "whatsapp": "",
       "website": "",
@@ -36,11 +52,11 @@
       }
     },
     {
-      "label": "Healing Hastha Physiotherapy Clinic",
+      "label": "LOTUS HOSPITAL",
       "source": "osm",
       "niche": "medical",
       "score": 5,
-      "city": "Hyderabad, Telangana",
+      "city": "Mumbai, Maharashtra",
       "phone": "",
       "whatsapp": "",
       "website": "",
@@ -52,13 +68,29 @@
       }
     },
     {
-      "label": "Dr Alifia Cementwala Clinic",
+      "label": "Dr Smita Mukherjees Eye Clinic",
       "source": "osm",
       "niche": "medical",
       "score": 5,
+      "city": "Mumbai, Maharashtra",
+      "phone": "+91-98203 13152",
+      "whatsapp": "+91-98203 13152",
+      "website": "",
+      "channels": {
+        "email": true,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "Shubhamkar Hand Clinic",
+      "source": "osm",
+      "niche": "medical",
+      "score": 6,
       "city": "Pune, Maharashtra",
-      "phone": "",
-      "whatsapp": "",
+      "phone": "47468396569",
+      "whatsapp": "47468396569",
       "website": "",
       "channels": {
         "email": false,
@@ -68,29 +100,13 @@
       }
     },
     {
-      "label": "The Devine Sparsh Physio",
-      "source": "osm",
-      "niche": "physio",
-      "score": 5,
-      "city": "Pune, Maharashtra",
-      "phone": "",
-      "whatsapp": "",
-      "website": "",
-      "channels": {
-        "email": false,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "Kardile Opticks",
+      "label": "TITAN EYEWEAR",
       "source": "osm",
       "niche": "optometry",
       "score": 5,
       "city": "Pune, Maharashtra",
-      "phone": "",
-      "whatsapp": "",
+      "phone": "18002660123",
+      "whatsapp": "18002660123",
       "website": "",
       "channels": {
         "email": false,
@@ -100,13 +116,13 @@
       }
     },
     {
-      "label": "Oscar Eye Hospital",
+      "label": "St. Joseph’s Senior Secondary School",
       "source": "osm",
       "niche": "medical",
       "score": 5,
-      "city": "Pune, Maharashtra",
-      "phone": "",
-      "whatsapp": "",
+      "city": "Chandigarh, Chandigarh",
+      "phone": "1779368141",
+      "whatsapp": "1779368141",
       "website": "",
       "channels": {
         "email": false,
@@ -116,73 +132,9 @@
       }
     },
     {
-      "label": "Ramkrishna Medical Complex Nursing Home",
+      "label": "Gehm Clinic and Research Centre",
       "source": "osm",
       "niche": "medical",
-      "score": 5,
-      "city": "Kolkata, West Bengal",
-      "phone": "",
-      "whatsapp": "",
-      "website": "",
-      "channels": {
-        "email": false,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "EVES Clinic Nursing Home",
-      "source": "osm",
-      "niche": "medical",
-      "score": 5,
-      "city": "Kolkata, West Bengal",
-      "phone": "",
-      "whatsapp": "",
-      "website": "",
-      "channels": {
-        "email": false,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "Sindhi Polyclinic",
-      "source": "osm",
-      "niche": "medical",
-      "score": 5,
-      "city": "Kolkata, West Bengal",
-      "phone": "",
-      "whatsapp": "",
-      "website": "",
-      "channels": {
-        "email": false,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "H.P.Poddar Memorial Clinic And Nursing Home",
-      "source": "osm",
-      "niche": "medical",
-      "score": 5,
-      "city": "Kolkata, West Bengal",
-      "phone": "",
-      "whatsapp": "",
-      "website": "",
-      "channels": {
-        "email": false,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "Surana Dental Clinic",
-      "source": "osm",
-      "niche": "dental",
       "score": 5,
       "city": "Indore, Madhya Pradesh",
       "phone": "",
@@ -196,9 +148,9 @@
       }
     },
     {
-      "label": "Atharv Dental Clinic",
+      "label": "Dr. Pankaj Chauhan Physician",
       "source": "osm",
-      "niche": "dental",
+      "niche": "medical",
       "score": 5,
       "city": "Indore, Madhya Pradesh",
       "phone": "",
@@ -212,9 +164,9 @@
       }
     },
     {
-      "label": "Elegance Dental Clinic",
+      "label": "Shiva Netralaya-Dr Sharad Agrawal",
       "source": "osm",
-      "niche": "dental",
+      "niche": "medical",
       "score": 5,
       "city": "Indore, Madhya Pradesh",
       "phone": "",
@@ -228,11 +180,75 @@
       }
     },
     {
-      "label": "St. Patrick's Dental Clinic",
+      "label": "New Clinic",
+      "source": "osm",
+      "niche": "medical",
+      "score": 5,
+      "city": "Indore, Madhya Pradesh",
+      "phone": "",
+      "whatsapp": "",
+      "website": "",
+      "channels": {
+        "email": false,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "Girivar Clinic",
+      "source": "osm",
+      "niche": "medical",
+      "score": 5,
+      "city": "Indore, Madhya Pradesh",
+      "phone": "",
+      "whatsapp": "",
+      "website": "",
+      "channels": {
+        "email": false,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "V-Care Hospital & Research Centre",
+      "source": "osm",
+      "niche": "medical",
+      "score": 5,
+      "city": "Indore, Madhya Pradesh",
+      "phone": "",
+      "whatsapp": "",
+      "website": "",
+      "channels": {
+        "email": false,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "Pratibha Verma",
+      "source": "osm",
+      "niche": "medical",
+      "score": 5,
+      "city": "Indore, Madhya Pradesh",
+      "phone": "",
+      "whatsapp": "",
+      "website": "",
+      "channels": {
+        "email": false,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "Dharmveer Advance Multi Speciality Dental Clinic",
       "source": "osm",
       "niche": "dental",
       "score": 5,
-      "city": "Indore, Madhya Pradesh",
+      "city": "Nagpur, Maharashtra",
       "phone": "",
       "whatsapp": "",
       "website": "",
