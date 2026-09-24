@@ -1,16 +1,112 @@
 {
   "pipeline": "client-acquisition",
-  "ts": "2026-09-23T09:46:19Z",
-  "count": 16,
+  "ts": "2026-09-24T09:16:42Z",
+  "count": 19,
   "leads": [
     {
-      "label": "Sparkle Dental Care",
+      "label": "Dental Concepts",
+      "source": "osm",
+      "niche": "dental",
+      "score": 5,
+      "city": "Delhi, Delhi",
+      "phone": "",
+      "whatsapp": "",
+      "website": "",
+      "channels": {
+        "email": false,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "Guardian Dental",
+      "source": "osm",
+      "niche": "dental",
+      "score": 5,
+      "city": "Delhi, Delhi",
+      "phone": "",
+      "whatsapp": "",
+      "website": "",
+      "channels": {
+        "email": false,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "Dentistry Redefined",
+      "source": "osm",
+      "niche": "dental",
+      "score": 5,
+      "city": "Delhi, Delhi",
+      "phone": "",
+      "whatsapp": "",
+      "website": "",
+      "channels": {
+        "email": false,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "Target Dental Hospital",
+      "source": "osm",
+      "niche": "dental",
+      "score": 5,
+      "city": "Delhi, Delhi",
+      "phone": "+919465380478",
+      "whatsapp": "+919465380478",
+      "website": "",
+      "channels": {
+        "email": false,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "Walia Dental And Orthodontic Centre",
+      "source": "osm",
+      "niche": "dental",
+      "score": 5,
+      "city": "Delhi, Delhi",
+      "phone": "",
+      "whatsapp": "",
+      "website": "",
+      "channels": {
+        "email": false,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "Arete Clinics- Eye and Dental",
       "source": "osm",
       "niche": "dental",
       "score": 5,
       "city": "Mumbai, Maharashtra",
-      "phone": "+91 99677 33736",
-      "whatsapp": "+91 99677 33736",
+      "phone": "",
+      "whatsapp": "",
+      "website": "",
+      "channels": {
+        "email": false,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "Oculus Eye Hospitals",
+      "source": "osm",
+      "niche": "medical",
+      "score": 5,
+      "city": "Hyderabad, Telangana",
+      "phone": "+91 95844 88488",
+      "whatsapp": "+91 95844 88488",
       "website": "",
       "channels": {
         "email": true,
@@ -20,61 +116,13 @@
       }
     },
     {
-      "label": "32 Creations Dental Clinic",
+      "label": "CareX Dental Clinic | Punawale's Multi-Speciality Dental Solution",
       "source": "osm",
       "niche": "dental",
       "score": 5,
-      "city": "Mumbai, Maharashtra",
-      "phone": "",
-      "whatsapp": "",
-      "website": "",
-      "channels": {
-        "email": false,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "Richfeel Hair And Scalp Clinic",
-      "source": "osm",
-      "niche": "medical",
-      "score": 5,
-      "city": "Mumbai, Maharashtra",
-      "phone": "",
-      "whatsapp": "",
-      "website": "",
-      "channels": {
-        "email": false,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "LOTUS HOSPITAL",
-      "source": "osm",
-      "niche": "medical",
-      "score": 5,
-      "city": "Mumbai, Maharashtra",
-      "phone": "",
-      "whatsapp": "",
-      "website": "",
-      "channels": {
-        "email": false,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "Dr Smita Mukherjees Eye Clinic",
-      "source": "osm",
-      "niche": "medical",
-      "score": 5,
-      "city": "Mumbai, Maharashtra",
-      "phone": "+91-98203 13152",
-      "whatsapp": "+91-98203 13152",
+      "city": "Pune, Maharashtra",
+      "phone": "9175536699",
+      "whatsapp": "9175536699",
       "website": "",
       "channels": {
         "email": true,
@@ -84,171 +132,171 @@
       }
     },
     {
-      "label": "Shubhamkar Hand Clinic",
-      "source": "osm",
-      "niche": "medical",
-      "score": 6,
-      "city": "Pune, Maharashtra",
-      "phone": "47468396569",
-      "whatsapp": "47468396569",
-      "website": "",
-      "channels": {
-        "email": false,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "TITAN EYEWEAR",
-      "source": "osm",
-      "niche": "optometry",
-      "score": 5,
-      "city": "Pune, Maharashtra",
-      "phone": "18002660123",
-      "whatsapp": "18002660123",
-      "website": "",
-      "channels": {
-        "email": false,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "St. Joseph’s Senior Secondary School",
+      "label": "Advanced Ortho Spine Center -Dr. Abhinav Srivastava",
       "source": "osm",
       "niche": "medical",
       "score": 5,
-      "city": "Chandigarh, Chandigarh",
-      "phone": "1779368141",
-      "whatsapp": "1779368141",
+      "city": "Lucknow, Uttar Pradesh",
+      "phone": "9196827773",
+      "whatsapp": "9196827773",
       "website": "",
       "channels": {
-        "email": false,
+        "email": true,
         "linkedin": false,
         "whatsapp": false,
         "instagram": false
       }
     },
     {
-      "label": "Gehm Clinic and Research Centre",
-      "source": "osm",
-      "niche": "medical",
-      "score": 5,
-      "city": "Indore, Madhya Pradesh",
-      "phone": "",
-      "whatsapp": "",
-      "website": "",
-      "channels": {
-        "email": false,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "Dr. Pankaj Chauhan Physician",
-      "source": "osm",
-      "niche": "medical",
-      "score": 5,
-      "city": "Indore, Madhya Pradesh",
-      "phone": "",
-      "whatsapp": "",
-      "website": "",
-      "channels": {
-        "email": false,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "Shiva Netralaya-Dr Sharad Agrawal",
-      "source": "osm",
-      "niche": "medical",
-      "score": 5,
-      "city": "Indore, Madhya Pradesh",
-      "phone": "",
-      "whatsapp": "",
-      "website": "",
-      "channels": {
-        "email": false,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "New Clinic",
-      "source": "osm",
-      "niche": "medical",
-      "score": 5,
-      "city": "Indore, Madhya Pradesh",
-      "phone": "",
-      "whatsapp": "",
-      "website": "",
-      "channels": {
-        "email": false,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "Girivar Clinic",
-      "source": "osm",
-      "niche": "medical",
-      "score": 5,
-      "city": "Indore, Madhya Pradesh",
-      "phone": "",
-      "whatsapp": "",
-      "website": "",
-      "channels": {
-        "email": false,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "V-Care Hospital & Research Centre",
-      "source": "osm",
-      "niche": "medical",
-      "score": 5,
-      "city": "Indore, Madhya Pradesh",
-      "phone": "",
-      "whatsapp": "",
-      "website": "",
-      "channels": {
-        "email": false,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "Pratibha Verma",
-      "source": "osm",
-      "niche": "medical",
-      "score": 5,
-      "city": "Indore, Madhya Pradesh",
-      "phone": "",
-      "whatsapp": "",
-      "website": "",
-      "channels": {
-        "email": false,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "Dharmveer Advance Multi Speciality Dental Clinic",
+      "label": "Dental Clinic",
       "source": "osm",
       "niche": "dental",
       "score": 5,
-      "city": "Nagpur, Maharashtra",
+      "city": "Indore, Madhya Pradesh",
+      "phone": "",
+      "whatsapp": "",
+      "website": "",
+      "channels": {
+        "email": false,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "मुस्ककन डेंटल & ऑर्थोडॉन्तिक क्लिनिक",
+      "source": "osm",
+      "niche": "dental",
+      "score": 5,
+      "city": "Indore, Madhya Pradesh",
+      "phone": "",
+      "whatsapp": "",
+      "website": "",
+      "channels": {
+        "email": false,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "Chhabra Dental Clinic",
+      "source": "osm",
+      "niche": "dental",
+      "score": 5,
+      "city": "Indore, Madhya Pradesh",
+      "phone": "",
+      "whatsapp": "",
+      "website": "",
+      "channels": {
+        "email": false,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "Dr. Chauhan's Dental Clinic",
+      "source": "osm",
+      "niche": "dental",
+      "score": 5,
+      "city": "Indore, Madhya Pradesh",
+      "phone": "",
+      "whatsapp": "",
+      "website": "",
+      "channels": {
+        "email": false,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "Multispeciality Dental Clinic",
+      "source": "osm",
+      "niche": "dental",
+      "score": 5,
+      "city": "Indore, Madhya Pradesh",
+      "phone": "",
+      "whatsapp": "",
+      "website": "",
+      "channels": {
+        "email": false,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "Dental & Oroficial Health Centre",
+      "source": "osm",
+      "niche": "dental",
+      "score": 5,
+      "city": "Indore, Madhya Pradesh",
+      "phone": "",
+      "whatsapp": "",
+      "website": "",
+      "channels": {
+        "email": false,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "Dr.Pramod Jain",
+      "source": "osm",
+      "niche": "dental",
+      "score": 5,
+      "city": "Indore, Madhya Pradesh",
+      "phone": "",
+      "whatsapp": "",
+      "website": "",
+      "channels": {
+        "email": false,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "Happy 32 Dental Clinic",
+      "source": "osm",
+      "niche": "dental",
+      "score": 5,
+      "city": "Indore, Madhya Pradesh",
+      "phone": "",
+      "whatsapp": "",
+      "website": "",
+      "channels": {
+        "email": false,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "Dr. Brijesh Mangal",
+      "source": "osm",
+      "niche": "dental",
+      "score": 5,
+      "city": "Indore, Madhya Pradesh",
+      "phone": "",
+      "whatsapp": "",
+      "website": "",
+      "channels": {
+        "email": false,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "Dr. Dipali Rathore",
+      "source": "osm",
+      "niche": "dental",
+      "score": 5,
+      "city": "Indore, Madhya Pradesh",
       "phone": "",
       "whatsapp": "",
       "website": "",

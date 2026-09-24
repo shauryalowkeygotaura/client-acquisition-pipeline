@@ -1,11 +1,11 @@
 {
-  "generated_at": "2026-09-23T09:46:22.964866+00:00",
+  "generated_at": "2026-09-24T09:16:45.750841+00:00",
   "min_score": 7,
   "target": 20,
   "count": 0,
   "skipped": {
-    "no_handle": 467,
-    "below_a_tier": 10
+    "no_handle": 485,
+    "below_a_tier": 11
   },
   "cities": [],
   "leads": []
