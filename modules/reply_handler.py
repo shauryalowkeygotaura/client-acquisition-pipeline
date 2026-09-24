@@ -61,8 +61,11 @@ Classify into exactly ONE of these categories:
 Also extract:
 - objection_type: if objection, what is the core concern? (cost/timing/trust/existing_solution/other). Empty string otherwise.
 - brief_summary: 1 sentence summary of what they said.
+- ready_to_meet: true if they agreed to a call or meeting, proposed or confirmed a time,
+  asked for a meeting link, or asked questions that need the real person to answer
+  (who the clinics are, credentials, pricing). false otherwise.
 
-Return ONLY valid JSON with keys: category, objection_type, brief_summary.
+Return ONLY valid JSON with keys: category, objection_type, brief_summary, ready_to_meet.
 """.strip()
 
 
@@ -256,11 +259,19 @@ def _fetch_inbox_replies(since_date: str) -> list[dict]:
             # Strip quoted reply history (keep only the new content)
             body = re.split(r'\n[>\-]{3,}|\nOn .+ wrote:', body)[0].strip()
 
+            try:
+                received = email_lib.utils.parsedate_to_datetime(msg.get("Date", ""))
+                if received.tzinfo is None:
+                    received = received.replace(tzinfo=timezone.utc)
+            except (TypeError, ValueError):
+                received = None
+
             replies.append({
                 "from_addr": from_addr,
                 "subject": subject,
                 "body": body[:3000],
                 "message_id": msg.get("Message-ID", ""),
+                "received_at": received,
             })
 
         mail.logout()
@@ -376,8 +387,19 @@ def run(since_days: int = 7):
 
     replies_handled = 0
     optouts = 0
+    handoffs = 0
 
+    # One reply per lead per run, answering only their NEWEST message. The
+    # search window is 7 days and holds every message they ever sent in it, so
+    # looping over all of them re-answered old mail on every run: on 2026-09-24
+    # one clinic owner got 4 replies in 23 seconds to questions already settled.
+    latest: dict[str, dict] = {}
     for msg in inbox:
+        prev = latest.get(msg["from_addr"])
+        if prev is None or (msg["received_at"] or _EPOCH) >= (prev["received_at"] or _EPOCH):
+            latest[msg["from_addr"]] = msg
+
+    for msg in latest.values():
         sender = msg["from_addr"]
         lead = email_to_lead.get(sender)
         if not lead:
@@ -387,9 +409,14 @@ def run(since_days: int = 7):
         if not slug:
             continue
 
-        # Skip already-dead, booked, or opted-out conversations
+        # Skip dead, booked, closed, or handed-to-Shaurya conversations
         stage = lead.get("conversation_stage", "initial")
-        if stage in ("dead", "booked", "closed"):
+        if stage in ("dead", "booked", "closed", "handoff"):
+            continue
+
+        # Already answered: replied_at is stamped after every handled message,
+        # so anything received before it was dealt with on an earlier run.
+        if _already_handled(msg, lead):
             continue
         if lead.get("opted_out", "no") == "yes":
             continue
@@ -412,6 +439,15 @@ def run(since_days: int = 7):
             sheets_writer.update_reply(slug, "not_relevant", "dead")
             continue
 
+        # A lead ready for a meeting is Shaurya's conversation from here on. The
+        # bot stops replying and tells him instead of improvising scheduling or
+        # answering questions only the real person can answer.
+        if classification.get("ready_to_meet") is True:
+            _notify_handoff(lead, msg, classification)
+            sheets_writer.update_reply(slug, category, "handoff", objection_type)
+            handoffs += 1
+            continue
+
         response_text = _generate_response(lead, classification, reply_text=msg["body"])
         sent = _send_reply(sender, msg["subject"], response_text)
 
@@ -432,7 +468,43 @@ def run(since_days: int = 7):
         "inbox_msgs": len(inbox),
         "replies_handled": replies_handled,
         "optouts": optouts,
+        "handoffs": handoffs,
     }
+
+
+_EPOCH = datetime(1970, 1, 1, tzinfo=timezone.utc)
+
+
+def _already_handled(msg: dict, lead: dict) -> bool:
+    """True when this message arrived before the lead's last handled reply."""
+    received = msg.get("received_at")
+    replied_raw = lead.get("replied_at") or ""
+    if not received or not replied_raw:
+        return False
+    try:
+        replied = datetime.fromisoformat(replied_raw.replace("Z", "+00:00"))
+    except ValueError:
+        return False
+    if replied.tzinfo is None:
+        replied = replied.replace(tzinfo=timezone.utc)
+    return received <= replied
+
+
+def _notify_handoff(lead: dict, msg: dict, classification: dict) -> None:
+    """Email Shaurya (to himself) that a lead is ready for him to take over."""
+    if not GMAIL_ADDRESS:
+        log.error("Handoff for %s but GMAIL_ADDRESS unset; no notice sent", lead.get("slug"))
+        return
+    body = (
+        f"{lead.get('company_name', 'A lead')} is ready to talk. The bot has stopped replying; "
+        f"this thread is yours now.\n\n"
+        f"From: {msg['from_addr']}\n"
+        f"Summary: {classification.get('brief_summary', '')}\n\n"
+        f"Their message:\n{msg['body'][:1500]}"
+    )
+    if not _send_reply(GMAIL_ADDRESS, f"HANDOFF: {lead.get('company_name', msg['from_addr'])}", body):
+        log.error("Handoff notice for %s failed to send; check the sheet for stage=handoff",
+                  lead.get("slug"))
 
 
 # v3 per-channel follow-up caps. SMB B2B benchmarks show 5–7 touchpoints

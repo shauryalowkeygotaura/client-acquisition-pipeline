@@ -130,9 +130,9 @@ def build_message(
     if demo_anchor:
         label, url = demo_anchor
         body += f"\n\n{label}: {url}"
-    opt_out = data.get("opt_out_token", "")
-    if opt_out:
-        body += _unsubscribe_footer(opt_out)
+    # No "reply STOP" footer (removed 2026-09-25 at Shaurya's call): it read as
+    # bulk mail under a one-to-one student message. Inbound STOP replies are
+    # still honoured by reply_handler, and the token is still stored per lead.
 
     # Plain text only: HTML triggers Gmail promo-tab routing and stricter
     # Outlook spam scoring. Body uses real \n paragraph breaks (SMTP preserves).
