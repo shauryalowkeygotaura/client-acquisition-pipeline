@@ -31,7 +31,7 @@ from email.mime.text import MIMEText
 from openai import OpenAI
 
 from config import LLM_MODEL, LLM_BASE_URL
-from modules import persona, sheets_writer
+from modules import jev, persona, sheets_writer
 
 log = logging.getLogger(__name__)
 
@@ -69,8 +69,46 @@ Return ONLY valid JSON with keys: category, objection_type, brief_summary, ready
 """.strip()
 
 
+def _classify_reply_jev(reply_text: str) -> dict:
+    """Jev path: typed answers with probabilities instead of parsed LLM JSON.
+
+    ready_to_meet uses a 0.5 cutoff on purpose: a false handoff costs Shaurya
+    one email to read, a missed one lets the bot talk over a live meeting.
+    """
+    a = jev.evaluate(reply_text[:4000], {
+        "category": jev.choice("Classify this reply to a cold email about an AI voice receptionist.", {
+            "interested": "Curious, asked a question, wants to know more, or said yes",
+            "neutral": "Acknowledged with no clear signal, e.g. thanks, noted",
+            "objection": "Pushed back with a specific concern",
+            "not_relevant": "Off-topic, auto-reply, wrong person, spam, or unsubscribe",
+        }),
+        "objection_type": jev.choice("If they pushed back, what is the core concern?", {
+            "cost": None, "timing": None, "trust": None, "existing_solution": None,
+            "other": None, "none": "No objection raised",
+        }),
+        "ready_to_meet": jev.noul(
+            "They agreed to a call or meeting, proposed or confirmed a time, asked for a "
+            "meeting link, or asked something only the real person can answer (which "
+            "clinics use it, credentials, pricing)."),
+    })
+    obj = a["objection_type"]["choice"]
+    return {
+        "category": a["category"]["choice"],
+        "objection_type": "" if obj == "none" else obj,
+        "brief_summary": " ".join(reply_text.split())[:160],
+        "ready_to_meet": a["ready_to_meet"]["noul"] >= 0.5,
+    }
+
+
 def _classify_reply(reply_text: str) -> dict:
-    """Call Groq LLM to classify a reply. Returns {category, objection_type, brief_summary}."""
+    """Classify a reply: Jev first, Groq LLM as fallback.
+
+    Returns {category, objection_type, brief_summary, ready_to_meet}."""
+    if jev.available():
+        try:
+            return _classify_reply_jev(reply_text)
+        except (jev.JevUnavailable, KeyError, TypeError) as e:
+            log.warning("Jev classify failed (%s); falling back to Groq", e)
     if not GROQ_API_KEY:
         log.warning("GROQ_API_KEY not set — skipping classification")
         return {"category": "neutral", "objection_type": "", "brief_summary": reply_text[:100]}
