@@ -1,10 +1,10 @@
 {
   "pipeline": "client-acquisition",
-  "ts": "2026-09-25T09:41:54Z",
-  "count": 14,
+  "ts": "2026-09-28T11:39:26Z",
+  "count": 4,
   "leads": [
     {
-      "label": "Kalra Dental Specialities",
+      "label": "Doctor Singh's Multispecialty Dental Clinic",
       "source": "osm",
       "niche": "dental",
       "score": 5,
@@ -20,7 +20,7 @@
       }
     },
     {
-      "label": "Tooth Care Dental Clinic",
+      "label": "The Dental Clinic",
       "source": "osm",
       "niche": "dental",
       "score": 5,
@@ -36,187 +36,27 @@
       }
     },
     {
-      "label": "Doctor Sanjay Kumar's Dental Clinic and Dental Studio",
+      "label": "WhitStar Dental Clinic",
       "source": "osm",
       "niche": "dental",
       "score": 6,
       "city": "Delhi, Delhi",
-      "phone": "9198100837",
-      "whatsapp": "9198100837",
+      "phone": "9192050888",
+      "whatsapp": "9192050888",
       "website": "",
       "channels": {
-        "email": true,
+        "email": false,
         "linkedin": false,
         "whatsapp": false,
         "instagram": false
       }
     },
     {
-      "label": "Top Dog Pets Clinic",
+      "label": "Dr.Rao SRR Homeopathy",
       "source": "osm",
       "niche": "medical",
       "score": 5,
-      "city": "Mumbai, Maharashtra",
-      "phone": "",
-      "whatsapp": "",
-      "website": "",
-      "channels": {
-        "email": false,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "Shiv Polyclinic and Nursing Home",
-      "source": "osm",
-      "niche": "medical",
-      "score": 5,
-      "city": "Mumbai, Maharashtra",
-      "phone": "",
-      "whatsapp": "",
-      "website": "",
-      "channels": {
-        "email": false,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "Chauhan's Dental Care",
-      "source": "osm",
-      "niche": "dental",
-      "score": 5,
-      "city": "Pune, Maharashtra",
-      "phone": "08045135524",
-      "whatsapp": "08045135524",
-      "website": "",
-      "channels": {
-        "email": true,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "South City International School",
-      "source": "osm",
-      "niche": "optometry",
-      "score": 5,
-      "city": "Kolkata, West Bengal",
-      "phone": "03340072000",
-      "whatsapp": "03340072000",
-      "website": "",
-      "channels": {
-        "email": true,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "Dento Surgical Center",
-      "source": "osm",
-      "niche": "dental",
-      "score": 5,
-      "city": "Indore, Madhya Pradesh",
-      "phone": "",
-      "whatsapp": "",
-      "website": "",
-      "channels": {
-        "email": false,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "Ayushman Dental Clinic",
-      "source": "osm",
-      "niche": "dental",
-      "score": 5,
-      "city": "Indore, Madhya Pradesh",
-      "phone": "",
-      "whatsapp": "",
-      "website": "",
-      "channels": {
-        "email": false,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "Ayushmaan Dental Clinic",
-      "source": "osm",
-      "niche": "dental",
-      "score": 5,
-      "city": "Indore, Madhya Pradesh",
-      "phone": "",
-      "whatsapp": "",
-      "website": "",
-      "channels": {
-        "email": false,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "Parshva Dental",
-      "source": "osm",
-      "niche": "dental",
-      "score": 5,
-      "city": "Indore, Madhya Pradesh",
-      "phone": "",
-      "whatsapp": "",
-      "website": "",
-      "channels": {
-        "email": false,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "Dr Sumit Jain",
-      "source": "osm",
-      "niche": "dental",
-      "score": 5,
-      "city": "Indore, Madhya Pradesh",
-      "phone": "",
-      "whatsapp": "",
-      "website": "",
-      "channels": {
-        "email": false,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "Gupta Clinic And Physiotherapy Center",
-      "source": "osm",
-      "niche": "medical",
-      "score": 5,
-      "city": "Indore, Madhya Pradesh",
-      "phone": "",
-      "whatsapp": "",
-      "website": "",
-      "channels": {
-        "email": false,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "Medhavi Dental Clinic",
-      "source": "osm",
-      "niche": "dental",
-      "score": 5,
-      "city": "Nagpur, Maharashtra",
+      "city": "Hyderabad, Telangana",
       "phone": "",
       "whatsapp": "",
       "website": "",
