@@ -1,14 +1,14 @@
 {
   "pipeline": "client-acquisition",
-  "ts": "2026-09-29T10:20:33Z",
-  "count": 13,
+  "ts": "2026-09-30T10:28:14Z",
+  "count": 6,
   "leads": [
     {
-      "label": "Dr Dharampal Singh",
+      "label": "The Institute of Mathematical Sciences",
       "source": "osm",
-      "niche": "medical",
+      "niche": "physio",
       "score": 5,
-      "city": "Mumbai, Maharashtra",
+      "city": "Chennai, Tamil Nadu",
       "phone": "",
       "whatsapp": "",
       "website": "",
@@ -20,11 +20,11 @@
       }
     },
     {
-      "label": "Vital Imaging Centre",
+      "label": "Cardicare Clinic",
       "source": "osm",
       "niche": "medical",
       "score": 5,
-      "city": "Mumbai, Maharashtra",
+      "city": "Indore, Madhya Pradesh",
       "phone": "",
       "whatsapp": "",
       "website": "",
@@ -36,11 +36,11 @@
       }
     },
     {
-      "label": "Kimaya Skin Clinic",
+      "label": "Dr.R.S Rathore",
       "source": "osm",
       "niche": "medical",
       "score": 5,
-      "city": "Pune, Maharashtra",
+      "city": "Indore, Madhya Pradesh",
       "phone": "",
       "whatsapp": "",
       "website": "",
@@ -52,11 +52,11 @@
       }
     },
     {
-      "label": "The Inamdar Heart Clinic",
+      "label": "Medicare Homeo Centre",
       "source": "osm",
       "niche": "medical",
       "score": 5,
-      "city": "Pune, Maharashtra",
+      "city": "Indore, Madhya Pradesh",
       "phone": "",
       "whatsapp": "",
       "website": "",
@@ -68,27 +68,11 @@
       }
     },
     {
-      "label": "Happy Medicare",
+      "label": "Dr. Anil Jain",
       "source": "osm",
       "niche": "medical",
       "score": 5,
-      "city": "Pune, Maharashtra",
-      "phone": "18001202425",
-      "whatsapp": "18001202425",
-      "website": "",
-      "channels": {
-        "email": false,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "P.G.PolyClinic",
-      "source": "osm",
-      "niche": "medical",
-      "score": 5,
-      "city": "Kolkata, West Bengal",
+      "city": "Indore, Madhya Pradesh",
       "phone": "",
       "whatsapp": "",
       "website": "",
@@ -100,107 +84,11 @@
       }
     },
     {
-      "label": "Elite Nursing Home",
+      "label": "Dr.Praveen Kayat",
       "source": "osm",
       "niche": "medical",
       "score": 5,
-      "city": "Kolkata, West Bengal",
-      "phone": "",
-      "whatsapp": "",
-      "website": "",
-      "channels": {
-        "email": false,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "Emily Nursing Home",
-      "source": "osm",
-      "niche": "medical",
-      "score": 5,
-      "city": "Kolkata, West Bengal",
-      "phone": "",
-      "whatsapp": "",
-      "website": "",
-      "channels": {
-        "email": false,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "Aditya Birla Sankara Nethralaya",
-      "source": "osm",
-      "niche": "medical",
-      "score": 5,
-      "city": "Kolkata, West Bengal",
-      "phone": "04442271500",
-      "whatsapp": "04442271500",
-      "website": "",
-      "channels": {
-        "email": true,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "Prince Nursing Home, Kolkata",
-      "source": "osm",
-      "niche": "medical",
-      "score": 5,
-      "city": "Kolkata, West Bengal",
-      "phone": "",
-      "whatsapp": "",
-      "website": "",
-      "channels": {
-        "email": false,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "Mandakini Nursing Home",
-      "source": "osm",
-      "niche": "medical",
-      "score": 5,
-      "city": "Kolkata, West Bengal",
-      "phone": "",
-      "whatsapp": "",
-      "website": "",
-      "channels": {
-        "email": false,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "Merryland Nursing Home",
-      "source": "osm",
-      "niche": "medical",
-      "score": 5,
-      "city": "Kolkata, West Bengal",
-      "phone": "",
-      "whatsapp": "",
-      "website": "",
-      "channels": {
-        "email": false,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "Riddhi Medical Nursing Home",
-      "source": "osm",
-      "niche": "medical",
-      "score": 5,
-      "city": "Ahmedabad, Gujarat",
+      "city": "Indore, Madhya Pradesh",
       "phone": "",
       "whatsapp": "",
       "website": "",
