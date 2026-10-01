@@ -326,9 +326,14 @@ def _send_reply(
     in_reply_to: str | None = None,
     references: str | None = None,
     sender_account: str | None = None,
+    kind: str = "reply",
+    company: str = "",
 ) -> bool:
     """
     Send a reply via Gmail SMTP.
+    - kind: "reply" | "followup" go through the kill switch and send_gate;
+      "notice" (the handoff email to Shaurya himself) is exempt, so a pause
+      can never silence the alert that a lead is waiting.
     - in_reply_to / references: thread the email inside the original conversation.
     - sender_account: send from the same address that sent email 1 (rotation safety).
     """
@@ -356,13 +361,25 @@ def _send_reply(
         log.error("No Gmail credentials available for reply send.")
         return False
 
+    if kind != "notice":
+        from . import send_gate, sending_control
+        if sending_control.is_paused():
+            log.warning("Sending paused (%s); not sending %s to %s",
+                        sending_control.status().get("reason"), kind, company or "lead")
+            return False
+        reasons = send_gate.check(subject, body, kind)
+        if reasons:
+            log.warning("send_gate blocked %s to %s: %s", kind, company or "lead", reasons)
+            send_gate.record(company, kind, reasons)
+            return False
+
     from .security_utils import get_audit_log, redact_text
     audit = get_audit_log()
     try:
         msg = MIMEText(body, "plain")
         msg["From"] = from_addr
         msg["To"] = to_addr
-        msg["Subject"] = subject if subject.lower().startswith("re:") else f"Re: {subject}"
+        msg["Subject"] = subject if (kind == "notice" or subject.lower().startswith("re:")) else f"Re: {subject}"
         msg["Date"] = formatdate(localtime=False)
         msg["Message-ID"] = make_msgid()
         if in_reply_to:
@@ -422,6 +439,12 @@ def run(since_days: int = 7):
         for lead in leads
         if lead.get("email")
     }
+
+    # Bounces first: a delivery-failure notice is not a reply, and its sender
+    # (mailer-daemon) is never a lead, so it would otherwise be ignored and the
+    # dead address would keep getting follow-ups.
+    bounced_now, inbox = _handle_bounces(inbox, email_to_lead)
+    _bounce_rate_guard(leads)
 
     replies_handled = 0
     optouts = 0
@@ -487,7 +510,8 @@ def run(since_days: int = 7):
             continue
 
         response_text = _generate_response(lead, classification, reply_text=msg["body"])
-        sent = _send_reply(sender, msg["subject"], response_text)
+        sent = _send_reply(sender, msg["subject"], response_text,
+                           kind="reply", company=lead.get("company_name", ""))
 
         if sent:
             new_stage = _next_stage(stage, category)
@@ -507,10 +531,59 @@ def run(since_days: int = 7):
         "replies_handled": replies_handled,
         "optouts": optouts,
         "handoffs": handoffs,
+        "bounces": bounced_now,
     }
 
 
 _EPOCH = datetime(1970, 1, 1, tzinfo=timezone.utc)
+
+
+# ── Bounces (borrowed from Harvey's handler, 2026-10-01) ─────────────────────
+
+_DSN_SENDER = re.compile(r"^(mailer-daemon|postmaster)@", re.I)
+_DSN_SUBJECT = re.compile(r"delivery status notification|undeliverable|"
+                          r"mail delivery (failed|subsystem)|returned mail|"
+                          r"address not found|failure notice", re.I)
+_EMAIL_IN_TEXT = re.compile(r"[\w.+-]+@[\w-]+(?:\.[\w-]+)+")
+
+
+def _handle_bounces(inbox: list[dict], email_to_lead: dict) -> tuple[int, list[dict]]:
+    """Mark leads whose address bounced as dead. Returns (count, non-bounce msgs)."""
+    keep, bounced = [], 0
+    for msg in inbox:
+        if not (_DSN_SENDER.match(msg["from_addr"]) or _DSN_SUBJECT.search(msg["subject"] or "")):
+            keep.append(msg)
+            continue
+        for addr in _EMAIL_IN_TEXT.findall(msg["body"] or ""):
+            lead = email_to_lead.get(addr.lower())
+            if lead and lead.get("status") != "bounced" and lead.get("slug"):
+                sheets_writer.update_field(lead["slug"], "status", "bounced")
+                sheets_writer.update_reply(lead["slug"], "not_relevant", "dead")
+                lead["status"] = "bounced"
+                bounced += 1
+                log.warning("Bounce: %s (%s) marked dead", lead.get("company_name"), addr)
+                break
+    return bounced, keep
+
+
+def _bounce_rate_guard(leads: list[dict]) -> None:
+    """Pause all sending if >= BOUNCE_PAUSE_RATE of the last 14 days bounced."""
+    from datetime import timedelta
+    from . import sending_control
+    cutoff = datetime.now(timezone.utc) - timedelta(days=14)
+    sent = bounced = 0
+    for lead in leads:
+        try:
+            at = datetime.fromisoformat((lead.get("sent_at") or "").replace("Z", "+00:00"))
+        except ValueError:
+            continue
+        if at.tzinfo is None:
+            at = at.replace(tzinfo=timezone.utc)
+        if at >= cutoff:
+            sent += 1
+            bounced += lead.get("status") == "bounced"
+    if sending_control.check_bounce_rate(sent, bounced):
+        log.error("SENDING PAUSED: %s", sending_control.status().get("reason"))
 
 
 def _already_handled(msg: dict, lead: dict) -> bool:
@@ -540,7 +613,8 @@ def _notify_handoff(lead: dict, msg: dict, classification: dict) -> None:
         f"Summary: {classification.get('brief_summary', '')}\n\n"
         f"Their message:\n{msg['body'][:1500]}"
     )
-    if not _send_reply(GMAIL_ADDRESS, f"HANDOFF: {lead.get('company_name', msg['from_addr'])}", body):
+    if not _send_reply(GMAIL_ADDRESS, f"HANDOFF: {lead.get('company_name', msg['from_addr'])}", body,
+                       kind="notice"):
         log.error("Handoff notice for %s failed to send; check the sheet for stage=handoff",
                   lead.get("slug"))
 
@@ -703,6 +777,8 @@ def send_follow_ups(max_per_run: int = 10):
             in_reply_to=msg_id,
             references=msg_id,
             sender_account=sender_acct,
+            kind="followup",
+            company=company,
         )
         if sent:
             # v3: increment per-channel counter (also syncs legacy follow_up_count)

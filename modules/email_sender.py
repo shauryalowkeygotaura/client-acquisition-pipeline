@@ -209,6 +209,19 @@ def send(
     except Exception:
         pass
 
+    # Kill switch + deterministic gate (send_gate.py). Both are hard stops:
+    # a paused pipeline or a failed check never reaches SMTP.
+    from . import send_gate, sending_control
+    if sending_control.is_paused():
+        print(f"      [EMAIL PAUSED] {sending_control.status().get('reason')}")
+        return False, "", ""
+    reasons = send_gate.check(data.get("email_subject", ""), data.get("email_body", ""), "cold")
+    if reasons:
+        print(f"      [GATE BLOCKED] {data.get('company_name', email)}: {'; '.join(reasons)}")
+        log.warning("send_gate blocked %s: %s", data.get("company_name"), reasons)
+        send_gate.record(data.get("company_name", ""), "cold", reasons)
+        return False, "", ""
+
     # Optional pre-flight SMTP probe — catches typo'd or dead mailboxes.
     if os.getenv("SMTP_VERIFY_BEFORE_SEND") == "1":
         try:

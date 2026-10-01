@@ -6,6 +6,7 @@ on:
   workflow_dispatch:
 
 env:
+  SENDING_PAUSED: ${{ vars.SENDING_PAUSED }}   # kill switch: gh variable set SENDING_PAUSED --body 1
   GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
   VAPI_API_KEY: ${{ secrets.VAPI_API_KEY }}
   GOOGLE_SHEETS_ID: ${{ secrets.GOOGLE_SHEETS_ID }}

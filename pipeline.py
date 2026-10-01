@@ -550,6 +550,8 @@ def run_reply_handler():
         "inbox_msgs": reply_stats.get("inbox_msgs", 0),
         "replies_handled": reply_stats.get("replies_handled", 0),
         "optouts": reply_stats.get("optouts", 0),
+        "handoffs": reply_stats.get("handoffs", 0),
+        "bounces": reply_stats.get("bounces", 0),
         "followups_sent": followups_sent,
         "whatsapp_followups_sent": wa_sent,
     }
@@ -565,6 +567,7 @@ def run_reply_handler():
         status = "ok"
         summary = "Checked inbox + follow-up queue, nothing due"
     run_metrics.write(mode="replies", status=status, summary=summary, metrics=metrics)
+    run_metrics.write_desk()
 
 
 def run_analytics():

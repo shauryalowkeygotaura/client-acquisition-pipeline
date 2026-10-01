@@ -6,6 +6,7 @@ on:
   workflow_dispatch:
 
 env:
+  SENDING_PAUSED: ${{ vars.SENDING_PAUSED }}   # kill switch: gh variable set SENDING_PAUSED --body 1
   GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
   GOOGLE_SHEETS_ID: ${{ secrets.GOOGLE_SHEETS_ID }}
   GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
@@ -42,6 +43,6 @@ jobs:
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add runs/latest.json runs/history.jsonl
+          git add -A runs/   # latest, history, desk.json, gate_rejections, sending_paused flag
           git diff --cached --quiet || git commit -m "chore: run metrics [skip ci]"
           git push

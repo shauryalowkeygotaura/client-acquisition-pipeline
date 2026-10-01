@@ -1,0 +1,19 @@
+{
+  "pipeline": "client-acquisition",
+  "ts": "2026-10-01T06:41:48Z",
+  "sending": {
+    "paused": false
+  },
+  "handoffs": [
+    {
+      "company": "Define Aesthetics",
+      "niche": "medical",
+      "city": "",
+      "since": "2026-09-24T14:17:43.679106+00:00"
+    }
+  ],
+  "sent_14d": 9,
+  "bounced_14d": 0,
+  "replied_14d": 0,
+  "gate_rejections": []
+}
