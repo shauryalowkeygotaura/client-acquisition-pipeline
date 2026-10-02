@@ -1,14 +1,14 @@
 {
   "pipeline": "client-acquisition",
-  "ts": "2026-10-01T10:47:40Z",
+  "ts": "2026-10-02T10:17:09Z",
   "count": 7,
   "leads": [
     {
-      "label": "Krishna The Optician",
+      "label": "Eyemax Opticals",
       "source": "osm",
       "niche": "optometry",
       "score": 5,
-      "city": "Delhi, Delhi",
+      "city": "Mumbai, Maharashtra",
       "phone": "",
       "whatsapp": "",
       "website": "",
@@ -20,45 +20,13 @@
       }
     },
     {
-      "label": "Udayan Nursing Home",
-      "source": "osm",
-      "niche": "medical",
-      "score": 5,
-      "city": "Kolkata, West Bengal",
-      "phone": "",
-      "whatsapp": "",
-      "website": "",
-      "channels": {
-        "email": false,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "Park Clinic, Kolkata",
-      "source": "osm",
-      "niche": "medical",
-      "score": 5,
-      "city": "Kolkata, West Bengal",
-      "phone": "9775992022",
-      "whatsapp": "9775992022",
-      "website": "",
-      "channels": {
-        "email": false,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "Chandigarh Baptist School",
+      "label": "Ashiana Public School",
       "source": "osm",
       "niche": "optometry",
-      "score": 6,
+      "score": 5,
       "city": "Chandigarh, Chandigarh",
-      "phone": "3172601467",
-      "whatsapp": "3172601467",
+      "phone": "3044433928",
+      "whatsapp": "3044433928",
       "website": "",
       "channels": {
         "email": false,
@@ -68,9 +36,25 @@
       }
     },
     {
-      "label": "Ethereal Skin and Laser Clinique",
+      "label": "Goswami Ganesh Dutta Sanatan Dharma College",
       "source": "osm",
-      "niche": "medical",
+      "niche": "salon",
+      "score": 4,
+      "city": "Chandigarh, Chandigarh",
+      "phone": "173564119569",
+      "whatsapp": "173564119569",
+      "website": "",
+      "channels": {
+        "email": true,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "Esthetics Dental Clinic",
+      "source": "osm",
+      "niche": "dental",
       "score": 5,
       "city": "Indore, Madhya Pradesh",
       "phone": "",
@@ -84,9 +68,9 @@
       }
     },
     {
-      "label": "Dr. Akanksha Asthana's Care Physio",
+      "label": "Dr Wachha Dental Clinic",
       "source": "osm",
-      "niche": "medical",
+      "niche": "dental",
       "score": 5,
       "city": "Indore, Madhya Pradesh",
       "phone": "",
@@ -100,13 +84,29 @@
       }
     },
     {
-      "label": "Dr. Vishal Yadav",
+      "label": "Family Dental Care Clinic",
       "source": "osm",
-      "niche": "medical",
+      "niche": "dental",
       "score": 5,
       "city": "Indore, Madhya Pradesh",
       "phone": "",
       "whatsapp": "",
+      "website": "",
+      "channels": {
+        "email": false,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "Junankar Surgical Nursing Home",
+      "source": "osm",
+      "niche": "medical",
+      "score": 5,
+      "city": "Nagpur, Maharashtra",
+      "phone": "07122233930",
+      "whatsapp": "07122233930",
       "website": "",
       "channels": {
         "email": false,
