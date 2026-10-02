@@ -1,6 +1,6 @@
 {
   "pipeline": "client-acquisition",
-  "ts": "2026-10-01T16:36:39Z",
+  "ts": "2026-10-02T15:56:05Z",
   "sending": {
     "paused": false
   },
@@ -12,7 +12,7 @@
       "since": "2026-09-24T14:17:43.679106+00:00"
     }
   ],
-  "sent_14d": 9,
+  "sent_14d": 10,
   "bounced_14d": 0,
   "replied_14d": 0,
   "gate_rejections": []
