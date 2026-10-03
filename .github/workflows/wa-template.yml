@@ -1,0 +1,27 @@
+name: WhatsApp template (manual)
+
+# The WhatsApp Manager UI is not reachable from this account, so templates are
+# listed and submitted through the Graph API. The live token is only in repo
+# secrets (Doppler's copy is empty), which is why this runs in CI.
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: "list or submit"
+        required: true
+        default: "list"
+        type: choice
+        options: [list, submit]
+
+jobs:
+  template:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Run
+        env:
+          WHATSAPP_ACCESS_TOKEN: ${{ secrets.WHATSAPP_ACCESS_TOKEN }}
+        run: python scripts/wa_template.py "${{ inputs.action }}"
