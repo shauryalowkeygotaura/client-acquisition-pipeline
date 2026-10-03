@@ -7,6 +7,7 @@ on:
 
 env:
   SENDING_PAUSED: ${{ vars.SENDING_PAUSED }}   # kill switch: gh variable set SENDING_PAUSED --body 1
+  DESK_PASSPHRASE: ${{ secrets.DESK_PASSPHRASE }}   # encrypts runs/desk.enc.json
   GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
   GOOGLE_SHEETS_ID: ${{ secrets.GOOGLE_SHEETS_ID }}
   GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}

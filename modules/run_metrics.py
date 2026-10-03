@@ -85,56 +85,8 @@ def write_leads(leads: list[dict[str, Any]]) -> Path:
     return dest
 
 
-def write_desk(leads: list[dict[str, Any]] | None = None) -> Path:
-    """Write runs/desk.json: the Command Center DESK tab ("is anything waiting
-    on me?", Harvey's Today screen, fed by THIS pipeline's data).
-
-    PUBLIC repo, so the same rule as leads.json: business names and counts
-    only. No email addresses, no reply text, no person names. Never raises.
-    """
-    from datetime import timedelta
-    from modules import sending_control, send_gate
-
-    dest = _RUNS_DIR / "desk.json"
-    try:
-        if leads is None:
-            from modules import sheets_writer
-            leads = sheets_writer.get_all_leads()
-        now = datetime.now(timezone.utc)
-        cutoff = now - timedelta(days=14)
-
-        def _at(lead: dict) -> datetime | None:
-            try:
-                at = datetime.fromisoformat((lead.get("sent_at") or "").replace("Z", "+00:00"))
-            except ValueError:
-                return None
-            return at if at.tzinfo else at.replace(tzinfo=timezone.utc)
-
-        recent = [l for l in leads if (_at(l) or cutoff - timedelta(days=1)) >= cutoff]
-        handoffs = sorted(
-            ({"company": l.get("company_name") or "?", "niche": l.get("niche") or "",
-              "city": l.get("location") or "", "since": l.get("replied_at") or ""}
-             for l in leads if l.get("conversation_stage") == "handoff"),
-            key=lambda h: h["since"], reverse=True)
-        rejections: list[dict] = []
-        if send_gate.REJECTIONS.exists():
-            for line in send_gate.REJECTIONS.read_text(encoding="utf-8").splitlines()[-10:]:
-                try:
-                    rejections.append(json.loads(line))
-                except ValueError:
-                    continue
-        payload = {
-            "pipeline": PIPELINE_NAME,
-            "ts": now.strftime("%Y-%m-%dT%H:%M:%SZ"),
-            "sending": sending_control.status(),
-            "handoffs": handoffs,
-            "sent_14d": len(recent),
-            "bounced_14d": sum(l.get("status") == "bounced" for l in recent),
-            "replied_14d": sum(bool(l.get("reply_status")) for l in recent),
-            "gate_rejections": list(reversed(rejections)),
-        }
-        _RUNS_DIR.mkdir(parents=True, exist_ok=True)
-        dest.write_text(json.dumps(payload, indent=2, ensure_ascii=False), encoding="utf-8")
-    except Exception as e:  # pragma: no cover - best effort, like write()
-        print(f"    [run_metrics] failed to write desk: {e}")
-    return dest
+def write_desk(leads: list[dict[str, Any]] | None = None) -> None:
+    """Desk files for the Command Center DESK tab. See modules/desk.py: counts
+    in runs/desk.json, names only in the encrypted runs/desk.enc.json."""
+    from modules import desk
+    desk.write(leads)

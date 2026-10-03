@@ -13,3 +13,4 @@ pytest-asyncio
 dnspython
 twilio
 edge-tts          # $0 neural TTS for modules/video_pitch.py (personalized lead videos)
+cryptography>=42        # AES-GCM for runs/desk.enc.json (private desk data in a public repo)

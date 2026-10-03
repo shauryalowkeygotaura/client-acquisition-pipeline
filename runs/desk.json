@@ -1,19 +1,22 @@
 {
   "pipeline": "client-acquisition",
-  "ts": "2026-10-02T15:56:05Z",
+  "ts": "2026-10-03T08:08:01Z",
   "sending": {
     "paused": false
   },
-  "handoffs": [
-    {
-      "company": "Define Aesthetics",
-      "niche": "medical",
-      "city": "",
-      "since": "2026-09-24T14:17:43.679106+00:00"
-    }
-  ],
+  "funnel": {
+    "found": 547,
+    "contacted": 32,
+    "replied": 3,
+    "interested": 1,
+    "handoff": 1,
+    "booked": 0,
+    "client": 0
+  },
   "sent_14d": 10,
   "bounced_14d": 0,
   "replied_14d": 0,
-  "gate_rejections": []
+  "waiting": 1,
+  "gate_blocks": 0,
+  "encrypted": "desk.enc.json"
 }

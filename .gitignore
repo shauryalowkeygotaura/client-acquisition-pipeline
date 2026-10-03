@@ -50,4 +50,5 @@ runs/video_pitches/
 # Vendored Groq client written here by Scripts/sync_groq_pool.py before that
 # script learned to skip non-consumers. Nothing here imports it.
 modules/groq_pool.py
-audit/   # send audit log holds recipient addresses; public repo
+# send audit log holds recipient addresses; this repo is public
+audit/
