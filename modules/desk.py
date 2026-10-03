@@ -118,7 +118,9 @@ def build(leads: list[dict], rejections: list[dict], sending: dict) -> tuple[dic
     funnel = {s: 0 for s in FUNNEL}
     for r in rows:
         depth = order.get(r["stage"], order["contacted"] if r["stage"] in ("bounced", "dead") else 0)
-        if r["category"]:  # a "not interested" reply is still a reply
+        # A "not interested" reply is still a reply. A bounce is not: the bounce
+        # handler stamps reply_status=not_relevant, so check the stage too.
+        if r["category"] and r["stage"] != "bounced":
             depth = max(depth, order["replied"])
         for s in FUNNEL[:depth + 1]:
             funnel[s] += 1
@@ -141,7 +143,7 @@ def build(leads: list[dict], rejections: list[dict], sending: dict) -> tuple[dic
         "funnel": funnel,
         "sent_14d": len(recent),
         "bounced_14d": sum(r["stage"] == "bounced" for r in recent),
-        "replied_14d": sum(bool(r["category"]) for r in recent),
+        "replied_14d": sum(bool(r["category"]) and r["stage"] != "bounced" for r in recent),
         "waiting": sum(r["stage"] == "handoff" for r in rows) + bool(sending.get("paused")),
         "gate_blocks": len(rejections),
         "encrypted": PRIVATE.name,
@@ -152,7 +154,7 @@ def build(leads: list[dict], rejections: list[dict], sending: dict) -> tuple[dic
         **public,
         "sending": sending,
         "waiting_on_you": [strip(r) for r in rows if r["stage"] == "handoff"],
-        "conversations": sorted((strip(r) for r in rows if r["category"]),
+        "conversations": sorted((strip(r) for r in rows if r["category"] and r["stage"] != "bounced"),
                                 key=lambda r: r["replied_at"], reverse=True)[:60],
         "sends": [strip(r) for r in touched[:80]],
         "campaigns": sorted(({"niche": k, **v} for k, v in camp.items()),

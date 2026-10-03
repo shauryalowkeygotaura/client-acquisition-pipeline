@@ -58,3 +58,12 @@ def test_no_passphrase_means_no_private_file(tmp_path, monkeypatch):
     (tmp_path / "desk.enc.json").write_text("stale")
     desk.write(LEADS)
     assert (tmp_path / "desk.json").exists() and not (tmp_path / "desk.enc.json").exists()
+
+
+def test_bounces_are_not_replies():
+    bounced = {"company_name": "Dead Address", "niche": "medical", "email_sent": "TRUE",
+               "sent_at": "2026-09-30T10:00:00+00:00", "status": "bounced",
+               "reply_status": "not_relevant", "conversation_stage": "dead"}
+    public, private = desk.build([bounced], [], {"paused": False})
+    assert public["funnel"]["contacted"] == 1 and public["funnel"]["replied"] == 0
+    assert public["replied_14d"] == 0 and private["conversations"] == []
