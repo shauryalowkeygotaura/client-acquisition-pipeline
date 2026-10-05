@@ -1,14 +1,14 @@
 {
   "pipeline": "client-acquisition",
-  "ts": "2026-10-02T10:17:09Z",
-  "count": 7,
+  "ts": "2026-10-05T11:13:52Z",
+  "count": 12,
   "leads": [
     {
-      "label": "Eyemax Opticals",
+      "label": "White Dental Clinic",
       "source": "osm",
-      "niche": "optometry",
+      "niche": "dental",
       "score": 5,
-      "city": "Mumbai, Maharashtra",
+      "city": "Chennai, Tamil Nadu",
       "phone": "",
       "whatsapp": "",
       "website": "",
@@ -20,13 +20,13 @@
       }
     },
     {
-      "label": "Ashiana Public School",
+      "label": "Dhaarani’s Divine Smiles",
       "source": "osm",
-      "niche": "optometry",
+      "niche": "dental",
       "score": 5,
-      "city": "Chandigarh, Chandigarh",
-      "phone": "3044433928",
-      "whatsapp": "3044433928",
+      "city": "Chennai, Tamil Nadu",
+      "phone": "",
+      "whatsapp": "",
       "website": "",
       "channels": {
         "email": false,
@@ -36,13 +36,29 @@
       }
     },
     {
-      "label": "Goswami Ganesh Dutta Sanatan Dharma College",
+      "label": "Anbu Dental Implant & Maxillofacial Clinic",
       "source": "osm",
-      "niche": "salon",
-      "score": 4,
-      "city": "Chandigarh, Chandigarh",
-      "phone": "173564119569",
-      "whatsapp": "173564119569",
+      "niche": "dental",
+      "score": 5,
+      "city": "Chennai, Tamil Nadu",
+      "phone": "",
+      "whatsapp": "",
+      "website": "",
+      "channels": {
+        "email": false,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "Dr.Agarwal's Eye Hospital",
+      "source": "osm",
+      "niche": "medical",
+      "score": 5,
+      "city": "Chennai, Tamil Nadu",
+      "phone": "95949 04015",
+      "whatsapp": "95949 04015",
       "website": "",
       "channels": {
         "email": true,
@@ -52,61 +68,125 @@
       }
     },
     {
-      "label": "Esthetics Dental Clinic",
-      "source": "osm",
-      "niche": "dental",
-      "score": 5,
-      "city": "Indore, Madhya Pradesh",
-      "phone": "",
-      "whatsapp": "",
-      "website": "",
-      "channels": {
-        "email": false,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "Dr Wachha Dental Clinic",
-      "source": "osm",
-      "niche": "dental",
-      "score": 5,
-      "city": "Indore, Madhya Pradesh",
-      "phone": "",
-      "whatsapp": "",
-      "website": "",
-      "channels": {
-        "email": false,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "Family Dental Care Clinic",
-      "source": "osm",
-      "niche": "dental",
-      "score": 5,
-      "city": "Indore, Madhya Pradesh",
-      "phone": "",
-      "whatsapp": "",
-      "website": "",
-      "channels": {
-        "email": false,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "Junankar Surgical Nursing Home",
+      "label": "MP Birla Eye Clinic",
       "source": "osm",
       "niche": "medical",
       "score": 5,
-      "city": "Nagpur, Maharashtra",
-      "phone": "07122233930",
-      "whatsapp": "07122233930",
+      "city": "Kolkata, West Bengal",
+      "phone": "",
+      "whatsapp": "",
+      "website": "",
+      "channels": {
+        "email": false,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "Repose Clinic and Research Centre Pvt. Ltd.",
+      "source": "osm",
+      "niche": "medical",
+      "score": 5,
+      "city": "Kolkata, West Bengal",
+      "phone": "",
+      "whatsapp": "",
+      "website": "",
+      "channels": {
+        "email": false,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "Dr. Anand Singh Raje",
+      "source": "osm",
+      "niche": "medical",
+      "score": 5,
+      "city": "Indore, Madhya Pradesh",
+      "phone": "",
+      "whatsapp": "",
+      "website": "",
+      "channels": {
+        "email": false,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "Sukriti Clinic",
+      "source": "osm",
+      "niche": "medical",
+      "score": 5,
+      "city": "Indore, Madhya Pradesh",
+      "phone": "",
+      "whatsapp": "",
+      "website": "",
+      "channels": {
+        "email": false,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "ओपीडी एनेक्स",
+      "source": "osm",
+      "niche": "medical",
+      "score": 5,
+      "city": "Indore, Madhya Pradesh",
+      "phone": "",
+      "whatsapp": "",
+      "website": "",
+      "channels": {
+        "email": false,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "Star diagnosis centre",
+      "source": "osm",
+      "niche": "medical",
+      "score": 5,
+      "city": "Indore, Madhya Pradesh",
+      "phone": "",
+      "whatsapp": "",
+      "website": "",
+      "channels": {
+        "email": false,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "Dr. Manoranjan Baranwal",
+      "source": "osm",
+      "niche": "medical",
+      "score": 5,
+      "city": "Indore, Madhya Pradesh",
+      "phone": "",
+      "whatsapp": "",
+      "website": "",
+      "channels": {
+        "email": false,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "Amit Vyas",
+      "source": "osm",
+      "niche": "medical",
+      "score": 5,
+      "city": "Indore, Madhya Pradesh",
+      "phone": "",
+      "whatsapp": "",
       "website": "",
       "channels": {
         "email": false,

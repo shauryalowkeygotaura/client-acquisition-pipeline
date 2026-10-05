@@ -1,10 +1,10 @@
 {
-  "generated_at": "2026-10-02T10:17:12.252328+00:00",
+  "generated_at": "2026-10-05T11:13:56.311924+00:00",
   "min_score": 7,
   "target": 20,
   "count": 0,
   "skipped": {
-    "no_handle": 533,
+    "no_handle": 545,
     "below_a_tier": 14
   },
   "cities": [],
