@@ -1,64 +1,16 @@
 {
   "pipeline": "client-acquisition",
-  "ts": "2026-10-05T11:13:52Z",
-  "count": 12,
+  "ts": "2026-10-06T11:17:21Z",
+  "count": 16,
   "leads": [
     {
-      "label": "White Dental Clinic",
+      "label": "Asian Eye Institute & Laser Centre",
       "source": "osm",
       "niche": "dental",
-      "score": 5,
-      "city": "Chennai, Tamil Nadu",
+      "score": 6,
+      "city": "Mumbai, Maharashtra",
       "phone": "",
       "whatsapp": "",
-      "website": "",
-      "channels": {
-        "email": false,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "Dhaarani’s Divine Smiles",
-      "source": "osm",
-      "niche": "dental",
-      "score": 5,
-      "city": "Chennai, Tamil Nadu",
-      "phone": "",
-      "whatsapp": "",
-      "website": "",
-      "channels": {
-        "email": false,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "Anbu Dental Implant & Maxillofacial Clinic",
-      "source": "osm",
-      "niche": "dental",
-      "score": 5,
-      "city": "Chennai, Tamil Nadu",
-      "phone": "",
-      "whatsapp": "",
-      "website": "",
-      "channels": {
-        "email": false,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "Dr.Agarwal's Eye Hospital",
-      "source": "osm",
-      "niche": "medical",
-      "score": 5,
-      "city": "Chennai, Tamil Nadu",
-      "phone": "95949 04015",
-      "whatsapp": "95949 04015",
       "website": "",
       "channels": {
         "email": true,
@@ -68,7 +20,39 @@
       }
     },
     {
-      "label": "MP Birla Eye Clinic",
+      "label": "Vishnu Eye Clinic",
+      "source": "osm",
+      "niche": "medical",
+      "score": 5,
+      "city": "Chennai, Tamil Nadu",
+      "phone": "88888.77777",
+      "whatsapp": "88888.77777",
+      "website": "",
+      "channels": {
+        "email": false,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "Specs Kare",
+      "source": "osm",
+      "niche": "optometry",
+      "score": 5,
+      "city": "Chennai, Tamil Nadu",
+      "phone": "",
+      "whatsapp": "",
+      "website": "",
+      "channels": {
+        "email": false,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "Kumar Surgical and Laparoscopic Clinic",
       "source": "osm",
       "niche": "medical",
       "score": 5,
@@ -84,7 +68,7 @@
       }
     },
     {
-      "label": "Repose Clinic and Research Centre Pvt. Ltd.",
+      "label": "Medi Citi Nursing Home",
       "source": "osm",
       "niche": "medical",
       "score": 5,
@@ -100,7 +84,135 @@
       }
     },
     {
-      "label": "Dr. Anand Singh Raje",
+      "label": "N.G. Nursing Home",
+      "source": "osm",
+      "niche": "medical",
+      "score": 5,
+      "city": "Kolkata, West Bengal",
+      "phone": "",
+      "whatsapp": "",
+      "website": "",
+      "channels": {
+        "email": false,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "Divine Nursing Home",
+      "source": "osm",
+      "niche": "medical",
+      "score": 5,
+      "city": "Kolkata, West Bengal",
+      "phone": "",
+      "whatsapp": "",
+      "website": "",
+      "channels": {
+        "email": false,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "Arham Clinics",
+      "source": "osm",
+      "niche": "medical",
+      "score": 5,
+      "city": "Kolkata, West Bengal",
+      "phone": "",
+      "whatsapp": "",
+      "website": "",
+      "channels": {
+        "email": false,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "Sharma Dental Clinic",
+      "source": "osm",
+      "niche": "dental",
+      "score": 5,
+      "city": "Indore, Madhya Pradesh",
+      "phone": "",
+      "whatsapp": "",
+      "website": "",
+      "channels": {
+        "email": false,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "Rajeshwari Multispeciality Dental Clinic",
+      "source": "osm",
+      "niche": "dental",
+      "score": 5,
+      "city": "Indore, Madhya Pradesh",
+      "phone": "",
+      "whatsapp": "",
+      "website": "",
+      "channels": {
+        "email": false,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "Dr Rakhi Porwal",
+      "source": "osm",
+      "niche": "dental",
+      "score": 5,
+      "city": "Indore, Madhya Pradesh",
+      "phone": "",
+      "whatsapp": "",
+      "website": "",
+      "channels": {
+        "email": false,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "डॉ सुमित हार्डिया",
+      "source": "osm",
+      "niche": "dental",
+      "score": 5,
+      "city": "Indore, Madhya Pradesh",
+      "phone": "",
+      "whatsapp": "",
+      "website": "",
+      "channels": {
+        "email": false,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "Doctor Verma dental clinic",
+      "source": "osm",
+      "niche": "dental",
+      "score": 5,
+      "city": "Indore, Madhya Pradesh",
+      "phone": "",
+      "whatsapp": "",
+      "website": "",
+      "channels": {
+        "email": false,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "Dr Pawar Clinic",
       "source": "osm",
       "niche": "medical",
       "score": 5,
@@ -116,7 +228,7 @@
       }
     },
     {
-      "label": "Sukriti Clinic",
+      "label": "Sunita Chouhan",
       "source": "osm",
       "niche": "medical",
       "score": 5,
@@ -132,55 +244,7 @@
       }
     },
     {
-      "label": "ओपीडी एनेक्स",
-      "source": "osm",
-      "niche": "medical",
-      "score": 5,
-      "city": "Indore, Madhya Pradesh",
-      "phone": "",
-      "whatsapp": "",
-      "website": "",
-      "channels": {
-        "email": false,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "Star diagnosis centre",
-      "source": "osm",
-      "niche": "medical",
-      "score": 5,
-      "city": "Indore, Madhya Pradesh",
-      "phone": "",
-      "whatsapp": "",
-      "website": "",
-      "channels": {
-        "email": false,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "Dr. Manoranjan Baranwal",
-      "source": "osm",
-      "niche": "medical",
-      "score": 5,
-      "city": "Indore, Madhya Pradesh",
-      "phone": "",
-      "whatsapp": "",
-      "website": "",
-      "channels": {
-        "email": false,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "Amit Vyas",
+      "label": "Dr. Nari Masand",
       "source": "osm",
       "niche": "medical",
       "score": 5,
