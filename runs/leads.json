@@ -1,34 +1,18 @@
 {
   "pipeline": "client-acquisition",
-  "ts": "2026-10-06T11:17:21Z",
-  "count": 16,
+  "ts": "2026-10-07T10:46:40Z",
+  "count": 5,
   "leads": [
     {
-      "label": "Asian Eye Institute & Laser Centre",
+      "label": "Radhakrishna Clinic. Dr Bina Pansare",
       "source": "osm",
-      "niche": "dental",
-      "score": 6,
+      "niche": "medical",
+      "score": 5,
       "city": "Mumbai, Maharashtra",
       "phone": "",
       "whatsapp": "",
       "website": "",
       "channels": {
-        "email": true,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "Vishnu Eye Clinic",
-      "source": "osm",
-      "niche": "medical",
-      "score": 5,
-      "city": "Chennai, Tamil Nadu",
-      "phone": "88888.77777",
-      "whatsapp": "88888.77777",
-      "website": "",
-      "channels": {
         "email": false,
         "linkedin": false,
         "whatsapp": false,
@@ -36,103 +20,7 @@
       }
     },
     {
-      "label": "Specs Kare",
-      "source": "osm",
-      "niche": "optometry",
-      "score": 5,
-      "city": "Chennai, Tamil Nadu",
-      "phone": "",
-      "whatsapp": "",
-      "website": "",
-      "channels": {
-        "email": false,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "Kumar Surgical and Laparoscopic Clinic",
-      "source": "osm",
-      "niche": "medical",
-      "score": 5,
-      "city": "Kolkata, West Bengal",
-      "phone": "",
-      "whatsapp": "",
-      "website": "",
-      "channels": {
-        "email": false,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "Medi Citi Nursing Home",
-      "source": "osm",
-      "niche": "medical",
-      "score": 5,
-      "city": "Kolkata, West Bengal",
-      "phone": "",
-      "whatsapp": "",
-      "website": "",
-      "channels": {
-        "email": false,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "N.G. Nursing Home",
-      "source": "osm",
-      "niche": "medical",
-      "score": 5,
-      "city": "Kolkata, West Bengal",
-      "phone": "",
-      "whatsapp": "",
-      "website": "",
-      "channels": {
-        "email": false,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "Divine Nursing Home",
-      "source": "osm",
-      "niche": "medical",
-      "score": 5,
-      "city": "Kolkata, West Bengal",
-      "phone": "",
-      "whatsapp": "",
-      "website": "",
-      "channels": {
-        "email": false,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "Arham Clinics",
-      "source": "osm",
-      "niche": "medical",
-      "score": 5,
-      "city": "Kolkata, West Bengal",
-      "phone": "",
-      "whatsapp": "",
-      "website": "",
-      "channels": {
-        "email": false,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "Sharma Dental Clinic",
+      "label": "D Dental Clinic",
       "source": "osm",
       "niche": "dental",
       "score": 5,
@@ -148,7 +36,7 @@
       }
     },
     {
-      "label": "Rajeshwari Multispeciality Dental Clinic",
+      "label": "Sanjeevani Dental are",
       "source": "osm",
       "niche": "dental",
       "score": 5,
@@ -164,55 +52,7 @@
       }
     },
     {
-      "label": "Dr Rakhi Porwal",
-      "source": "osm",
-      "niche": "dental",
-      "score": 5,
-      "city": "Indore, Madhya Pradesh",
-      "phone": "",
-      "whatsapp": "",
-      "website": "",
-      "channels": {
-        "email": false,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "डॉ सुमित हार्डिया",
-      "source": "osm",
-      "niche": "dental",
-      "score": 5,
-      "city": "Indore, Madhya Pradesh",
-      "phone": "",
-      "whatsapp": "",
-      "website": "",
-      "channels": {
-        "email": false,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "Doctor Verma dental clinic",
-      "source": "osm",
-      "niche": "dental",
-      "score": 5,
-      "city": "Indore, Madhya Pradesh",
-      "phone": "",
-      "whatsapp": "",
-      "website": "",
-      "channels": {
-        "email": false,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "Dr Pawar Clinic",
+      "label": "Amit Vyas Clinic",
       "source": "osm",
       "niche": "medical",
       "score": 5,
@@ -228,23 +68,7 @@
       }
     },
     {
-      "label": "Sunita Chouhan",
-      "source": "osm",
-      "niche": "medical",
-      "score": 5,
-      "city": "Indore, Madhya Pradesh",
-      "phone": "",
-      "whatsapp": "",
-      "website": "",
-      "channels": {
-        "email": false,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "Dr. Nari Masand",
+      "label": "Indore India Eye Care",
       "source": "osm",
       "niche": "medical",
       "score": 5,
