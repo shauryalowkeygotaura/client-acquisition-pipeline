@@ -1,13 +1,13 @@
 {
   "pipeline": "client-acquisition",
-  "ts": "2026-10-07T10:46:40Z",
-  "count": 5,
+  "ts": "2026-10-08T11:37:36Z",
+  "count": 2,
   "leads": [
     {
-      "label": "Radhakrishna Clinic. Dr Bina Pansare",
+      "label": "Phiroze M. Dastoor & Co.",
       "source": "osm",
       "niche": "medical",
-      "score": 5,
+      "score": 6,
       "city": "Mumbai, Maharashtra",
       "phone": "",
       "whatsapp": "",
@@ -20,57 +20,9 @@
       }
     },
     {
-      "label": "D Dental Clinic",
+      "label": "Dr.Tushar Dighe",
       "source": "osm",
       "niche": "dental",
-      "score": 5,
-      "city": "Indore, Madhya Pradesh",
-      "phone": "",
-      "whatsapp": "",
-      "website": "",
-      "channels": {
-        "email": false,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "Sanjeevani Dental are",
-      "source": "osm",
-      "niche": "dental",
-      "score": 5,
-      "city": "Indore, Madhya Pradesh",
-      "phone": "",
-      "whatsapp": "",
-      "website": "",
-      "channels": {
-        "email": false,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "Amit Vyas Clinic",
-      "source": "osm",
-      "niche": "medical",
-      "score": 5,
-      "city": "Indore, Madhya Pradesh",
-      "phone": "",
-      "whatsapp": "",
-      "website": "",
-      "channels": {
-        "email": false,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "Indore India Eye Care",
-      "source": "osm",
-      "niche": "medical",
       "score": 5,
       "city": "Indore, Madhya Pradesh",
       "phone": "",
