@@ -1,14 +1,14 @@
 {
   "pipeline": "client-acquisition",
-  "ts": "2026-10-08T11:37:36Z",
-  "count": 2,
+  "ts": "2026-10-09T11:14:25Z",
+  "count": 3,
   "leads": [
     {
-      "label": "Phiroze M. Dastoor & Co.",
+      "label": "Federation Nursing Home",
       "source": "osm",
       "niche": "medical",
-      "score": 6,
-      "city": "Mumbai, Maharashtra",
+      "score": 5,
+      "city": "Kolkata, West Bengal",
       "phone": "",
       "whatsapp": "",
       "website": "",
@@ -20,16 +20,32 @@
       }
     },
     {
-      "label": "Dr.Tushar Dighe",
+      "label": "South Calcutta Clinic",
       "source": "osm",
-      "niche": "dental",
+      "niche": "medical",
       "score": 5,
-      "city": "Indore, Madhya Pradesh",
+      "city": "Kolkata, West Bengal",
       "phone": "",
       "whatsapp": "",
       "website": "",
       "channels": {
         "email": false,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "Joyland Montessori School",
+      "source": "osm",
+      "niche": "legal",
+      "score": 5,
+      "city": "Chandigarh, Chandigarh",
+      "phone": "",
+      "whatsapp": "",
+      "website": "",
+      "channels": {
+        "email": true,
         "linkedin": false,
         "whatsapp": false,
         "instagram": false
