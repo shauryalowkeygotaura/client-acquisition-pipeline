@@ -1,6 +1,6 @@
 {
   "pipeline": "client-acquisition",
-  "ts": "2026-10-09T16:24:27Z",
+  "ts": "2026-10-12T19:11:34Z",
   "sending": {
     "paused": false
   },
@@ -17,6 +17,6 @@
   "bounced_14d": 0,
   "replied_14d": 0,
   "waiting": 1,
-  "gate_blocks": 0,
+  "gate_blocks": 1,
   "encrypted": "desk.enc.json"
 }
