@@ -1,6 +1,55 @@
 {
   "pipeline": "client-acquisition",
-  "ts": "2026-10-12T11:26:24Z",
-  "count": 0,
-  "leads": []
+  "ts": "2026-10-13T11:07:49Z",
+  "count": 3,
+  "leads": [
+    {
+      "label": "CSIR-NIScPR",
+      "source": "osm",
+      "niche": "optometry",
+      "score": 5,
+      "city": "Delhi, Delhi",
+      "phone": "180620879727",
+      "whatsapp": "180620879727",
+      "website": "",
+      "channels": {
+        "email": true,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "St. Anne's Convent School",
+      "source": "osm",
+      "niche": "optometry",
+      "score": 5,
+      "city": "Chandigarh, Chandigarh",
+      "phone": "1042014786",
+      "whatsapp": "1042014786",
+      "website": "",
+      "channels": {
+        "email": true,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "Sri Guru Gobind Singh Senior Secondary School",
+      "source": "osm",
+      "niche": "medical",
+      "score": 5,
+      "city": "Chandigarh, Chandigarh",
+      "phone": "",
+      "whatsapp": "",
+      "website": "",
+      "channels": {
+        "email": false,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    }
+  ]
 }
