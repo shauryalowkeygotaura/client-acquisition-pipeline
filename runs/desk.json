@@ -1,11 +1,11 @@
 {
   "pipeline": "client-acquisition",
-  "ts": "2026-10-13T17:03:12Z",
+  "ts": "2026-10-14T14:35:32Z",
   "sending": {
     "paused": false
   },
   "funnel": {
-    "found": 588,
+    "found": 595,
     "contacted": 37,
     "replied": 1,
     "interested": 1,
@@ -17,6 +17,6 @@
   "bounced_14d": 0,
   "replied_14d": 0,
   "waiting": 1,
-  "gate_blocks": 2,
+  "gate_blocks": 3,
   "encrypted": "desk.enc.json"
 }
