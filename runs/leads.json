@@ -1,83 +1,19 @@
 {
   "pipeline": "client-acquisition",
-  "ts": "2026-10-16T08:54:51Z",
-  "count": 5,
+  "ts": "2026-10-19T09:45:13Z",
+  "count": 1,
   "leads": [
     {
-      "label": "Dr.Malti's Homeo Clinic And Research Centre",
+      "label": "फिजियो फिट",
       "source": "osm",
       "niche": "medical",
       "score": 5,
       "city": "Indore, Madhya Pradesh",
-      "phone": "",
-      "whatsapp": "",
-      "website": "",
-      "channels": {
-        "email": false,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "Khushi Homeo Clinic",
-      "source": "osm",
-      "niche": "medical",
-      "score": 5,
-      "city": "Indore, Madhya Pradesh",
-      "phone": "",
-      "whatsapp": "",
-      "website": "",
-      "channels": {
-        "email": false,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "Ayush Homeopathy Clinic",
-      "source": "osm",
-      "niche": "medical",
-      "score": 5,
-      "city": "Indore, Madhya Pradesh",
-      "phone": "",
-      "whatsapp": "",
-      "website": "",
-      "channels": {
-        "email": false,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "Suprabhat Helthcare and Cornea Labs and Surgical Centre",
-      "source": "osm",
-      "niche": "medical",
-      "score": 5,
-      "city": "Indore, Madhya Pradesh",
-      "phone": "0731-4948877",
-      "whatsapp": "0731-4948877",
+      "phone": "9669909675",
+      "whatsapp": "9669909675",
       "website": "",
       "channels": {
         "email": true,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "Dr.Shabbir Dubey",
-      "source": "osm",
-      "niche": "medical",
-      "score": 5,
-      "city": "Indore, Madhya Pradesh",
-      "phone": "",
-      "whatsapp": "",
-      "website": "",
-      "channels": {
-        "email": false,
         "linkedin": false,
         "whatsapp": false,
         "instagram": false
