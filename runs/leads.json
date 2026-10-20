@@ -1,16 +1,160 @@
 {
   "pipeline": "client-acquisition",
-  "ts": "2026-10-19T09:45:13Z",
-  "count": 1,
+  "ts": "2026-10-20T09:34:59Z",
+  "count": 10,
   "leads": [
     {
-      "label": "फिजियो फिट",
+      "label": "The Smile Makers Dental Clinic",
+      "source": "osm",
+      "niche": "dental",
+      "score": 5,
+      "city": "Mumbai, Maharashtra",
+      "phone": "",
+      "whatsapp": "",
+      "website": "",
+      "channels": {
+        "email": false,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "Arch of Smiles Dental Studio",
+      "source": "osm",
+      "niche": "dental",
+      "score": 5,
+      "city": "Mumbai, Maharashtra",
+      "phone": "",
+      "whatsapp": "",
+      "website": "",
+      "channels": {
+        "email": false,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "Ayu Raaga",
+      "source": "osm",
+      "niche": "medical",
+      "score": 5,
+      "city": "Hyderabad, Telangana",
+      "phone": "6743404761",
+      "whatsapp": "6743404761",
+      "website": "",
+      "channels": {
+        "email": false,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "Elite Physiotherapy",
+      "source": "osm",
+      "niche": "medical",
+      "score": 6,
+      "city": "Chennai, Tamil Nadu",
+      "phone": "+91 86103 11521",
+      "whatsapp": "+91 86103 11521",
+      "website": "",
+      "channels": {
+        "email": false,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "Dr. Mutha",
       "source": "osm",
       "niche": "medical",
       "score": 5,
       "city": "Indore, Madhya Pradesh",
-      "phone": "9669909675",
-      "whatsapp": "9669909675",
+      "phone": "17134865300",
+      "whatsapp": "17134865300",
+      "website": "",
+      "channels": {
+        "email": false,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "Dr.Aditya Bhatt",
+      "source": "osm",
+      "niche": "medical",
+      "score": 5,
+      "city": "Indore, Madhya Pradesh",
+      "phone": "0534597088",
+      "whatsapp": "0534597088",
+      "website": "",
+      "channels": {
+        "email": true,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "Dr. Vrinda Vashishta",
+      "source": "osm",
+      "niche": "medical",
+      "score": 5,
+      "city": "Indore, Madhya Pradesh",
+      "phone": "9575122300",
+      "whatsapp": "9575122300",
+      "website": "",
+      "channels": {
+        "email": false,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "Yash Health Care Clinic",
+      "source": "osm",
+      "niche": "medical",
+      "score": 5,
+      "city": "Indore, Madhya Pradesh",
+      "phone": "9821704532",
+      "whatsapp": "9821704532",
+      "website": "",
+      "channels": {
+        "email": true,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "Dr. Hansali Bhartiya(Neema)",
+      "source": "osm",
+      "niche": "medical",
+      "score": 5,
+      "city": "Indore, Madhya Pradesh",
+      "phone": "201809201747",
+      "whatsapp": "201809201747",
+      "website": "",
+      "channels": {
+        "email": false,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "Bhagavathi Vilasam Higher Secondary School",
+      "source": "osm",
+      "niche": "medical",
+      "score": 5,
+      "city": "Kochi, Kerala",
+      "phone": "",
+      "whatsapp": "",
       "website": "",
       "channels": {
         "email": true,
