@@ -1,96 +1,16 @@
 {
   "pipeline": "client-acquisition",
-  "ts": "2026-10-20T09:34:59Z",
-  "count": 10,
+  "ts": "2026-10-21T09:18:12Z",
+  "count": 4,
   "leads": [
     {
-      "label": "The Smile Makers Dental Clinic",
+      "label": "Dr. Amit Mangla, Dr. Sheetal Mangla",
       "source": "osm",
-      "niche": "dental",
+      "niche": "medical",
       "score": 5,
-      "city": "Mumbai, Maharashtra",
+      "city": "Delhi, Delhi",
       "phone": "",
       "whatsapp": "",
-      "website": "",
-      "channels": {
-        "email": false,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "Arch of Smiles Dental Studio",
-      "source": "osm",
-      "niche": "dental",
-      "score": 5,
-      "city": "Mumbai, Maharashtra",
-      "phone": "",
-      "whatsapp": "",
-      "website": "",
-      "channels": {
-        "email": false,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "Ayu Raaga",
-      "source": "osm",
-      "niche": "medical",
-      "score": 5,
-      "city": "Hyderabad, Telangana",
-      "phone": "6743404761",
-      "whatsapp": "6743404761",
-      "website": "",
-      "channels": {
-        "email": false,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "Elite Physiotherapy",
-      "source": "osm",
-      "niche": "medical",
-      "score": 6,
-      "city": "Chennai, Tamil Nadu",
-      "phone": "+91 86103 11521",
-      "whatsapp": "+91 86103 11521",
-      "website": "",
-      "channels": {
-        "email": false,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "Dr. Mutha",
-      "source": "osm",
-      "niche": "medical",
-      "score": 5,
-      "city": "Indore, Madhya Pradesh",
-      "phone": "17134865300",
-      "whatsapp": "17134865300",
-      "website": "",
-      "channels": {
-        "email": false,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "Dr.Aditya Bhatt",
-      "source": "osm",
-      "niche": "medical",
-      "score": 5,
-      "city": "Indore, Madhya Pradesh",
-      "phone": "0534597088",
-      "whatsapp": "0534597088",
       "website": "",
       "channels": {
         "email": true,
@@ -100,29 +20,13 @@
       }
     },
     {
-      "label": "Dr. Vrinda Vashishta",
+      "label": "Dr. Ashish B. Dave",
       "source": "osm",
       "niche": "medical",
       "score": 5,
-      "city": "Indore, Madhya Pradesh",
-      "phone": "9575122300",
-      "whatsapp": "9575122300",
-      "website": "",
-      "channels": {
-        "email": false,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    },
-    {
-      "label": "Yash Health Care Clinic",
-      "source": "osm",
-      "niche": "medical",
-      "score": 5,
-      "city": "Indore, Madhya Pradesh",
-      "phone": "9821704532",
-      "whatsapp": "9821704532",
+      "city": "Ahmedabad, Gujarat",
+      "phone": "8320653276",
+      "whatsapp": "8320653276",
       "website": "",
       "channels": {
         "email": true,
@@ -132,13 +36,13 @@
       }
     },
     {
-      "label": "Dr. Hansali Bhartiya(Neema)",
+      "label": "Dr. Virendra Meher",
       "source": "osm",
       "niche": "medical",
       "score": 5,
       "city": "Indore, Madhya Pradesh",
-      "phone": "201809201747",
-      "whatsapp": "201809201747",
+      "phone": "6187441513",
+      "whatsapp": "6187441513",
       "website": "",
       "channels": {
         "email": false,
@@ -148,13 +52,13 @@
       }
     },
     {
-      "label": "Bhagavathi Vilasam Higher Secondary School",
+      "label": "डॉक्टर बांझल मधुमेह एवं हार्मोन रोग विशेषज्ञ",
       "source": "osm",
       "niche": "medical",
       "score": 5,
-      "city": "Kochi, Kerala",
-      "phone": "",
-      "whatsapp": "",
+      "city": "Indore, Madhya Pradesh",
+      "phone": "098936 93006",
+      "whatsapp": "098936 93006",
       "website": "",
       "channels": {
         "email": true,
