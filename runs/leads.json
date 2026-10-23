@@ -1,6 +1,23 @@
 {
   "pipeline": "client-acquisition",
-  "ts": "2026-10-22T09:16:23Z",
-  "count": 0,
-  "leads": []
+  "ts": "2026-10-23T09:15:08Z",
+  "count": 1,
+  "leads": [
+    {
+      "label": "Dr. Jayprakash Hebbar",
+      "source": "osm",
+      "niche": "medical",
+      "score": 5,
+      "city": "Mumbai, Maharashtra",
+      "phone": "",
+      "whatsapp": "",
+      "website": "",
+      "channels": {
+        "email": false,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    }
+  ]
 }
