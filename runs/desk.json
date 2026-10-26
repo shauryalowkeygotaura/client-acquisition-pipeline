@@ -1,11 +1,11 @@
 {
   "pipeline": "client-acquisition",
-  "ts": "2026-10-23T14:19:54Z",
+  "ts": "2026-10-26T16:14:43Z",
   "sending": {
     "paused": false
   },
   "funnel": {
-    "found": 618,
+    "found": 620,
     "contacted": 46,
     "replied": 1,
     "interested": 1,
