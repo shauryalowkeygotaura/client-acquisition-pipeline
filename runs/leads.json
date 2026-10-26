@@ -1,16 +1,32 @@
 {
   "pipeline": "client-acquisition",
-  "ts": "2026-10-23T09:15:08Z",
-  "count": 1,
+  "ts": "2026-10-26T09:45:45Z",
+  "count": 2,
   "leads": [
     {
-      "label": "Dr. Jayprakash Hebbar",
+      "label": "Srinivasa Diagnostic",
       "source": "osm",
       "niche": "medical",
       "score": 5,
-      "city": "Mumbai, Maharashtra",
-      "phone": "",
-      "whatsapp": "",
+      "city": "Hyderabad, Telangana",
+      "phone": "8417839141",
+      "whatsapp": "8417839141",
+      "website": "",
+      "channels": {
+        "email": false,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "Sahodaran Memmorial Higher Secondary School Cherai",
+      "source": "osm",
+      "niche": "medical",
+      "score": 5,
+      "city": "Kochi, Kerala",
+      "phone": "9119000000",
+      "whatsapp": "9119000000",
       "website": "",
       "channels": {
         "email": false,
