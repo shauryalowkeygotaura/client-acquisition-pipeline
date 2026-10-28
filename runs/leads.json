@@ -1,16 +1,16 @@
 {
   "pipeline": "client-acquisition",
-  "ts": "2026-10-27T09:45:12Z",
+  "ts": "2026-10-28T10:25:57Z",
   "count": 2,
   "leads": [
     {
-      "label": "Dr. Ranju Barnwal, MBBS, DCH, CIG",
+      "label": "Dr. Vidya Joshi",
       "source": "osm",
       "niche": "medical",
       "score": 5,
-      "city": "Delhi, Delhi",
-      "phone": "5246028628",
-      "whatsapp": "5246028628",
+      "city": "Pune, Maharashtra",
+      "phone": "",
+      "whatsapp": "",
       "website": "",
       "channels": {
         "email": false,
@@ -20,16 +20,16 @@
       }
     },
     {
-      "label": "Dr. D A Tapia",
+      "label": "Vailankanni Silver Jubilee Matriculation Higher Secondary School",
       "source": "osm",
-      "niche": "medical",
-      "score": 6,
-      "city": "Mumbai, Maharashtra",
-      "phone": "+91 83569 58290",
-      "whatsapp": "+91 83569 58290",
+      "niche": "legal",
+      "score": 5,
+      "city": "Chennai, Tamil Nadu",
+      "phone": "",
+      "whatsapp": "",
       "website": "",
       "channels": {
-        "email": true,
+        "email": false,
         "linkedin": false,
         "whatsapp": false,
         "instagram": false
