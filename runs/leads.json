@@ -1,16 +1,64 @@
 {
   "pipeline": "client-acquisition",
-  "ts": "2026-10-29T10:40:58Z",
-  "count": 1,
+  "ts": "2026-10-30T11:08:05Z",
+  "count": 4,
   "leads": [
     {
-      "label": "True White Dental",
+      "label": "Dr. Jaydev Dental Clinic",
       "source": "osm",
       "niche": "dental",
-      "score": 6,
+      "score": 5,
       "city": "Hyderabad, Telangana",
-      "phone": "+91 91217 20153",
-      "whatsapp": "+91 91217 20153",
+      "phone": "+919573444411",
+      "whatsapp": "+919573444411",
+      "website": "",
+      "channels": {
+        "email": false,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "Bose Institute research",
+      "source": "osm",
+      "niche": "medical",
+      "score": 5,
+      "city": "Kolkata, West Bengal",
+      "phone": "",
+      "whatsapp": "",
+      "website": "",
+      "channels": {
+        "email": false,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "Saupin's School",
+      "source": "osm",
+      "niche": "medical",
+      "score": 5,
+      "city": "Chandigarh, Chandigarh",
+      "phone": "+91-0172-2664732",
+      "whatsapp": "+91-0172-2664732",
+      "website": "",
+      "channels": {
+        "email": true,
+        "linkedin": false,
+        "whatsapp": false,
+        "instagram": false
+      }
+    },
+    {
+      "label": "Dev Samaj College Of Education",
+      "source": "osm",
+      "niche": "legal",
+      "score": 6,
+      "city": "Chandigarh, Chandigarh",
+      "phone": "7837814129",
+      "whatsapp": "7837814129",
       "website": "",
       "channels": {
         "email": false,
