@@ -1,32 +1,17 @@
 {
   "pipeline": "client-acquisition",
-  "ts": "2026-10-30T11:08:05Z",
-  "mode": "scrape",
+  "ts": "2026-10-30T16:05:58Z",
+  "mode": "replies",
   "status": "ok",
-  "summary": "1551 found, 4 new, 1 emailed, 0 WhatsApp, 0 IG, 0 LinkedIn",
+  "summary": "0 replies, 2 email follow-ups, 0 opt-outs",
   "metrics": {
-    "found": 1551,
-    "saved": 4,
-    "emailed": 1,
-    "linkedin": 0,
-    "whatsapp": 0,
-    "instagram": 0,
-    "skipped_low": 83,
-    "scraper_errors": 0,
-    "no_contact_method": 1128,
-    "no_email_address": 3,
-    "tz_skipped": 0,
-    "cities_scraped": 14,
-    "lead_source": "osm",
-    "osm_rescued": false,
-    "maps_backfilled": false,
-    "effective_source": "osm"
+    "inbox_msgs": 213,
+    "replies_handled": 0,
+    "optouts": 0,
+    "handoffs": 0,
+    "bounces": 0,
+    "followups_sent": 2,
+    "whatsapp_followups_sent": 0
   },
-  "budgets": {
-    "serpapi": {
-      "limit": 100,
-      "left": null,
-      "note": "not checked (apollo source)"
-    }
-  }
+  "budgets": {}
 }
