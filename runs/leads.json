@@ -1,23 +1,6 @@
 {
   "pipeline": "client-acquisition",
-  "ts": "2026-11-02T11:56:48Z",
-  "count": 1,
-  "leads": [
-    {
-      "label": "BISMA - Biyani Institute of Science and Management for Girls",
-      "source": "osm",
-      "niche": "medical",
-      "score": 5,
-      "city": "Jaipur, Rajasthan",
-      "phone": "+91-8696218218",
-      "whatsapp": "+91-8696218218",
-      "website": "",
-      "channels": {
-        "email": true,
-        "linkedin": false,
-        "whatsapp": false,
-        "instagram": false
-      }
-    }
-  ]
+  "ts": "2026-11-03T11:43:42Z",
+  "count": 0,
+  "leads": []
 }
