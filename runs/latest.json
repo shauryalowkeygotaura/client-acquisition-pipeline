@@ -1,16 +1,16 @@
 {
   "pipeline": "client-acquisition",
-  "ts": "2026-11-03T17:11:56Z",
+  "ts": "2026-11-04T17:23:57Z",
   "mode": "replies",
   "status": "ok",
-  "summary": "0 replies, 3 email follow-ups, 0 opt-outs",
+  "summary": "0 replies, 0 email follow-ups, 0 opt-outs",
   "metrics": {
-    "inbox_msgs": 201,
+    "inbox_msgs": 210,
     "replies_handled": 0,
     "optouts": 0,
     "handoffs": 0,
     "bounces": 0,
-    "followups_sent": 3,
+    "followups_sent": 0,
     "whatsapp_followups_sent": 0
   },
   "budgets": {}
