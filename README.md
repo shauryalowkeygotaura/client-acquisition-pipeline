@@ -4,6 +4,12 @@ Automated daily pipeline: harvests leads (Indeed job-posts → Google Jobs, or A
 
 > **Design doc:** see [`architecture.md`](architecture.md) for the full lead flow, scoring, variant logic, and the canonical Google Sheets schema. This README is setup + daily usage only.
 
+## Quick start
+
+```bash
+git clone https://github.com/shauryalowkeygotaura/client-acquisition-pipeline && cd client-acquisition-pipeline && pip install -r requirements.txt && python pipeline.py
+```
+
 ## Setup (One-Time)
 
 ### 1. Install dependencies
