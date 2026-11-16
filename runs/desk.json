@@ -1,6 +1,6 @@
 {
   "pipeline": "client-acquisition",
-  "ts": "2026-11-13T17:18:10Z",
+  "ts": "2026-11-16T19:45:22Z",
   "sending": {
     "paused": false
   },
@@ -13,7 +13,7 @@
     "booked": 0,
     "client": 0
   },
-  "sent_14d": 1,
+  "sent_14d": 0,
   "bounced_14d": 0,
   "replied_14d": 0,
   "waiting": 1,
