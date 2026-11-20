@@ -49,7 +49,7 @@ from modules import (
     scraper, researcher, enricher, scorer, personalizer,
     generator, sheets_writer, email_sender, linkedin, whatsapp, instagram,
     reply_handler, analytics, optimizer, apollo_scraper, osm_scraper,
-    maps_scraper, run_metrics, learning,
+    maps_scraper, run_metrics, learning, lead_gate,
 )
 from modules.security_utils import get_audit_log
 
@@ -119,13 +119,81 @@ SCORE_LOW = 4
 # Run analytics + optimizer every N leads saved
 OPTIMIZER_INTERVAL = 50
 
+# After-hours call check (2026-11-20). When on, a new lead that has both a
+# phone and an email is saved but NOT emailed yet: it waits as
+# status=awaiting_call_check until scripts/after_hours_check.py (run locally,
+# Shaurya's phone) records what happened when the clinic was called after
+# closing. The next run's send_checked() then emails it with that true line
+# as the opener. Off by default so the funnel never stalls on a phone that
+# isn't plugged in: `gh variable set CALL_CHECK_FIRST --body 1` to switch on.
+CALL_CHECK_FIRST = os.getenv("CALL_CHECK_FIRST") == "1"
+SEND_CHECKED_MAX = int(os.getenv("SEND_CHECKED_MAX", "10"))
+AWAITING_CHECK = "awaiting_call_check"
+
+
+def send_checked() -> int:
+    """Email leads whose after-hours call check is done. Returns emails sent."""
+    try:
+        leads = sheets_writer.get_all_leads()
+    except Exception as e:
+        print(f"  [CALL CHECK] could not read sheet: {e}")
+        return 0
+    sent_n = 0
+    for lead in leads:
+        if sent_n >= SEND_CHECKED_MAX:
+            break
+        if lead.get("status") != AWAITING_CHECK or not lead.get("call_check_at"):
+            continue
+        if lead.get("email_sent") == "TRUE" or lead.get("opted_out") == "yes" or not lead.get("email"):
+            continue
+        slug = lead.get("slug")
+        company = lead.get("company_name", "")
+        if not slug or not _in_send_window(lead.get("location", "")):
+            continue
+        ok_target, why = lead_gate.check(lead)
+        if not ok_target:
+            sheets_writer.update_field(slug, "status", "off_target")
+            print(f"    [CALL CHECK] {company}: off-target ({why}), not sending")
+            continue
+        data = dict(lead)
+        if (data.get("call_check") or "").strip().upper() == "ANSWERED":
+            data["call_check"] = ""  # they picked up: no "rang out" line to use
+        try:
+            data = generator.run(data)
+        except Exception as e:
+            print(f"    [CALL CHECK] {company}: generation failed ({e}), will retry next run")
+            continue
+        for field in ("email_subject", "email_body", "message_variant_id"):
+            sheets_writer.update_field(slug, field, data.get(field, ""))
+        ok, msg_id, sender = email_sender.send(data)
+        if not ok:
+            print(f"    [CALL CHECK] {company}: send failed, will retry next run")
+            continue
+        now = datetime.now(timezone.utc).isoformat()
+        sheets_writer.update_field(slug, "email_sent", "TRUE")
+        sheets_writer.update_field(slug, "sent_at", now)
+        sheets_writer.update_field(slug, "message_id", msg_id)
+        sheets_writer.update_field(slug, "sender_account", sender)
+        sheets_writer.update_field(slug, "status", "sent")
+        sheets_writer.update_channel(slug, "email")
+        audit.append("email_sender", "send", slug, ok=True,
+                     detail={"channel": "email", "tier": "call_checked", "message_id": msg_id,
+                             "sender": sender})
+        print(f"    [CALL CHECK] emailed {company} with its call-check opener")
+        sent_n += 1
+    return sent_n
+
 
 def run():
     print(f"[{datetime.now(timezone.utc).isoformat()}] Pipeline starting...")
+    # Leads checked last night go out first, inside office hours.
+    checked_sent = send_checked()
+    if checked_sent:
+        print(f"  [CALL CHECK] {checked_sent} call-checked lead(s) emailed")
     existing = sheets_writer.get_all_leads()
     learned = learning.load()  # previous run's learned channel order (self-improving)
     total_saved = 0
-    total_emailed = 0
+    total_emailed = checked_sent  # call-checked sends count toward this run
     total_linkedin = 0
     total_whatsapp = 0
     total_instagram = 0
@@ -272,6 +340,15 @@ def run():
                                  detail={"reason": "low_score", "score": score, "niche": niche})
                     continue
 
+                # ── Target gate: only real clinics get outreach ──────────────
+                target_ok, target_reason = lead_gate.check(data)
+                if not target_ok:
+                    total_skipped_low += 1
+                    print(f"      [SKIP] off-target: {target_reason}")
+                    audit.append("pipeline", "skip", company, ok=True,
+                                 detail={"reason": "off_target", "why": target_reason})
+                    continue
+
                 # ── Person-level personalization (only for qualified leads) ──
                 data = personalizer.run(data)
                 if data.get("person_hook") or data.get("company_hook"):
@@ -315,6 +392,13 @@ def run():
                     continue
 
                 slug = data["slug"]
+
+                # Hold for the after-hours call check (see CALL_CHECK_FIRST).
+                if CALL_CHECK_FIRST and data.get("phone") and data.get("email"):
+                    sheets_writer.update_field(slug, "status", AWAITING_CHECK)
+                    print(f"      [HOLD] {company}: waiting for the after-hours call check")
+                    continue
+
                 sent = {"email": False, "linkedin": False,
                         "whatsapp": False, "instagram": False}
 
@@ -549,6 +633,7 @@ def run_reply_handler():
     metrics = {
         "inbox_msgs": reply_stats.get("inbox_msgs", 0),
         "replies_handled": reply_stats.get("replies_handled", 0),
+        "replies_new": reply_stats.get("replies_new", 0),
         "optouts": reply_stats.get("optouts", 0),
         "handoffs": reply_stats.get("handoffs", 0),
         "bounces": reply_stats.get("bounces", 0),
@@ -561,7 +646,7 @@ def run_reply_handler():
         summary = "Partial failure: " + ", ".join(errors)
     elif did_work:
         status = "ok"
-        summary = (f"{metrics['replies_handled']} replies, {metrics['followups_sent']} "
+        summary = (f"{metrics['replies_new']} new replies (handed to Shaurya), {metrics['followups_sent']} "
                    f"email follow-ups, {metrics['optouts']} opt-outs")
     else:
         status = "ok"
@@ -604,6 +689,8 @@ if __name__ == "__main__":
             run_analytics()
         elif mode == "audit":
             run_audit_verify()
+        elif mode == "send-checked":
+            print(f"Call-checked leads emailed: {send_checked()}")
         else:
             run()
     except Exception as e:

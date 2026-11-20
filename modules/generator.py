@@ -7,7 +7,7 @@ import re
 from openai import OpenAI
 
 from config import LLM_MODEL, LLM_BASE_URL
-from modules import persona
+from modules import names, persona
 
 log = logging.getLogger(__name__)
 
@@ -87,57 +87,30 @@ COPY RULES (apply to every word in every field):
 _SENDER_FRAMING_STATIC = persona.SENDER_FRAMING + persona.FRAME_BREAKERS
 
 _STRUCTURE_STATIC = f"""
-THE SHAPE OF EVERY FIRST TOUCH (all channels — email, DM, WhatsApp):
-1. WHO: "I'm {persona.SENDER_NAME}, I'm at {persona.SCHOOL_SHORT}" + "I'm doing a school project."
-   This is line one. Not buried, not after a compliment about their business.
-2. WHY THEM: one specific, verified observation about THIS business. The PERSONALIZATION HOOKS
-   section below states exactly what you are and are not allowed to say here for this lead.
-   Follow it literally. Never invent an observation.
-3. WHAT: {persona.WHAT_IT_DOES}. Plain words, one sentence.
-4. PROOF + DEMO: he can set a free demo up on their own details — and, when the PROOF SPEC below
-   carries a number, that number too. Stated flatly, then move on. The demo is something he HAS,
-   not what he is asking for. If the PROOF SPEC is empty, the demo sentence still appears alone.
-5. ASK: {persona.TOUCH_1_ASK}, because {persona.FEEDBACK_FRAME}.
-   "Can I talk to you about this sometime? Just want some feedback on it." is the shape.
+THE SHAPE OF EVERY FIRST TOUCH (email, DM, WhatsApp):
+1. WHO: the school line. "I'm {persona.SENDER_NAME}, a student at {persona.SCHOOL_SHORT}." Line one, always.
+2. WHY THEM: one short, true line about THIS clinic. Use the CALL CHECK if one is given (it is the
+   strongest line you have). Else the PERSONALIZATION HOOKS. Else category + place. Never invent.
+3. WHAT: {persona.WHAT_IT_DOES}. One short sentence. Plain words.
+4. OFFER: {persona.OFFER}. Split it into 2 or 3 short sentences.
+5. WHY FREE: {persona.OFFER_REASON}. One sentence.
+6. ASK: {persona.TOUCH_1_ASK}. One yes/no question. Then one calm no-pressure line ("If not, no worries.").
 
-Order matters. WHO before WHY THEM: the school line is what buys the next sentence, so it
-cannot come second. PROOF before ASK: the number is what makes the conversation worth granting.
+SENTENCE RULES (hard):
+- Most sentences under 10 words. None over 15.
+- One idea per sentence. No semicolons. No em dashes. No "~" estimates. No percentages.
+- No made-up numbers about their calls. The only number allowed is from the CALL CHECK.
 
 WHAT NEVER APPEARS ON THE FIRST TOUCH:
-- a specific time, a duration ("15 minutes", "5 mins"), a calendar link, "hop on", "schedule",
-  "book". The ask is willingness to talk sometime, not an appointment.
-- a price, a discount, a trial, or the word "free" attached to anything except the demo
-- more than one question. Exactly one, at the end.
+- a link, a calendar, a meeting, a call request, a duration, "hop on", "schedule", "book a time"
+- a price (the week is free, that is the only money word allowed)
+- more than one question
 
-── NAMED SPECS ──────────────────────────────────────────────────────────────
-The message fields below refer to these by name instead of restating them. Where a
-field says "OPENER (per spec)", it means exactly this and nothing else:
-
-OPENER SPEC (1 sentence, always the FIRST sentence of every message):
-  Who he is and why he is writing, in one breath. The school project is stated, not hinted.
-  Vary the wording per field so five messages don't read as one template, but the two facts
-  ({persona.SCHOOL_SHORT} + school project) are non-negotiable and always come first.
-  Good: "I'm {persona.SENDER_NAME}, I'm in school at {persona.SCHOOL_SHORT}, and I built something for a school project."
-  Good: "I'm at {persona.SCHOOL_SHORT} and this is for a school project, so I'll keep it short."
-  Forbidden: "My name is X and I am reaching out", "I hope this finds you", any apology for writing.
-
-HOOK SPEC (1 sentence, always the SECOND sentence):
-  The WHY THEM line, built from PERSONALIZATION HOOKS when they exist and from the category
-  and place when they don't. See the PERSONALIZATION HOOKS section below — its rule wins over
-  any example written in an individual field spec.
-
-PROOF SPEC (1 clause or 1 short sentence):
-  "{persona.proof_line()}" — stated flatly, in his own words, then dropped. No elaboration,
-  no names, no testimonials, no results, no "and counting". If the proof line above is empty,
-  OMIT proof entirely and never substitute a vaguer claim.
-
-CTA SPEC (always LAST — one yes/no question, plus the short feedback reason):
-  Ask {persona.TOUCH_1_ASK}. The reason is that {persona.FEEDBACK_FRAME}, and that reason is
-  mandatory: it is what makes the ask cheap to grant. Keep it to a handful of words.
-  Good: "Can I talk to you about this sometime? Just want some feedback on it."
-  Good: "Could I talk to you about it sometime? I mainly just want feedback from someone who'd know."
-  Forbidden: a specific time, a duration, a calendar link, "book", "schedule", "hop on",
-  "let me know if interested", or any second question beyond the one ask.
+── NAMED SPECS (fields below refer to these) ─────────────────────────────────
+OPENER SPEC: line 1, the school line. Vary wording per field, keep both facts ({persona.SCHOOL_SHORT}, school project).
+HOOK SPEC: line 2, the WHY THEM line from step 2.
+PROOF SPEC: "{persona.proof_line()}". If empty, say NOTHING about other users. Never substitute a vaguer claim.
+CTA SPEC: the yes/no ask from step 6, plus the no-pressure line. Last.
 """
 
 
@@ -185,6 +158,17 @@ def build_prompt(data: dict) -> str:
             f"'{category_phrase}' — and nothing more specific than that.\n"
         )
 
+    short = names.short_name(company)
+    call_check = (data.get("call_check") or "").strip()
+    if call_check:
+        hooks_section += (
+            "\nCALL CHECK (verified: Shaurya really called this clinic himself):\n"
+            f"{call_check}\n"
+            "MANDATORY RULE: this IS the WHY THEM line in every email body and DM. Use the exact day "
+            "and time given. Say it flatly, no drama, no blame (e.g. 'I called at 8:52pm on Tuesday. "
+            "It rang out.'). Never add a number of calls, a percentage, or a guess about lost patients.\n"
+        )
+
     # Static blocks first (cacheable prefix). Dynamic interpolations come AFTER.
     return f"""
 {_ICP_PSYCHOGRAPHIC}
@@ -198,6 +182,7 @@ def build_prompt(data: dict) -> str:
 ---
 
 RECIPIENT: The owner or office manager at {company}.
+SHORT NAME: "{short}". In every message, call the clinic "{short}" (or "your clinic"). Never paste the full listing name.
 
 CRITICAL: Every word of every message must be written FROM Shaurya TO the recipient. The "I" is Shaurya, the student. The "you" is the business owner at {company}. Never flip this. The lead data below is background research — it is what Shaurya knows, not what he repeats back at them.
 
@@ -224,82 +209,28 @@ Generate a JSON object with exactly these fields:
    Return as a single plain string with no line breaks inside.
 
 2. "email_subject"
-   2–4 words MAX. Lowercase. No punctuation. No capitalization.
-   The goal: look like an email from a colleague or vendor they already know. Completely mundane.
-   A subject that promises nothing, reveals nothing, sounds like nothing special.
-
-   The test: would this subject appear in a thread between two people who already work together? If yes, use it. If it sounds like it was "written for outreach," reject it.
-
-   The school frame is the strongest subject line available and it is TRUE, so lead with it.
-   Strong examples (use these patterns, not these exact words):
-   - "school project"
-   - "school project question"
-   - "student from {persona.SCHOOL_SHORT}"
-   - "quick question"
-   - "the front desk"
-
-   Never use: any phrase with "AI", "receptionist solution", "revenue", "grow", "demo", "free",
-   or anything that implies a benefit or a pitch. The subject sells the read, not the product.
+   2 to 4 words. Lowercase. No punctuation.
+   MUST contain the short name "{short}" OR the call-check day/time if one is given.
+   Shape examples (vary, never copy): "{short} after 8pm", "called {short} tuesday", "{short} front desk",
+   "student at {persona.SCHOOL_SHORT}, {short}".
+   Never: the bare phrase "school project" on its own, "AI", "demo", "free", "offer", "quick question",
+   or anything a newsletter would use.
 
 3. "email_body_pain"
-   Angle: COST OF INACTION. Every day without coverage = bookings they'll never recover.
-   Follow H-A-O-P-CTA. Do NOT label sections. Write as flowing prose.
-   FORMATTING: Separate each section with a blank line (\n\n). Sign-off on its own line. No single giant paragraph.
-
-   OPENER (per spec) → HOOK (per spec) → then the angle below.
-
-   AGITATE (2 sentences): Surface the business impact of calls going unanswered. Use "~" for estimates. Never invent exact figures.
-
-   OUTCOME (2 sentences): What it does for them, concretely. Use "would" or "could". Never say "AI", "software", "solution".
-
-   WHAT IT IS (1 sentence): {persona.WHAT_IT_DOES}. Plain words.
-
-   PROOF (per spec)
-
-   CTA (per spec)
-
-   Sign off: — Shaurya
-   Hard rules: no bullets, no bold, no emojis. 120–170 words. "I" = Shaurya, "you" = business owner.
+   Angle: the missed patient. Shape: OPENER, HOOK, then one sentence on who calls after hours
+   (a patient in pain, someone who picks the next clinic on the list). Then WHAT (one sentence) and STOP. Do NOT write the offer, the reason it is free, the question or a sign-off: code appends those, word for word.
+   Put each sentence on its own line. Blank line after the school line.
+   Hard rules: 25 to 50 words. Short sentences per the SENTENCE RULES. No bullets, bold or emojis.
 
 4. "email_body_curiosity"
-   Angle: CURIOSITY GAP. Ask a question they can't answer without engaging.
-   Same H-A-O-P-CTA structure, same hard rules, same word count.
-   FORMATTING: Separate each section with a blank line (\n\n). Sign-off on its own line.
-
-   OPENER (per spec) → HOOK (per spec) → then the angle below.
-
-   AGITATE (2 sentences): Expand on the unknown — the calls they never find out about. Make the invisible visible with a plausible "~" number.
-
-   OUTCOME (2 sentences): What knowing (and fixing) it would look like.
-
-   WHAT IT IS (1 sentence): {persona.WHAT_IT_DOES}. Plain words.
-
-   PROOF (per spec)
-
-   CTA (per spec)
-
-   Sign off: — Shaurya
-   Hard rules: no bullets, no bold, no emojis. 120–170 words. "I" = Shaurya.
+   Angle: the calls they never see. Shape: OPENER, HOOK, then one sentence: nobody tells you
+   about a call that rang out. Then WHAT (one sentence) and STOP. Do NOT write the offer, the reason it is free, the question or a sign-off: code appends those, word for word.
+   Same hard rules as email_body_pain.
 
 5. "email_body_roi"
-   Angle: ROI / COMPETITOR COMPARISON. Show them the number, compare to what competitors do.
-   Same H-A-O-P-CTA structure, same hard rules, same word count.
-   FORMATTING: Separate each section with a blank line (\n\n). Sign-off on its own line.
-
-   OPENER (per spec) → HOOK (per spec) → then the angle below.
-
-   AGITATE (2 sentences): If they're missing X calls a day at Y value per booking, that's Z per month. Conservative "~" estimates only.
-
-   OUTCOME (2 sentences): What a fix would add back. Conservative "~" estimates.
-
-   WHAT IT IS (1 sentence): {persona.WHAT_IT_DOES}. Plain words.
-
-   PROOF (per spec)
-
-   CTA (per spec)
-
-   Sign off: — Shaurya
-   Hard rules: no bullets, no bold, no emojis. 120–170 words. "I" = Shaurya.
+   Angle: one patient. Shape: OPENER, HOOK, then one sentence: one new patient is worth more
+   than the whole setup, and the setup is free. Then WHAT (one sentence) and STOP. Do NOT write the offer, the reason it is free, the question or a sign-off: code appends those, word for word.
+   Same hard rules as email_body_pain. No rupee figures.
 
 6. "linkedin_msg"
    60–90 words. A human-first LinkedIn DM — NOT a pitch in disguise.
@@ -313,14 +244,14 @@ Generate a JSON object with exactly these fields:
 
    Step 3 — BRIDGE (1 sentence): {persona.WHAT_IT_DOES}. Then the PROOF clause (per spec).
 
-   Step 4 — CTA (per spec): the conversation ask plus the feedback reason, nothing more.
+   Step 4 — CTA (per spec): the yes/no ask plus the school-project reason, nothing more.
    No "hop on a call", no "schedule a demo", no "let's connect", no "I'd love to".
 
    Tone: sounds typed at a desk, slightly casual. Under 90 words total.
    No "I hope", no "exciting opportunity", no buzzwords.
 
 7. "linkedin_post"
-   A LinkedIn post Shaurya can publish from his own profile. 150–200 words. First-person. No list format.
+   A LinkedIn post Shaurya can publish from his own profile. 70–100 words. First-person. No list format.
    Based on what you observed about this type of business (use {industry} and {location} as context — do NOT name {company} specifically).
 
    Structure:
@@ -333,50 +264,14 @@ Generate a JSON object with exactly these fields:
    No emojis, no hashtags, no bullet lists.
 
 8. "email_body_outcome"
-   Angle: OPERATIONAL OUTCOME (v3 default for India dental/medical/physio with high digital maturity).
-   Sells the *result*, not the category. Never the word "AI" or "voice agent" — the OUTCOME.
-   Same H-A-O-P-CTA structure, same hard rules, same word count.
-   FORMATTING: Separate each section with a blank line (\n\n). Sign-off on its own line.
-
-   OPENER (per spec) → HOOK (per spec) → then the angle below.
-
-   AGITATE (2 sentences): Frame the operational loss in their words. "Patients", "enquiries", "bookings", "WhatsApp messages at 11pm".
-   Do NOT mention technology. Make the missed-call cost concrete in their workflow.
-
-   OUTCOME (2 sentences): A single concrete operational promise. Pick ONE:
-     - "Never miss a new-patient call after 8pm."
-     - "Front desk backup during staff leave and lunch hours."
-     - "Bookings captured for Sunday and late-night enquiries."
-     - "WhatsApp continuity for after-hours questions."
-   Then quantify the typical impact in their niche/city using "~" estimates.
-
-   PROOF (per spec)
-
-   CTA (per spec) — offer the demo in their language (English / Hinglish if applicable).
-
-   Sign off: — Shaurya
-   Hard rules: no bullets, no bold, no emojis. 120–170 words. In THIS field only, never use the words
-   "AI", "automation", "agent", "bot", "solution" — describe the behaviour instead. The OPENER and CTA
-   specs still apply in full.
-   "I" = Shaurya, "you" = business owner.
+   Angle: what changes after 8pm. Shape: OPENER, HOOK, then one sentence naming the result in
+   their words ("A patient who calls at 9pm gets a slot for tomorrow."). Then WHAT (one sentence) and STOP. Do NOT write the offer, the reason it is free, the question or a sign-off: code appends those, word for word.
+   Never the words "AI", "automation", "bot", "solution" in this field.
+   Same hard rules as email_body_pain.
 
 9. "email_body_question"
-   Angle: BREVITY AS RESPECT. The shortest version of the frame. Four lines, no argument, no agitation.
-   This is designed to get a reply, not to pitch.
-
-   LINE 1 (OPENER, per spec): the school line. Short.
-
-   LINE 2 (HOOK, per spec): the why-them sentence. One line.
-
-   LINE 3 (WHAT + PROOF): what it does and the proof clause, in one sentence if it fits.
-   Example shape: "I built {persona.WHAT_IT_DOES} — {persona.proof_line()}."
-
-   LINE 4 (CTA, per spec): the conversation ask plus the feedback reason.
-
-   Sign off: — Shaurya
-
-   Hard rules: 4 lines + sign-off. Under 70 words. No paragraphs. No agitation section.
-   No bold, no bullets, no emojis. "I" = Shaurya. This respects the reader's time more than any other format.
+   Angle: brevity. The shortest version. 3 lines, under 30 words.
+   LINE 1 OPENER. LINE 2 HOOK. LINE 3 WHAT. Then STOP (code appends the offer and question).
 
 10. "instagram_msg"
    A VERY informal Instagram DM — this is the opposite of the LinkedIn voice. Think one creator
@@ -397,8 +292,8 @@ Generate a JSON object with exactly these fields:
      category-and-place line instead.
    - line 3 (WHAT + PROOF): what it does, plainly, then the proof clause. ("i built a thing that picks up
      the clinic phone when no one can + books the appointment. {persona.proof_line()}")
-   - line 4 (CTA): the conversation ask plus the feedback reason, typed casually.
-     ("could i talk to u about it sometime? jus want some feedback on it tbh")
+   - line 4 (CTA): the yes/no ask plus the school-project reason, typed casually.
+     ("can i set it up for ur clinic this week? free, need a real clinic for my project. if not no worries")
 
    Hard rules: NO sign-off, NO "Dear", NO "I hope this finds you", NO corporate words ("solution",
    "leverage", "reach out", "opportunity"). NO links. Never write more than 4 lines. Never claim to have
@@ -425,8 +320,8 @@ Generate a JSON object with exactly these fields:
      can get to it and books the slot")
    - the PROOF clause (per spec), said flatly, then that he can set a free demo up
      on their details too ("can set one up on ur clinic's details for free")
-   - the CTA (per spec): the conversation ask plus the feedback reason
-     ("can i talk to u about it sometime? jus want some feedback on it")
+   - the CTA (per spec): the yes/no ask plus the school-project reason
+     ("can i set it up on ur clinic this week? free, its for my school project")
 
    Hard rules: NO greeting (the chat is already open), NO sign-off, NO name at
    the end, NO links, NO bullet points, NO emojis, no "AI", no "automation", no
@@ -514,7 +409,10 @@ def generate(data: dict) -> dict:
             model=LLM_MODEL,
             messages=[{"role": "user", "content": prompt}],
             temperature=0.7,
-            max_tokens=5000,
+            # Groq free tier caps qwen3.8-27b at 1000 OUTPUT tokens/minute and
+            # rejects any request whose max_tokens is above that outright (429
+            # "Requested 1207"). 5000 meant every generation could fail.
+            max_tokens=int(os.getenv("LLM_MAX_TOKENS", "1000")),
             response_format={"type": "json_object"},
         )
     except Exception as e:
@@ -591,9 +489,72 @@ def _select_variant(data: dict) -> tuple[str, str]:
     return data["email_body_curiosity"], "curiosity"
 
 
+# The offer, the reason and the question are facts, so code writes them, not
+# the model. On 2026-11-20 a test generation turned the guarantee upside down
+# ("If it misses a patient, I turn it off"). The model only writes the
+# personal head (school line, hook, angle); one of these closes every email.
+_OFFER_BLOCKS = [
+    "I can run it free at {short} for one week.\n"
+    "Only on calls after closing.\n"
+    "Your staff dial one code to turn it on, and one to turn it off.\n"
+    "If it doesn't catch a single patient, I switch it off. That's it.\n\n"
+    "It's free because I need a real clinic to test it on for my school project.\n\n"
+    "Can I set it up for {short} this week? If not, no worries.",
+    "I'd set it up for {short} free, for a week.\n"
+    "It only takes calls after you close.\n"
+    "One code switches it on. One code switches it off.\n"
+    "If it catches nobody, I turn it off and that's the end of it.\n\n"
+    "I need a real clinic to test it on. It's for my school project.\n\n"
+    "Should I set it up this week? A no is completely fine.",
+    "Free for one week at {short}.\n"
+    "After-hours calls only, so your day desk doesn't change.\n"
+    "Your staff can switch it off in five seconds with one code.\n"
+    "If it doesn't book a single patient, I take it down.\n\n"
+    "Why free: I need a real clinic to test it on for my school project.\n\n"
+    "Can I set it up for you this week? If not, no worries.",
+]
+
+
+def _strip_tail(head: str) -> str:
+    """Drop any sign-off or question the model wrote despite the spec."""
+    lines = [l.rstrip() for l in (head or "").strip().split("\n")]
+    while lines and (not lines[-1].strip() or "shaurya" in lines[-1].lower()
+                     or lines[-1].strip().endswith("?") or "no worries" in lines[-1].lower()):
+        lines.pop()
+    return "\n".join(lines).strip()
+
+
+def compose_email(head: str, company: str) -> str:
+    short = names.short_name(company)
+    offer = random.choice(_OFFER_BLOCKS).format(short=short)
+    return f"{_strip_tail(head)}\n\n{offer}\n\n{persona.SENDER_NAME}"
+
+
+_GENERIC_SUBJECTS = {"school project", "school project question", "quick question",
+                     "the front desk", "following up", "hello", "hi"}
+
+
+def _guard_subject(result: dict) -> str:
+    """Never ship a subject that is identical across leads.
+
+    ~200 threads went out as the bare "school project". Identical subjects from
+    one sender to many strangers are a bulk-mail fingerprint, so a generic one
+    is replaced with a lead-specific one built from the short clinic name.
+    """
+    subject = (result.get("email_subject") or "").strip().lower().strip(".!?")
+    short = names.short_name(result.get("company_name", "")).lower()
+    if subject and subject not in _GENERIC_SUBJECTS and short != "your clinic":
+        return subject
+    if short == "your clinic":
+        return subject if subject and subject not in _GENERIC_SUBJECTS else "your front desk after 8pm"
+    return random.choice([f"{short} after 8pm", f"{short} front desk",
+                          f"{short} after hours", f"student at {persona.SCHOOL_SHORT.lower()}, {short}"])
+
+
 def run(data: dict) -> dict:
     result = generate(data)
+    result["email_subject"] = _guard_subject(result)
     email_body, variant_id = _select_variant(result)
-    result["email_body"] = email_body
+    result["email_body"] = compose_email(email_body, result.get("company_name", ""))
     result["message_variant_id"] = variant_id
     return result

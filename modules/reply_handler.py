@@ -23,6 +23,7 @@ import imaplib
 import json
 import logging
 import os
+import random
 import re
 import smtplib
 from datetime import datetime, timezone
@@ -31,7 +32,7 @@ from email.mime.text import MIMEText
 from openai import OpenAI
 
 from config import LLM_MODEL, LLM_BASE_URL
-from modules import jev, persona, sheets_writer
+from modules import jev, names, persona, sheets_writer
 
 log = logging.getLogger(__name__)
 
@@ -183,28 +184,16 @@ Context:
 - Objection type (if any): {objection_type}
 - Conversation stage: {stage}
 
-CTA ladder. They have ALREADY replied, so the free demo is no longer the ask — the meeting is.
-The first touch bought the reply; this half converts it. Never skip a step, never jump ahead.
-  initial     → they replied to the school-project message. Confirm you'll set the free demo up on
-                THEIR details, then ask for a short meeting to walk them through it.
-                Exactly one ask: the meeting. No link yet.
-  follow_up_1 → they haven't picked a time. Ask once more, concretely — offer two specific windows
-                ("tomorrow evening or Saturday morning?"). Still no link.
-  warm        → they're engaged. Drop the booking link: {booking_link}
-  follow_up_2 → last nudge. Booking link again: {booking_link}. One line. No pressure, no guilt.
-
-Rules per category:
-  interested → match the current stage CTA above. Never jump ahead.
-  neutral → one sharp specific question about their situation. No meeting ask yet.
-  objection:
-    cost: the demo costs them nothing and you are not asking for money at this stage.
-    timing: it takes less than a day to set up, and the demo needs nothing from them.
-    trust: offer a recording of it handling a real call for a similar business.
-    existing_solution: ask what they use — most setups still miss after-hours calls.
-    other: acknowledge the specific concern, then ask if seeing the demo would help.
+This is a DRAFT for Shaurya to edit and send himself. Goal: a yes to setting up the free week
+on their clinic (after-hours calls only, one code on, one code off, free, for his school project).
+If they said yes: thank them in one line and ask for the ONE thing he needs next: the clinic's
+main number and their opening hours. If they asked a question, answer it in plain words.
+If they want to see it first: offer to send a short video of it answering a call.
+HONESTY (hard): never invent a fact. No client names, no "confidentiality", no "privacy" excuses,
+no results, no meeting links. If you don't know an answer, write [SHAURYA: answer this] instead.
 
 Hard rules:
-- 60–100 words max. No buzzwords. No "I hope". Sound like a real human.
+- 30 to 70 words. Short sentences. No buzzwords. No "I hope". Sound like a real human.
 - "I" = {sender_name}, the student. "You/your" = the business owner.
 - Sign off: — {sender_name}
 
@@ -446,7 +435,8 @@ def run(since_days: int = 7):
     bounced_now, inbox = _handle_bounces(inbox, email_to_lead)
     _bounce_rate_guard(leads)
 
-    replies_handled = 0
+    replies_handled = 0  # bot-sent replies: always 0 since 2026-11-20 (drafts only)
+    replies_new = 0      # unique leads whose NEW reply arrived this run
     optouts = 0
     handoffs = 0
 
@@ -500,35 +490,23 @@ def run(since_days: int = 7):
             sheets_writer.update_reply(slug, "not_relevant", "dead")
             continue
 
-        # A lead ready for a meeting is Shaurya's conversation from here on. The
-        # bot stops replying and tells him instead of improvising scheduling or
-        # answering questions only the real person can answer.
-        if classification.get("ready_to_meet") is True:
-            _notify_handoff(lead, msg, classification)
-            sheets_writer.update_reply(slug, category, "handoff", objection_type)
-            handoffs += 1
-            continue
-
-        response_text = _generate_response(lead, classification, reply_text=msg["body"])
-        sent = _send_reply(sender, msg["subject"], response_text,
-                           kind="reply", company=lead.get("company_name", ""))
-
-        if sent:
-            new_stage = _next_stage(stage, category)
-            sheets_writer.update_reply(
-                slug,
-                reply_status=category,
-                conversation_stage=new_stage,
-                objection_type=objection_type,
-            )
-            replies_handled += 1
-            log.info("Replied to %s — stage: %s → %s", sender, stage, new_stage)
-        else:
-            log.error("Failed to send reply to %s", sender)
+        # 2026-11-20: the bot NEVER writes to a lead who has replied. On
+        # 2026-09-17 a warm lead (agreed to a call, asked for a demo link) got
+        # 17 bot emails in 7 days, contradicting each other and inventing
+        # "student confidentiality agreements". A human reply is worth more than
+        # any speed the bot buys. Every real reply now goes to Shaurya with a
+        # suggested draft; he edits and sends it himself from the same thread.
+        draft = _generate_response(lead, classification, reply_text=msg["body"])
+        _notify_handoff(lead, msg, classification, draft=draft)
+        sheets_writer.update_reply(slug, category, "handoff", objection_type)
+        handoffs += 1
+        replies_new += 1
+        log.info("Reply from %s handed to Shaurya (category=%s)", sender, category)
 
     return {
         "inbox_msgs": len(inbox),
         "replies_handled": replies_handled,
+        "replies_new": replies_new,
         "optouts": optouts,
         "handoffs": handoffs,
         "bounces": bounced_now,
@@ -601,19 +579,22 @@ def _already_handled(msg: dict, lead: dict) -> bool:
     return received <= replied
 
 
-def _notify_handoff(lead: dict, msg: dict, classification: dict) -> None:
-    """Email Shaurya (to himself) that a lead is ready for him to take over."""
+def _notify_handoff(lead: dict, msg: dict, classification: dict, draft: str = "") -> None:
+    """Email Shaurya (to himself) that a lead replied, with a suggested draft."""
     if not GMAIL_ADDRESS:
         log.error("Handoff for %s but GMAIL_ADDRESS unset; no notice sent", lead.get("slug"))
         return
     body = (
-        f"{lead.get('company_name', 'A lead')} is ready to talk. The bot has stopped replying; "
-        f"this thread is yours now.\n\n"
+        f"{lead.get('company_name', 'A lead')} replied. The bot has NOT answered and never will; "
+        f"reply yourself in their thread.\n\n"
         f"From: {msg['from_addr']}\n"
+        f"Category: {classification.get('category', '')}\n"
         f"Summary: {classification.get('brief_summary', '')}\n\n"
-        f"Their message:\n{msg['body'][:1500]}"
+        f"Their message:\n{msg['body'][:1500]}\n\n"
+        f"---- Suggested draft (edit before sending; anything in [brackets] is for you) ----\n"
+        f"{draft or '(no draft generated)'}\n"
     )
-    if not _send_reply(GMAIL_ADDRESS, f"HANDOFF: {lead.get('company_name', msg['from_addr'])}", body,
+    if not _send_reply(GMAIL_ADDRESS, f"REPLY WAITING: {lead.get('company_name', msg['from_addr'])}", body,
                        kind="notice"):
         log.error("Handoff notice for %s failed to send; check the sheet for stage=handoff",
                   lead.get("slug"))
@@ -622,7 +603,9 @@ def _notify_handoff(lead: dict, msg: dict, classification: dict) -> None:
 # v3 per-channel follow-up caps. SMB B2B benchmarks show 5–7 touchpoints
 # to first response, so the legacy cap of 3 was leaving money on the table.
 # Override via env: EMAIL_FOLLOWUP_MAX=5 etc.
-EMAIL_FOLLOWUP_MAX = int(os.getenv("EMAIL_FOLLOWUP_MAX", "5"))
+# 2026-11-20: 5 -> 2. Five near-identical nudges to people who never opened
+# the first one tell Gmail the mail is unwanted. 3 touches total.
+EMAIL_FOLLOWUP_MAX = int(os.getenv("EMAIL_FOLLOWUP_MAX", "2"))
 WHATSAPP_FOLLOWUP_MAX = int(os.getenv("WHATSAPP_FOLLOWUP_MAX", "3"))
 INSTAGRAM_FOLLOWUP_MAX = int(os.getenv("INSTAGRAM_FOLLOWUP_MAX", "2"))
 
@@ -648,6 +631,39 @@ def _email_followup_count(lead: dict) -> int:
     except (ValueError, TypeError):
         legacy = 0
     return max(new, legacy)
+
+
+# Two wordings per touch so the same text never goes to every lead. No
+# statistics, no estimates: the only facts are the offer and the short name.
+_FU_TEMPLATES = {
+    0: [
+        "Just checking this reached you.\n\n"
+        "The free week for {short} still stands.\n"
+        "After-hours calls only.\n"
+        "One code turns it on. One code turns it off.\n\n"
+        "Want me to set it up? If not, no worries.\n\n{sender}",
+        "Sending this once more in case it got buried.\n\n"
+        "I can run it free for a week at {short}.\n"
+        "Only on calls after closing.\n"
+        "Your staff can switch it off in five seconds.\n\n"
+        "Should I set it up? A no is fine too.\n\n{sender}",
+    ],
+    1: [
+        "Last note from me.\n\n"
+        "If after-hours calls at {short} ever become a problem, reply \"yes\".\n"
+        "I'll set up the free week the same day.\n\n"
+        "Good luck with the clinic.\n\n{sender}",
+        "I won't email again after this.\n\n"
+        "The offer for {short} stays open.\n"
+        "One word, \"yes\", and I set up the free week.\n\n"
+        "Thanks for reading.\n\n{sender}",
+    ],
+}
+
+
+def _follow_up_body(n: int, short: str, sender: str) -> str:
+    options = _FU_TEMPLATES.get(n) or _FU_TEMPLATES[max(_FU_TEMPLATES)]
+    return random.choice(options).format(short=short, sender=sender)
 
 
 def send_follow_ups(max_per_run: int = 10):
@@ -687,87 +703,17 @@ def send_follow_ups(max_per_run: int = 10):
 
         days_since = (datetime.now(timezone.utc) - sent_at).days
 
-        # v3 windows: day 3–4 | 7–9 | 12–14 | 18–21 | 28–30
-        windows = {
-            0: (3, 4),
-            1: (7, 9),
-            2: (12, 14),
-            3: (18, 21),
-            4: (28, 30),
-        }
+        # 3 touches: day 0, day 4-5, day 10-12.
+        windows = {0: (4, 5), 1: (10, 12)}
         win = windows.get(follow_up_count)
         if not win or not (win[0] <= days_since <= win[1]):
             continue
 
         company = lead.get("company_name", "your business")
-        niche = lead.get("niche", "service")
-        location = lead.get("location", "your area")
+        short = names.short_name(company)
         subject = lead.get("email_subject", "following up")
-
         sender = persona.SENDER_NAME
-        if follow_up_count == 0:
-            body = (
-                f"Wanted to add something useful to this.\n\n"
-                f"Most {niche} businesses in {location} miss 20–35% of inbound calls — mostly "
-                f"afternoons, when whoever is on the desk is with someone.\n\n"
-                f"Happy to pull a rough missed-call estimate for {company} specifically if that "
-                f"would be useful. No call needed.\n\n"
-                f"— {sender}"
-            )
-        elif follow_up_count == 1:
-            # No proof claim here. The touch-1 message already stated the real
-            # client count; restating it as if it were news ("since I wrote...")
-            # would be a fabricated update, and attributing a retention story to
-            # those clinics invents facts no field supports. The observation
-            # below is non-falsifiable and true of the category.
-            body = (
-                f"Quick follow-up with something concrete.\n\n"
-                f"The calls that cost the most aren't the busy-hour ones. They're the ones coming in "
-                f"after close that nobody was ever going to answer.\n\n"
-                f"If the timing's off, completely fine. If calls are still slipping, I can set the "
-                f"free demo up on {company}'s details and send it over.\n\n"
-                f"— {sender}"
-            )
-        elif follow_up_count == 2:
-            body = (
-                f"If covering the front desk isn't the problem right now, ignore this completely.\n\n"
-                f"If it still is, I'll set the demo up on your details for free. No strings, and it's "
-                f"still for the school project either way.\n\n"
-                f"— {sender}"
-            )
-        elif follow_up_count == 3:
-            # v3 follow-up 4 — concrete operational value, no ask.
-            # Uses a REAL count from the 'unreachable_reviews' sheet field when it
-            # has been populated (see scripts/enrich_reviews.py). Falls back to a
-            # non-falsifiable generic line when the field is absent or zero — we
-            # never invent a number.
-            n_unreachable = _safe_int(lead.get("unreachable_reviews"))
-            if n_unreachable > 0:
-                noun = "review" if n_unreachable == 1 else "reviews"
-                body = (
-                    f"Quick one, not following up, just sharing.\n\n"
-                    f"I went through {company}'s public reviews and {n_unreachable} {noun} mention not "
-                    f"being able to get through by phone. That's usually the visible 5% of the missed-call "
-                    f"iceberg, the rest never leave a trace.\n\n"
-                    f"If you ever want a rough estimate of what that's costing, happy to send it. No call.\n\n"
-                    f"— {sender}"
-                )
-            else:
-                body = (
-                    f"Quick one, not following up, just sharing.\n\n"
-                    f"Whenever I look at {niche} practices, the reviews mentioning \"couldn't get through\" "
-                    f"are usually the visible 5% of the missed-call iceberg. The rest never leave a trace.\n\n"
-                    f"If you ever want a rough estimate of what {company} is actually missing, happy to send it. No call.\n\n"
-                    f"— {sender}"
-                )
-        else:
-            # v3 follow-up 5 — the actual breakup, lowest friction
-            body = (
-                f"Closing the loop on this thread.\n\n"
-                f"If the front desk is sorted, ignore. If it's not and you'd ever want to compare "
-                f"options, my line is open — no follow-up from me after this.\n\n"
-                f"— {sender}"
-            )
+        body = _follow_up_body(follow_up_count, short, sender)
 
         msg_id = lead.get("message_id") or None
         sender_acct = lead.get("sender_account") or None

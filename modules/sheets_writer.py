@@ -56,6 +56,10 @@ HEADERS = [
     # Appended last so existing column positions never shift (update_field +
     # build_row both index off HEADERS, so order is the contract).
     "demo_url", "demo_generated_at",
+    # ── 2026-11-20 after-hours call check (scripts/after_hours_check.py) ──
+    # call_check = the one true sentence used as the email's WHY THEM line
+    # (or "ANSWERED"), call_check_at = when the check call was made (UTC ISO).
+    "call_check", "call_check_at",
 ]
 
 NICHE_ANALYTICS_HEADERS = [
@@ -231,6 +235,9 @@ def build_row(data: dict) -> list:
         # ── 2026-06-28 integration hub: demo assets (filled later by warm_mockup) ──
         data.get("demo_url", ""),
         data.get("demo_generated_at", ""),
+        # ── 2026-11-20 after-hours call check (filled later by the local script) ──
+        data.get("call_check", ""),
+        data.get("call_check_at", ""),
     ]
 
 

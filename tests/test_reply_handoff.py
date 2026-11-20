@@ -26,16 +26,36 @@ def _wire(monkeypatch, inbox, lead, classification):
     monkeypatch.setattr(rh, "_classify_reply", lambda text: classification)
     monkeypatch.setattr(rh, "_generate_response", lambda *a, **k: "hi")
     monkeypatch.setattr(rh, "_send_reply", lambda to, subj, body, **k: sent.append(to) or True)
-    monkeypatch.setattr(rh, "_notify_handoff", lambda *a: notices.append(a))
+    monkeypatch.setattr(rh, "_notify_handoff", lambda *a, **k: notices.append((a, k)))
     return sent, updates, notices
 
 
-def test_four_inbound_messages_get_one_reply(monkeypatch):
+def test_four_inbound_messages_get_one_notice_and_no_bot_reply(monkeypatch):
+    """2026-11-20: a replying lead never gets a bot email, only one notice to Shaurya."""
     inbox = [_msg("dr@x.com", m) for m in (0, 5, 10, 15)]
-    sent, _, _ = _wire(monkeypatch, inbox, _lead(),
-                       {"category": "neutral", "ready_to_meet": False})
-    rh.run()
-    assert sent == ["dr@x.com"]
+    sent, _, notices = _wire(monkeypatch, inbox, _lead(),
+                             {"category": "neutral", "ready_to_meet": False})
+    stats = rh.run()
+    assert sent == []
+    assert len(notices) == 1 and notices[0][1]["draft"] == "hi"
+    assert stats["replies_new"] == 1 and stats["replies_handled"] == 0
+
+
+def test_badami_thread_replay_never_floods(monkeypatch):
+    """The real 2026-09 thread: yes, a time, then a request for a demo + names.
+    Across 4 runs the bot must send her nothing and notify Shaurya once."""
+    lead = _lead(conversation_stage="initial")
+    total_sent, total_notices = [], 0
+    for run_i in range(4):
+        inbox = [_msg("dr@x.com", m) for m in range(0, 10 * (run_i + 1), 10)]
+        sent, updates, notices = _wire(monkeypatch, inbox, lead,
+                                       {"category": "interested", "ready_to_meet": run_i > 0})
+        rh.run()
+        total_sent += sent
+        total_notices += len(notices)
+        if updates:  # the sheet now says handoff, as the real sheet would
+            lead = {**lead, "conversation_stage": updates[-1][0][1]}
+    assert total_sent == [] and total_notices == 1
 
 
 def test_message_older_than_last_reply_is_skipped(monkeypatch):

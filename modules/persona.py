@@ -47,45 +47,56 @@ SENDER_NAME = os.getenv("PERSONA_NAME", "Shaurya")
 SENDER_CITY = os.getenv("PERSONA_CITY", "Delhi")
 
 # ── Proof ───────────────────────────────────────────────────────────────────
-# The literal number of live deployments. This is a factual claim made to
-# strangers; keep it honest. 2 = the clinics currently running the agent.
-CLIENT_COUNT = int(os.getenv("PROOF_CLIENT_COUNT", "2"))
+# The literal number of businesses running the agent TODAY. This is a factual
+# claim made to strangers. Default is 0 (2026-11-20): a warm lead asked "which
+# 2 clinics?" and there was no name to give, which cost more than the claim
+# ever earned. Raise it only when a clinic would confirm it if called.
+CLIENT_COUNT = int(os.getenv("PROOF_CLIENT_COUNT", "0"))
 CLIENT_NOUN = os.getenv("PROOF_CLIENT_NOUN", "clinics")
 
 
 def proof_line() -> str:
     """The proof clause, in the sender's own voice. Singular-safe."""
     if CLIENT_COUNT <= 0:
-        return ""  # no clients yet — say nothing rather than something
+        return ""  # no clients yet: say nothing rather than something
     noun = CLIENT_NOUN if CLIENT_COUNT > 1 else CLIENT_NOUN.rstrip("s")
-    return f"{CLIENT_COUNT} {noun} are already using it"
+    verb = "are" if CLIENT_COUNT > 1 else "is"
+    return f"{CLIENT_COUNT} {noun} {verb} already using it"
 
 
 # ── What the product actually is, in plain words ────────────────────────────
 # Deliberately concrete. "AI voice agent" is a category; this is the behaviour.
 WHAT_IT_DOES = (
-    "a voice agent that picks up the clinic phone when nobody can get to it, "
-    "answers the usual questions, books the appointment, and texts you the details"
+    "a voice agent that picks up the clinic phone when nobody can, "
+    "answers the usual questions, and books the appointment"
 )
 
-# ── The offer ───────────────────────────────────────────────────────────────
-# The free demo is mentioned as something he has, not as the thing he wants.
-OFFER = "a free demo he can set up on their own clinic's details"
+# ── The offer (Hormozi: nothing to lose, no reason to say no) ───────────────
+# Every risk the owner could raise is removed inside the offer itself:
+#   cost      -> free for the week
+#   effort    -> he sets it up; staff dial one code to switch it on
+#   risk      -> after-hours calls only, so the day desk is untouched
+#   exit      -> one code switches it off, no call to anyone needed
+#   outcome   -> if it catches nobody, he turns it off and that's the end
+# And the student frame is the honest REASON it is free: he needs a real
+# clinic to test it on for his school project. That reason is what stops a
+# free offer reading as a trap. All of this is true of the locked 7-day trial
+# (Projects/dental-receptionist, Rs.0 trial, ##21# kill switch).
+OFFER = (
+    "he sets it up on their clinic's details for free, for one week, on after-hours "
+    "calls only. Their staff dial one code to switch it on and one code to switch it off. "
+    "If it doesn't catch a single patient they'd have missed, he turns it off and that's it"
+)
+OFFER_REASON = "he needs a real clinic to test it on for his school project"
 
-# The one thing touch 1 asks for. Deliberately NOT the demo: asking to send
-# something puts the burden on them to receive and judge it. Asking to talk
-# costs them a yes and nothing else, and the feedback framing below is what
-# makes the yes cheap — he is not asking them to buy, evaluate, or commit.
-TOUCH_1_ASK = "a short conversation about it, sometime"
+# The one thing touch 1 asks for: a yes/no about running the free week.
+TOUCH_1_ASK = "whether he can set it up for their clinic this week"
 
-# Why he wants the conversation. This is the load-bearing half of the ask: a
-# student asking for feedback is a request the recipient can grant for free and
-# feel good about. A student asking for a sale is the thing they were bracing
-# for. Never drop it — without it the ask reads as a disguised meeting request.
-FEEDBACK_FRAME = "he just wants feedback on it from someone who'd actually know"
+# Kept for callers that still read it; now the honest reason behind the offer.
+FEEDBACK_FRAME = OFFER_REASON
 
-# What happens after they reply. The reply handler owns this half.
-POST_REPLY_GOAL = "book a short meeting"
+# What happens after they reply. A human (Shaurya) owns this half.
+POST_REPLY_GOAL = "set up the free week"
 
 
 # ── The block that goes at the top of every generation prompt ───────────────
@@ -95,23 +106,20 @@ POST_REPLY_GOAL = "book a short meeting"
 # caller. See modules/generator.py.
 SENDER_FRAMING = f"""
 SENDER: {SENDER_NAME}, a school student at {SCHOOL} in {SENDER_CITY}. Not a company, not an agency, not a freelancer.
-FRAME: He is reaching out about a school project. That is literally true and it is the first thing he says. He built {WHAT_IT_DOES}.
-PROOF: {proof_line()}. This is a real number. Never inflate it, never say "many", never say "several businesses", never imply a client list.
-OFFER: {OFFER}. Free means free — there is no trial, no card, no fee mentioned anywhere on the first touch. The demo is mentioned as something he HAS, never as the thing he is asking for.
-THE ONLY ASK ON TOUCH 1: {TOUCH_1_ASK} — and the reason given is that {FEEDBACK_FRAME}.
-  Phrase it loosely and low-stakes: "can I talk to you about this sometime?" is the shape. "Sometime" is
-  doing real work — it asks for willingness, not a slot, so there is nothing to check a calendar for.
-  NOT a specific time, NOT a duration ("15 minutes"), NOT a calendar link, NOT "hop on a call", NOT
-  "schedule". Those are what make a stranger's ask feel expensive, and they come later anyway.
-  The feedback reason is NOT optional. Without it this reads as a disguised sales meeting, which is
-  the exact thing the student frame exists to avoid.
+FRAME: For a school project, he built {WHAT_IT_DOES}. That is literally true and it comes first.
+PROOF: {proof_line() or "NONE. Make no claim about anyone using it. Do not hint at users, clinics, or results."}
+OFFER: {OFFER}.
+WHY IT IS FREE: {OFFER_REASON}. Always say this reason. It is what makes a free offer believable.
+THE ONLY ASK: {TOUCH_1_ASK}. A yes/no question. A "yes" is the whole reply he needs.
+  NOT a call, NOT a meeting, NOT a time, NOT a calendar link, NOT "hop on". He does the work, not them.
 
-HOW THE STUDENT FRAME MUST SOUND:
-- Say the school by name early. "{SCHOOL_SHORT}" or "{SCHOOL}" — both fine, whichever scans better in the sentence.
-- Say "school project" plainly. Do not dress it up as "a research initiative", "a study", "a startup", or "a venture".
-- Do not apologise for being a student and do not perform being a student. No "I know I'm just a kid", no "sorry to bother you", no cutesy tone.
-- Do not claim a grade, a rank, a competition, a teacher, a mentor, or a deadline that was not given to you. If you weren't told it, it doesn't go in the message.
-- Confidence without seniority: he built a working thing and is showing it to someone who'd know if it's any good.
+HOW IT MUST SOUND:
+- Short sentences. Most under 10 words. Never over 15. One idea per sentence.
+- Say the school by name early. "{SCHOOL_SHORT}" or "{SCHOOL}".
+- Say "school project" plainly. No "research initiative", "startup", "venture".
+- No apologising, no cutesy tone, no "sorry to bother you".
+- No pressure. Saying no must feel as easy as saying yes. One calm line like "If not, no worries." is enough.
+- Never claim a grade, rank, competition, teacher or deadline you were not given.
 """
 
 # ── Guard rails shared by every channel ─────────────────────────────────────

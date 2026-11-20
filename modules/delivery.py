@@ -95,7 +95,13 @@ def plan(lead: dict) -> dict:
         # Return the exact value we validated (what warm_mockup persisted), not a
         # regenerated one, so the gate checks and the link sent are the same string.
         return {"state": "warm", "attach_video": None, "link": stored_link}
-    return {"state": "cold", "attach_video": _ensure_cold_video(lead), "link": None}
+    # 2026-11-20: no video on a cold email, ever. An unexpected mp4 from a
+    # stranger's gmail reads as malware to filters and to people. The video is
+    # sent only after they reply (by Shaurya, inside the conversation). Opt back
+    # in with COLD_VIDEO=1 if a seed test ever shows it lands in Primary.
+    import os
+    video = _ensure_cold_video(lead) if os.getenv("COLD_VIDEO") == "1" else None
+    return {"state": "cold", "attach_video": video, "link": None}
 
 
 # ── Per-channel asset shaping (consumed by the outreach modules) ─────────────

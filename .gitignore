@@ -52,3 +52,6 @@ runs/video_pitches/
 modules/groq_pool.py
 # send audit log holds recipient addresses; this repo is public
 audit/
+
+# After-hours call plan + checkpoint (clinic phone numbers, machine-local)
+runs/call_plan.local.json
