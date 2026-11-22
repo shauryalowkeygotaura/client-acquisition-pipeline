@@ -7,7 +7,7 @@ import re
 from openai import OpenAI
 
 from config import LLM_MODEL, LLM_BASE_URL
-from modules import names, persona
+from modules import bait, names, persona
 
 log = logging.getLogger(__name__)
 
@@ -553,8 +553,20 @@ def _guard_subject(result: dict) -> str:
 
 def run(data: dict) -> dict:
     result = generate(data)
-    result["email_subject"] = _guard_subject(result)
     email_body, variant_id = _select_variant(result)
-    result["email_body"] = compose_email(email_body, result.get("company_name", ""))
+    body = compose_email(email_body, result.get("company_name", ""))
+
+    # Pattern-interrupt subject + one-line apology as the very first line
+    # (modules/bait.py). BAIT_SUBJECTS=0 falls back to the plain guarded subject.
+    if os.getenv("BAIT_SUBJECTS", "1") == "1":
+        short = names.short_name(result.get("company_name", ""))
+        rang_out = "rang out" in (result.get("call_check") or "").lower()
+        subject, apology = bait.pick(short, rang_out)
+        result["email_subject"] = subject
+        body = f"{apology}\n\n{body}"
+    else:
+        result["email_subject"] = _guard_subject(result)
+
+    result["email_body"] = body
     result["message_variant_id"] = variant_id
     return result
