@@ -26,6 +26,28 @@ CITIES = [
     "Indore, Madhya Pradesh",
     "Nagpur, Maharashtra",
     "Kochi, Kerala",
+    # 2026-11-26: all 14 above fished out again (every run since ~Nov 11:
+    # ~1000 found, 0 new). Fresh tier-2/3 ponds with real OSM clinic density.
+    "Noida, Uttar Pradesh",
+    "Gurugram, Haryana",
+    "Ghaziabad, Uttar Pradesh",
+    "Faridabad, Haryana",
+    "Surat, Gujarat",
+    "Vadodara, Gujarat",
+    "Bhopal, Madhya Pradesh",
+    "Visakhapatnam, Andhra Pradesh",
+    "Coimbatore, Tamil Nadu",
+    "Mysuru, Karnataka",
+    "Thiruvananthapuram, Kerala",
+    "Bhubaneswar, Odisha",
+    "Patna, Bihar",
+    "Dehradun, Uttarakhand",
+    "Ludhiana, Punjab",
+    "Amritsar, Punjab",
+    "Kanpur, Uttar Pradesh",
+    "Varanasi, Uttar Pradesh",
+    "Nashik, Maharashtra",
+    "Udaipur, Rajasthan",
 ]
 
 # Google Maps backfill (last paid resort before the keyless OSM floor). Each
