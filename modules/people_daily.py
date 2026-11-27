@@ -77,13 +77,23 @@ FOLLOW_UPS = {
 _PROMPT = """Write ONE LinkedIn connection note from Shaurya to {name} ({role}, {company}).
 Why them: {hook}
 
-FORMAT (copy the energy of these real ones exactly):
-- "Pipecat, Groq and pure delusion. That's my whole $0/min phone agent and it WORKS. Delhi high schooler, ditched Vapi for you guys. Would love to contribute a Hindi example agent or help in any role. 60s demo?"
+THE JOKE IS EVERYTHING. It is a tiny, funny SCENE FROM SHAURYA'S LIFE building voice agents:
+a family member, an aunty/uncle, his bot misbehaving, Hinglish chaos, 3am debugging. Self-deprecating.
+It is NEVER a comment or compliment about their company ("Wild climb", "Bold", "Impressive" = FAIL).
+
+These are the real ones that worked. Match this energy exactly:
 - "Aunty hung up on my bot. Said 'haan ji' with the wrong vibe and I took it personally. High schooler, $0/min Hinglish agent in Python. Would love to build with Bolna this winter. Can I show you?"
+- "Mom thinks I'm dating 'Silero'. I've just been fighting turn detection. Delhi student shipping realtime Hinglish voice agents, want to PR a Hindi example into livekit/agents. Do contributors ever become interns?"
 - "Dadi asked if Samvaad can call the sabziwala. Can it?? Delhi high schooler with a $0/min Hinglish agent, want to try it on Sarvam voices and share what breaks. Open to an intern role too!"
+- "My bot out-argued a Delhi uncle. In Hinglish, on Pipecat, for $0 a minute. Congrats on 1.0! High schooler here, would love to help build Indian-language examples. Can I send the demo?"
+- "My n8n canvas needs therapy. More spaghetti than a nonna's kitchen, and it still books meetings. Delhi high schooler, would love to build community nodes + tutorials people finish. Any community/intern role?"
+- "'Nau nine double three??' haunts my dreams. I debug Hinglish phone numbers at 3am so nobody else has to. Delhi high schooler, $0/min agent on Pipecat + Groq. Can I help Bolna's eng team?"
+- "Grandparents think my AI is a scam call. I'm building voice AI for people without smartphones. Delhi high schooler, would love to build it on Sarvam. Can I show you?"
+Invent a NEW scene in this style (do not reuse these), ideally one that connects to what {company} does.
 
 RULES:
-- The joke lands in the FIRST 5 WORDS (that is all the notification shows). Desi, specific, self-aware.
+- The joke scene is the FIRST sentence and lands in the first 5 words (that is all the notification shows).
+- Second sentence twists or explains the joke, like the examples.
 - Then "Delhi high schooler" (or "High schooler"), then ONE fact from this list, nothing else is true:
 {facts}
 - Then: {ask}. Tie it to {company} specifically.
@@ -140,8 +150,26 @@ def profile_link(p: dict) -> str:
     return "https://www.linkedin.com/search/results/people/?keywords=" + urllib.parse.quote(q)
 
 
+_SCENE = re.compile(
+    r"\b(my|i|i'm|i've|me|mom|mum|dad|papa|mummy|dadi|nani|nana|dada|aunty|auntie|uncle|"
+    r"grandparents?|grandma|bhai|didi|sister|brother|neighbou?r|teacher|bot|phone|agent)\b", re.I)
+_PRAISE = re.compile(r"^(wild|bold|impressive|amazing|huge|big|congrats|wow|love)\b", re.I)
+
+
+def _has_joke(note: str) -> bool:
+    """First sentence must be a life scene (him / family / his bot), not praise of them."""
+    first = re.split(r"(?<=[.!?])\s", note.strip(), maxsplit=1)[0]
+    return len(first.split()) >= 4 and bool(_SCENE.search(first)) and not _PRAISE.match(first)
+
+
+# Jokes already used on 2026-10-30: a recycled one reads as a template.
+_USED = re.compile(r"sabziwala|silero|haan ji|out-argued|therapy|nau nine|scam call|"
+                   r"pure delusion|call cent", re.I)
+
+
 def _valid(note: str) -> bool:
-    return (bool(note) and len(note) <= NOTE_MAX and "?" in note[-60:]
+    return (bool(note) and len(note) <= NOTE_MAX and "?" in note[-60:] and _has_joke(note)
+            and not _USED.search(note)
             and "high school" in note.lower() and bait.is_safe(note)
             and "—" not in note and "http" not in note)
 
@@ -149,9 +177,14 @@ def _valid(note: str) -> bool:
 def write_note(p: dict) -> str:
     cat = p.get("category") or "partner"
     company = p.get("company") or "your team"
-    fallback = (f"My phone agent speaks better Hinglish than me. Delhi high schooler, built it on "
-                f"Pipecat + Groq for $0 a minute. Would love to help {company} in any way I can. "
-                f"Can I show you?")
+    fallback = random.choice([
+        f"My bot speaks better Hinglish than me. Nani noticed first. Delhi high schooler, built it on "
+        f"Pipecat + Groq for $0 a minute. Would love to help {company} in any way I can. Can I show you?",
+        f"Papa answered my AI's call and said 'galat number'. Twice. Delhi high schooler, $0/min "
+        f"Hinglish phone agent on Pipecat + Groq. Would love to build something with {company}. 60s demo?",
+        f"Aunty asked my bot for its biodata. It almost gave it. Delhi high schooler shipping $0/min "
+        f"Hinglish voice agents. Would love to help {company}, any role. Can I show you?",
+    ])
     key = os.getenv("GROQ_API_KEY")
     if not key:
         return fallback
@@ -168,7 +201,7 @@ def write_note(p: dict) -> str:
                 model=LLM_MODEL, messages=[{"role": "user", "content": prompt}],
                 temperature=0.9, max_tokens=250, response_format={"type": "json_object"})
             note = (json.loads(r.choices[0].message.content or "{}").get("note") or "").strip()
-            note = note.replace("–", ",")
+            note = " ".join(note.replace("–", ",").split())  # one line, single spaces
             if _valid(note):
                 return note
             log.info("people note rejected for %s: %r", p.get("name"), note)
