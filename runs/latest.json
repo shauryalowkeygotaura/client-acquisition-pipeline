@@ -1,11 +1,11 @@
 {
   "pipeline": "client-acquisition",
-  "ts": "2026-11-27T17:57:59Z",
+  "ts": "2026-11-27T19:05:49Z",
   "mode": "replies",
   "status": "ok",
   "summary": "0 new replies (handed to Shaurya), 0 email follow-ups, 0 opt-outs",
   "metrics": {
-    "inbox_msgs": 251,
+    "inbox_msgs": 254,
     "replies_handled": 0,
     "replies_new": 0,
     "optouts": 0,
