@@ -37,7 +37,7 @@ from modules import bait, lead_gate, names, persona
 
 log = logging.getLogger(__name__)
 
-DAILY_N = int(os.getenv("LINKEDIN_DAILY_N", "5"))
+DAILY_N = int(os.getenv("LINKEDIN_DAILY_N", "0"))  # 2026-11-27: off, people queue replaces it
 NOTE_MAX = 280
 SEP = "\n---\n"
 _PROFILE = re.compile(r"^https://([a-z]{2,3}\.)?linkedin\.com/in/[A-Za-z0-9\-_%]{3,100}/?$")

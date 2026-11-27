@@ -167,6 +167,14 @@ def build(leads: list[dict], rejections: list[dict], sending: dict) -> tuple[dic
     except Exception as e:  # pragma: no cover - never break the desk over this
         private["linkedin_today"] = []
         print(f"    [desk] linkedin rows failed: {e}")
+    try:
+        from modules import people_daily
+        private["people_today"] = people_daily.desk_rows()
+    except Exception as e:  # pragma: no cover
+        private["people_today"] = []
+        print(f"    [desk] people rows failed: {e}")
+    public["people_queued"] = len(private["people_today"])
+    private["people_queued"] = public["people_queued"]
     public["linkedin_queued"] = len(private["linkedin_today"])
     private["linkedin_queued"] = public["linkedin_queued"]
     return public, private

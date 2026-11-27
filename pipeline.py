@@ -602,6 +602,11 @@ def run():
         print(f"  [LINKEDIN] {queued} clinics queued for today")
     except Exception as e:
         print(f"  [LINKEDIN] queue failed: {e}")
+    try:
+        from modules import people_daily
+        print(f"  [PEOPLE] {people_daily.queue()} people queued for today")
+    except Exception as e:
+        print(f"  [PEOPLE] queue failed: {e}")
     run_metrics.write_desk()
 
 
