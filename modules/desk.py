@@ -161,6 +161,14 @@ def build(leads: list[dict], rejections: list[dict], sending: dict) -> tuple[dic
                             key=lambda c: c["sent"], reverse=True),
         "gate_rejections": list(reversed(rejections))[:20],
     }
+    try:
+        from modules import linkedin_daily
+        private["linkedin_today"] = linkedin_daily.desk_rows(leads)
+    except Exception as e:  # pragma: no cover - never break the desk over this
+        private["linkedin_today"] = []
+        print(f"    [desk] linkedin rows failed: {e}")
+    public["linkedin_queued"] = len(private["linkedin_today"])
+    private["linkedin_queued"] = public["linkedin_queued"]
     return public, private
 
 

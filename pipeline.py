@@ -595,6 +595,15 @@ def run():
     # for the NEXT run to read. Best-effort; never raises.
     learning.run()
 
+    # ── Daily LinkedIn queue (sent by hand from the DESK tab) ────────────────
+    try:
+        from modules import linkedin_daily
+        queued = linkedin_daily.queue()
+        print(f"  [LINKEDIN] {queued} clinics queued for today")
+    except Exception as e:
+        print(f"  [LINKEDIN] queue failed: {e}")
+    run_metrics.write_desk()
+
 
 def run_reply_handler():
     """
