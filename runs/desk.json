@@ -1,6 +1,6 @@
 {
   "pipeline": "client-acquisition",
-  "ts": "2026-11-27T13:54:28Z",
+  "ts": "2026-11-27T16:01:37Z",
   "sending": {
     "paused": false
   },
@@ -19,5 +19,6 @@
   "waiting": 1,
   "gate_blocks": 5,
   "encrypted": "desk.enc.json",
+  "people_queued": 5,
   "linkedin_queued": 0
 }
